@@ -1,0 +1,11 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =9
+let g:netrw_dirhist_1='/home/caeman/scripts/m.util'
+let g:netrw_dirhist_2='/home/caeman/Documents/writing'
+let g:netrw_dirhist_3='/home/caeman/Public/toombs-caeman.github.io/.git/refs/remotes'
+let g:netrw_dirhist_4='/home/caeman/Documents/projects'
+let g:netrw_dirhist_5='/home/caeman/scripts/m.util'
+let g:netrw_dirhist_6='/home/caeman/Documents/links'
+let g:netrw_dirhist_7='/home/caeman/Documents'
+let g:netrw_dirhist_8='/home/caeman/Documents/links'
+let g:netrw_dirhist_9='/home/caeman/.vim/bundle'

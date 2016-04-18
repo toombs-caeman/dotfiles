@@ -1,0 +1,4 @@
+#!/bin/bash
+${BASH_SOURCE%/*}/m.util/m $@
+# update cmus cache
+[[ -n "`which cmus-remote`"]] && cmus-remote -l ~/Music 2> /dev/null > /dev/null
