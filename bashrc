@@ -20,21 +20,8 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# add in sudo aliases for non-root users
-case $USER in
-    root)
-        echo "WARNING: starting root shell"
-        ;;
-       *)
-        export PATH=$PATH:~/scripts
-        alias reboot='sudo reboot'
-        alias mount='sudo mount'
-        alias umount='sudo umount'
-        alias apt-get='sudo apt-get'
-        ;;
-esac
-
 ## EXPORTS
+[[ -d ~/scripts ]] && export PATH=$PATH:~/scripts
 if [[ -n $(which vim) ]]; then
     export VISUAL=vim
     export EDITOR=vim
@@ -64,20 +51,17 @@ alias mkdir='mkdir -p'
 alias grep='grep --color=auto'
 alias diff='colordiff'
 
-# git
-alias g='git'
-alias gs='git show' # --pretty=oneline
-alias gp='git pull'
-# Get to the top of a git tree
-cdp () {
-    TEMP_PWD=$(pwd)
-    cd ..
-    while $(git status > /dev/null 2> /dev/null); do
-        cd ..
-    done
-    cd $OLDPWD
-    OLDPWD=$TEMP_PWD
+alias reboot='sudo reboot'
+alias mount='sudo mount'
+alias umount='sudo umount'
+alias apt-get='sudo apt-get'
+
+
+# music downloading with youtube-dl
+m.add () { 
+    echo $@ >> ~/scripts/m.util/urls 
 }
+alias m.update='youtube-dl -i -a ~/scripts/m.util/urls --download-archive ~/scripts/m.util/archive -x --no-playlist --restrict-filenames -o "~/Music/%(title)s.%(ext)s"'
 
 # show path in a nice format
 alias path='echo $PATH | tr ":" "\012"'
@@ -88,59 +72,16 @@ trace () {
     trace $(ps -h -o ppid -p ${1:-$$} 2> /dev/null)
 
 }
-
-# chronic is a really cool part of moreutils
-# suppresses output unless there is an error
-CHRONIC=`which chronic`
-[ -n "`which chromium-browser`" ] && alias ch="$CHRONIC chromium-browser "
-[ -n "`which firefox`" ] && alias ff="$CHRONIC firefox "
-[ -n "`which tor-browser`" ] && alias tb="$CHRONIC tor-browser "
-unset CHRONIC
-
-vi () {
-    # assume the last argument is the file name
-
-    IMG=$(which shotwell)
-    PDF=$(which evince)
-    OFFICE=$(which libreoffice)
-    # switch for kde
-    [[ -n "$IMG" ]] && IMG=$(which okular)
-    [[ -n "$PDF" ]] && PDF=$(which gwenview)
-
-    # if there are no arguments, file is unchanged
-    for file in $@; do :; done
-
-    # if this is the first call to this function, file is unset.
-    # edit the most recent file listed in .viminfo
-    if [[ "$file" == "" ]]; then
-            vim -c "e #<1"
-    elif [[ -d "$file" ]]; then
-            cd $@
-            ls
-    # file is an image
-    elif  [[ "$IMG" != "" && (
-            ($file == *.png) ||
-            ($file == *.jpeg) ||
-            ($file == *.jpg) ||
-            ($file == *.tiff) 
-            )]]; then
-        $IMG $@ 2> /dev/null &
-    # file is a text document
-    elif [[ "$OFFICE" != "" && (
-            ($file == *.docx) ||
-            ($file == *.doc) ||
-            ($file == *.ods) ||
-            ($file == *.odt)
-            )]]; then
-        $OFFICE $@ 2> /dev/null &
-    # file is a pdf
-    elif [[ "$PDF" != "" && (
-            ($file == *.pdf) 
-            )]]; then
-        $PDF $@ 2> /dev/null &
-    else
-        vim $@
-    fi
-    #unset IMG PDF OFFICE
-    # file is unset and so can be used again
+wttr () {
+        curl wttr.in/$1
 }
+#TODO this needs work
+live () {
+        file=$1
+        # whenever $1 is written to, execute the following command
+        shift
+        echo Command is: "$@"
+        while ! inotifywait -e close_write $file; do $@; done
+}
+CLASSPATH=$CLASSPATH:/usr/share/java/mysql.jar
+export CLASSPATH

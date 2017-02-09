@@ -2,6 +2,9 @@ I am changing the idea of this repo such that all of the files here stay in the 
 
 this contains:
 * .zshrc
+* oh-my-zsh submodule
+* tombstone.zsh-theme
+
 * .vimrc
-* .vim/
+* .vim/ with pathogen vim-airline and NERDtree
 * lemonade.sh

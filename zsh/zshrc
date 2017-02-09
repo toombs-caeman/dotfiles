@@ -106,6 +106,7 @@ export EDITOR="vim"
 alias xx='exit'
 alias c='clear'
 alias l='ls'
+alias la='ls -a'
 alias top='top;clear'
 alias cls='clear;ls'
 alias wget='wget -c'
