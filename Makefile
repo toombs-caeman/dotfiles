@@ -4,7 +4,10 @@ update:
 	git pull
 
 install: symlinks dirs
+	git submodule init
 
+
+	
 dirs:
 	mkdir -p tasks
 
