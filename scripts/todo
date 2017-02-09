@@ -1,2 +1,0 @@
-#!/bin/bash
-vim ${BASH_SOURCE%/*}/todo.util/todo 
