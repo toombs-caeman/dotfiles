@@ -56,9 +56,13 @@ Networking() {
 }
 
 # print update loop
+Loop() {
 while true; do
         # this must all be on one line
         echo  $(Networking) $(Clock) $(CmusStatus) $(Volume)
     # update the bar every second
     sleep 1
 done
+}
+
+Loop 2> /dev/null | lemonbar -d
