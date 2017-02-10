@@ -138,8 +138,8 @@ nnoremap <leader>n :NERDTreeToggle<CR>
 " gundo.vim https://github.com/sjl/gundo.vim
 
 " enable plugins through pathogen
-source ~/scripts/vim.util/bundle/vim-pathogen/autoload/pathogen.vim
-execute pathogen#infect("~/scripts/vim.util/bundle/{}")
+source ~/dotfiles/vim/bundle/vim-pathogen/autoload/pathogen.vim
+execute pathogen#infect("~/dotfiles/vim/bundle/{}")
 execute pathogen#helptags()
 filetype plugin indent on
 syntax on
