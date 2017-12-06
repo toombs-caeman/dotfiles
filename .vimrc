@@ -4,12 +4,8 @@
 " python, c, javascript snippets
 " possibilities to add
 " powerline https://github.com/powerline/powerline
-" ctrlP https://github.com/kien/ctrlp.vim
 " silver searcher https://github.com/ggreer/the_silver_searcher
-" }}}
-" Runtime Path {{{
-" this is a migration point for what would usually go in .vim/
-let &runtimepath.=",~/scripts/vim.util/"
+" fzf
 " }}}
 "Folding" {{{
 set foldenable
@@ -125,23 +121,4 @@ nnoremap <leader>k :tabp<CR>
 " Link: open link
 nnoremap <Leader>l :call Link ()<CR>
 
-" gundo toggle
-nnoremap <leader>u :GundoToggle<CR>
-
-" NERDTree toggle
-nnoremap <leader>n :NERDTreeToggle<CR>
 " }}}
-"Enable Plugins" {{{
-" list of plugins installed
-" vim-airline https://github.com/vim-airline/vim-airline
-" NERDTree.vimhttps://github.com/scrooloose/nerdtree
-" gundo.vim https://github.com/sjl/gundo.vim
-
-" enable plugins through pathogen
-source ~/dotfiles/vim/bundle/vim-pathogen/autoload/pathogen.vim
-execute pathogen#infect("~/dotfiles/vim/bundle/{}")
-execute pathogen#helptags()
-filetype plugin indent on
-syntax on
-" }}}
-

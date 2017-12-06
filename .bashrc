@@ -56,13 +56,6 @@ alias mount='sudo mount'
 alias umount='sudo umount'
 alias apt-get='sudo apt-get'
 
-
-# music downloading with youtube-dl
-m.add () { 
-    echo $@ >> ~/scripts/m.util/urls 
-}
-alias m.update='youtube-dl -i -a ~/scripts/m.util/urls --download-archive ~/scripts/m.util/archive -x --no-playlist --restrict-filenames -o "~/Music/%(title)s.%(ext)s"'
-
 # show path in a nice format
 alias path='echo $PATH | tr ":" "\012"'
 # trace how a process was called by pid
@@ -83,5 +76,3 @@ live () {
         echo Command is: "$@"
         while ! inotifywait -e close_write $file; do $@; done
 }
-CLASSPATH=$CLASSPATH:/usr/share/java/mysql.jar
-export CLASSPATH
