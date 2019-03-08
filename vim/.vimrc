@@ -1,11 +1,17 @@
+" enable portable .vim/
+" set default 'runtimepath' (without ~/.vim folders)
+let &runtimepath = printf('%s/vimfiles,%s,%s/vimfiles/after', $VIM, $VIMRUNTIME, $VIM)
+
+" what is the name of the directory containing this file?
+let s:portable = expand('<sfile>:p:h')
+
+" add the directory to 'runtimepath'
+let &runtimepath = printf('%s,%s,%s/after', s:portable, &runtimepath, s:portable)
+
 " shout-out to http://dougblack.io/words/a-good-vimrc.html
 "TODO" {{{ 
-" add filetype specific stuff
-" python, c, javascript snippets
-" possibilities to add
+" add ranger integration
 " powerline https://github.com/powerline/powerline
-" silver searcher https://github.com/ggreer/the_silver_searcher
-" fzf
 " }}}
 "Folding" {{{
 set foldenable
@@ -72,42 +78,8 @@ augroup resCur
   autocmd BufWinEnter * call ResCur()
 augroup END
 " }}}
-"Functions" {{{
-" logs a range to a logfile based on the current file name
-" TODO gets wonky on multiple lines. 
-" also the extra <CR> should be handled here and not in the mapping
-function Log ()
-  let timestamp = strftime('%y-%m-%_d') . '\#\#'
-  let logfile = expand('%:p') . '.log'
-  for line in getline("v",".")
-    exec '!echo "' . timestamp . line . '" >>' . logfile
-  endfor
-  exec line("v") . "," . line(".") . "d"
-endfunction
-
-" Opens a URL 
-" opens the first url appearing on that line
-" local urls, starting with file:// are opened in a tab
-" all others are for now opened in chromium
-function! Link ()
-  let line = split(getline (".")) " a list of strings split on \s
-  let index = match(line, "\/\/") 
-  if -1 == index
-    echo "URL not found in line"
-  else
-    if -1 == match(line[index], "^file://")
-      exec "!chronic chromium-browser " . line[index]
-    else
-      exec "tabedit " . split(line[index],"\/\/")[1]
-    endif
-  endif
-endfunction
-" }}}
 "Keymapping" {{{
 let mapleader=";"
-
-" Log: writes the line to a log file w/ timestamp. intended for todo list
-nnoremap <leader>d :call Log ()<CR><CR>
 
 " Fold: close fold
 nnoremap <leader>f zc
@@ -117,8 +89,5 @@ nnoremap <leader>j :tabn<CR>
 
 " Up: move to the previous tab
 nnoremap <leader>k :tabp<CR>
-
-" Link: open link
-nnoremap <Leader>l :call Link ()<CR>
 
 " }}}
