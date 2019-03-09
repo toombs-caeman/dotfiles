@@ -1,3 +1,4 @@
-vim/.vimrc vim -u
+vim/vimrc vim -u
 #tmux.conf tmux -f
 #ranger/ ranger -r
+remote_config.sh bash --init-file
