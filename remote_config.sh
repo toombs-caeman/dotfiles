@@ -8,6 +8,8 @@ case $- in
       *) return;;
 esac
 
+## VI LINE EDITING
+set -o vi
 
 ## SHOPT
 shopt -s expand_aliases
@@ -34,8 +36,8 @@ fi
 apply_config() {
         config=$1
         shift
-        if [ -f "$REMOTE_CONFIG_DIR/$config" ];then
-                alias $1="$(echo $@ $REMOTE_CONFIG_DIR/$config) "
+        if [ -e "$REMOTE_CONFIG_DIR/$config" ];then
+                alias $1="$(echo $@ $REMOTE_CONFIG_DIR/$config)"
         fi
 }
 # enable the configs from the config dir
@@ -45,6 +47,7 @@ while read L; do
   apply_config $L
 done <$REMOTE_CONFIG_DIR/enable_configs
 
+export RANGER_LOAD_DEFAULT_RC=FALSE
 # REMOTE CONFIG }}}
 ## PROMPT {{{
 # Change the window title of X terminals
@@ -108,6 +111,11 @@ alias cp="cp -i"
 alias du='du -hs'
 alias df='df -h'
 alias free='free -m'
+
+# use a function rather than an alias so that the vim alias is expanded if present
+function vi {
+ vim $@
+}
 # }}}
 ## FUNCTIONS {{{
 # show path in a nice format
@@ -144,14 +152,10 @@ ex ()
   fi
 }
 # }}}
-## VI {{{
-export VISUAL=vim
-export EDITOR=vim
-# use a function rather than an alias so that the vim alias is expanded
-function vi {
- vim $@
-}
-set -o vi
+## EDITOR/VISUAL {{{
+# get vim config into EDITOR so that ranger,git,etc. can see it
+export VISUAL=$( alias vim | sed "s/^.*='\(.*\)'$/\1/")
+export EDITOR=$VISUAL
 # }}}
 
 # start the reconfig, but don't wait to start the shell

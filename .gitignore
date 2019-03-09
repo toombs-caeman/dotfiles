@@ -1,2 +1,2 @@
-tasks/
-zsh/oh-my-zsh/themes/tombstone.zsh-theme
+*__pycache__/
+*.pyc

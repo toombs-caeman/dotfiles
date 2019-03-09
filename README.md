@@ -58,3 +58,5 @@ This will start a bash session on the remote with all the correct aliases in pla
         - ranger
         - tmux
         - xterm
+* trim the fat, try to get the total size down to a few kilobytes
+* configure rifle to respect aliases

@@ -1,6 +1,6 @@
 #!/bin/bash --init-file
 
-export REMOTE_CONFIG_DIR=$(mktmp -d)
+export REMOTE_CONFIG_DIR=$(mktemp -d)
 
 git clone https://github.com/toombs-caeman/dotfiles $REMOTE_CONFIG_DIR
 
