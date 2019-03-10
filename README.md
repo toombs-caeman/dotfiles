@@ -43,13 +43,9 @@ This will start a bash session on the remote with all the correct aliases in pla
 # TODO
 
 * test more programs and add examples
-* create a 'ghost' mode which leaves no trace on the remote
-    1. clone/curl config onto temp directory
-    2. export REMOTE_CONFIG_DIR
-    3. source remote_config.sh
-    4. make sure the tempdir is cleaned up afterwards
 * add vim/airline tmux.line etc. for consistent powerlining
 * create a consistent look and feel
+    * really maybe this is a local term configuration?
     * introduce terminal font 'powerline/hack' or maybe a full unicode font
     * include xresources to set color palette on xterm-likes `xrdb`
     * consistent solarized theme based on xterm-256color
@@ -59,4 +55,5 @@ This will start a bash session on the remote with all the correct aliases in pla
         - tmux
         - xterm
 * trim the fat, try to get the total size down to a few kilobytes
-* configure rifle to respect aliases
+    * main culprit is vim/vim81, most of which isn't needed
+* configure rifle/scope to respect aliases

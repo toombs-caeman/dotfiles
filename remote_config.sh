@@ -27,28 +27,51 @@ if ! shopt -oq posix; then
   fi
 fi
 # BOILERPLATE }}}
-## REMOTE CONFIG {{{
-[ -z ${REMOTE_CONFIG_DIR+x} ] && export REMOTE_CONFIG_DIR=~/.remote_config
-
-# alias commands to use config dir
-# for example "apply_config vim/vimrc vim -u" translates to
-# alias vim="vim -u vim/vimrc " if ~/.remote_config/vim/vimrc exists
-apply_config() {
-        config=$1
-        shift
-        if [ -e "$REMOTE_CONFIG_DIR/$config" ];then
-                alias $1="$(echo $@ $REMOTE_CONFIG_DIR/$config)"
-        fi
+## CENTRAL CONFIG {{{
+# set config dir if it isn't yet and 
+function infect {
+    export REMOTE_CONFIG_DIR=${REMOTE_CONFIG_DIR:-~/.remote_config}
+    if [ ! -d $REMOTE_CONFIG_DIR ]; then
+        git clone https://toombs-caeman/dotfiles $REMOTE_CONFIG_DIR
+    fi
 }
-# enable the configs from the config dir
-while read L; do
-  # ignore the line if it starts with '#'
-  [[ "$line" =~ ^#.*$ ]] && continue
-  apply_config $L
-done <$REMOTE_CONFIG_DIR/enable_configs
+export -f infect
+infect
 
+# create a function which masks and calls an executable while injecting the passed parameters
+function inject_options {
+    #have to give a default value because passing no parameters is a bad time. 
+    # with the default it is essentially a no-op
+    cmd=${1:-echo}
+    shift
+    eval "function $cmd { which $cmd >/dev/null && \$(which $cmd) $@ \$@; }"
+    export -f $cmd
+}
+
+# BASH
+# unlike most other injected params, the remote config here should be escaped so that the same
+# function can be applied across different machines via sshinfect
+inject_options bash --rcfile \$REMOTE_CONFIG_DIR/$(basename $BASH_SOURCE)
+
+# VI
+inject_options vim -u $REMOTE_CONFIG_DIR/vim/vimrc
+export VISUAL=vim
+export EDITOR=vim
+
+# RANGER
 export RANGER_LOAD_DEFAULT_RC=FALSE
-# REMOTE CONFIG }}}
+inject_options ranger -u $REMOTE_CONFIG_DIR/ranger/
+
+# TMUX
+inject_options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
+
+#GHOST
+function ghost {
+    ssh $@ "$(typeset -f infect bash);REMOTE_CONFIG_DIR=\$(mktemp -d) infect; bash;rm -rf REMOTE_CONFIG_DIR"
+}
+
+
+# CENTRAL CONFIG }}}
 ## PROMPT {{{
 # Change the window title of X terminals
 case ${TERM} in
@@ -111,11 +134,8 @@ alias cp="cp -i"
 alias du='du -hs'
 alias df='df -h'
 alias free='free -m'
+alias vi='vim'
 
-# use a function rather than an alias so that the vim alias is expanded if present
-function vi {
- vim $@
-}
 # }}}
 ## FUNCTIONS {{{
 # show path in a nice format
@@ -152,12 +172,24 @@ ex ()
   fi
 }
 # }}}
-## EDITOR/VISUAL {{{
-# get vim config into EDITOR so that ranger,git,etc. can see it
-export VISUAL=$( alias vim | sed "s/^.*='\(.*\)'$/\1/")
-export EDITOR=$VISUAL
-# }}}
 
-# start the reconfig, but don't wait to start the shell
-# the reconfig can take a couple seconds, or fail if the network isn't connected
-#reconfig 2>/dev/null &
+reconfig() {
+    done='Your branch is up to date'
+    # if there are changes to the upstream
+    # pull the new changes and load those instead
+    git --git-dir $REMOTE_CONFIG_DIR/.git fetch
+    if [[ "$done" == *"$(git --git-dir $REMOTE_CONFIG_DIR/.git status)"* ]]; then
+        # pull and start processing the new file
+        if git --git-dir $REMOTE_CONFIG_DIR/.git pull ; then
+            source $REMOTE_CONFIG_DIR/remote_config.sh
+        else
+            echo pulling the config failed, not reconfiguring
+        fi
+    else
+        echo $done
+    fi
+}
+
+# calling the function in this way allows the logs and also
+# doesn't notify when it finishes, even with `set -m`
+{ reconfig >$REMOTE_CONFIG_DIR/reconfig.log 2>&1 & disown ; } 2>/dev/null;
