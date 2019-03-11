@@ -43,6 +43,7 @@ This will start a bash session on the remote with all the correct aliases in pla
 # TODO
 
 * test more programs and add examples
+* move bash history into config, gitignore
 * add vim/airline tmux.line etc. for consistent powerlining
 * create a consistent look and feel
     * really maybe this is a local term configuration?
@@ -57,3 +58,6 @@ This will start a bash session on the remote with all the correct aliases in pla
 * trim the fat, try to get the total size down to a few kilobytes
     * main culprit is vim/vim81, most of which isn't needed
 * configure rifle/scope to respect aliases
+* make bash_includes/ and scripts
+* add bash completions to subtool
+

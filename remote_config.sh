@@ -8,10 +8,8 @@ case $- in
       *) return;;
 esac
 
-## VI LINE EDITING
-set -o vi
-
 ## SHOPT
+set -o vi
 shopt -s expand_aliases
 shopt -s histappend
 shopt -s checkwinsize
@@ -26,52 +24,30 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-# BOILERPLATE }}}
-## CENTRAL CONFIG {{{
-# set config dir if it isn't yet and 
-function infect {
-    export REMOTE_CONFIG_DIR=${REMOTE_CONFIG_DIR:-~/.remote_config}
-    if [ ! -d $REMOTE_CONFIG_DIR ]; then
-        git clone https://toombs-caeman/dotfiles $REMOTE_CONFIG_DIR
-    fi
-}
-export -f infect
-infect
 
-# create a function which masks and calls an executable while injecting the passed parameters
-function inject_options {
-    #have to give a default value because passing no parameters is a bad time. 
-    # with the default it is essentially a no-op
-    cmd=${1:-echo}
-    shift
-    eval "function $cmd { which $cmd >/dev/null && \$(which $cmd) $@ \$@; }"
-    export -f $cmd
-}
+## INCLUDES
+source $REMOTE_CONFIG_DIR/bash_include/subtool.sh
+source $REMOTE_CONFIG_DIR/bash_include/pm.sh
+source $REMOTE_CONFIG_DIR/bash_include/infect.sh
+if [ -d $REMOTE_CONFIG_DIR/scripts ]; then
+    export PATH="$PATH:$REMOTE_CONFIG_DIR/scripts"
+fi
+# BOILERPLATE }}}
 
 # BASH
 # unlike most other injected params, the remote config here should be escaped so that the same
-# function can be applied across different machines via sshinfect
-inject_options bash --rcfile \$REMOTE_CONFIG_DIR/$(basename $BASH_SOURCE)
-
-# VI
-inject_options vim -u $REMOTE_CONFIG_DIR/vim/vimrc
+# function can be applied across different machines via 'infect ssh'
+infect options bash --rcfile \$REMOTE_CONFIG_DIR/$(basename $BASH_SOURCE)
+infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc
 export VISUAL=vim
 export EDITOR=vim
 
-# RANGER
 export RANGER_LOAD_DEFAULT_RC=FALSE
-inject_options ranger -u $REMOTE_CONFIG_DIR/ranger/
+infect options ranger -u $REMOTE_CONFIG_DIR/ranger/
 
-# TMUX
-inject_options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
-
-#GHOST
-function ghost {
-    ssh $@ "$(typeset -f infect bash);REMOTE_CONFIG_DIR=\$(mktemp -d) infect; bash;rm -rf REMOTE_CONFIG_DIR"
-}
+infect options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
 
 
-# CENTRAL CONFIG }}}
 ## PROMPT {{{
 # Change the window title of X terminals
 case ${TERM} in
@@ -85,7 +61,7 @@ esac
 
 export PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
 export PS2="... "
-# }}}
+# PROMPT }}}
 ## COLORS {{{
 colors() {
 	local fgc bgc vals seq0
@@ -118,7 +94,7 @@ alias grep='grep --colour=auto'
 alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
-# }}}
+# COLORS }}}
 ## ALIASES {{{
 alias l='ls'
 alias la='ls -A'
@@ -136,7 +112,7 @@ alias df='df -h'
 alias free='free -m'
 alias vi='vim'
 
-# }}}
+# ALIASES }}}
 ## FUNCTIONS {{{
 # show path in a nice format
 alias path='echo $PATH | tr ":" "\012"'
@@ -171,25 +147,7 @@ ex ()
     echo "'$1' is not a valid file"
   fi
 }
-# }}}
 
-reconfig() {
-    done='Your branch is up to date'
-    # if there are changes to the upstream
-    # pull the new changes and load those instead
-    git --git-dir $REMOTE_CONFIG_DIR/.git fetch
-    if [[ "$done" == *"$(git --git-dir $REMOTE_CONFIG_DIR/.git status)"* ]]; then
-        # pull and start processing the new file
-        if git --git-dir $REMOTE_CONFIG_DIR/.git pull ; then
-            source $REMOTE_CONFIG_DIR/remote_config.sh
-        else
-            echo pulling the config failed, not reconfiguring
-        fi
-    else
-        echo $done
-    fi
-}
+# FUNCTIONS }}}
 
-# calling the function in this way allows the logs and also
-# doesn't notify when it finishes, even with `set -m`
-{ reconfig >$REMOTE_CONFIG_DIR/reconfig.log 2>&1 & disown ; } 2>/dev/null;
+infect autoupdate
