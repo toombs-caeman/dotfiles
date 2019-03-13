@@ -56,7 +56,7 @@ function infect_update {
 function infect_autoupdate {
 # calling the function in this way allows the logs and also
 # doesn't notify when it finishes, even with `set -m`
-    { inject_update >$REMOTE_CONFIG_DIR/.inject_update.log 2>&1 & disown ; } 2>/dev/null;
+    { infect_update >$REMOTE_CONFIG_DIR/.infect_update.log 2>&1 & disown ; } 2>/dev/null;
 }
 
 subtool infect
