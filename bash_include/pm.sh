@@ -1,66 +1,94 @@
-function pm_help {
-    echo '
-Description
-    This is a unified package manager that lets someone who distro-hops quickly install 
+## CONFIG {{{
+function pm_config {
+: 'print the currently configured managers in order by priority'
+    #declare -F | sed -n 's/.*pm_config_//p'
+    echo 'pip pacman yaourt apk apt'
+}
+
+function pm_config_yaourt {
+    op=$1; shift
+    case $op in
+        install) $sudo yaourt -S $@;;
+        remove) $sudo yaourt -R $@;;
+        list) yaourt -Ssq | grep -e $@;;
+        query) yaourt -Qq $@;;
+    esac
+}
+function pm_config_pacman {
+    op=$1; shift
+    case $op in
+        install) $sudo pacman -S $@;;
+        remove) $sudo pacman -R $@;;
+        list) pacman -Ssq | grep -e $@;;
+        query) pacman -Qq $@;;
+        update) $sudo pacman -Sy ;;
+    esac
+}
+function pm_config_pip {
+    op=$1; shift
+    case $op in
+        install) $sudo pip install $@;;
+        remove) $sudo pip uninstall $@;;
+        list) pip list | grep -e $@;;
+        query) pip search $@ | sed 's/^\([^ ]*\) .*/\1/';;
+    esac
+}
+function pm_config_apt {
+    op=$1; shift
+    case $op in
+        install) $sudo apt install $@;;
+        remove) $sudo apt remove $@;;
+        list) apt list $@ | grep -e $@ ;;
+        query) apt search $@ ;;
+        update) apt update ;;
+    esac
+}
+function pm_config_apk {
+    op=$1; shift
+    case $op in
+        install) $sudo apk add $@;;
+        remove) $sudo apk del $@;;
+        list) apk list | sed 's/^\([^ ]*\) .*/\1/' | grep -e $@ ;;
+        query) apk search $@ ;;
+        update) apk update ;;
+    esac
+}
+#function pm_config_template {
+#    op=$1; shift
+#    case $op in
+#        install) ;;
+#        remove) ;;
+#        list) ;;
+#        query) ;;
+#        update) ;;
+#    esac
+#}
+## CONFIG }}}
+
+function pm {
+: '
+    Prime Minister is a unified package manager that lets someone who distro-hops quickly install 
     common packages on whatever system they find themselves.
-    In the config section you can change the priority for which manager is tried first.
-
-TODO
-    gracefully handle multiple packages at a time
-    add more manager definitions
-    separate out config?
 '
-}
-# allows one layer of bash variable indirection
-function pm_unwrap {
-    eval "echo \"\$${1:-{1:-\}}\""
-}
-
-function pm_ {
+    if [[ -z "$1" ]]; then
+        pm help
+        return 1
+    fi
+    local operation=$1; shift
     # use sudo unless root
     local sudo="sudo"
     [[ "$(whoami)" == "root" ]] && sudo=''
 
-    ## CONFIG {{{
-    # pre must be defined for each manager. use double quotes.
-    # use $sudo if that manager needs sudo
-    # use one space if the manager doesn't need any setup
+    # if we're updating or listing, create a dummy target so we enter the loop
+    local up=''
+    [[ "update list" == "update list" ]] && up=' '
 
-    local pip_pre="$sudo"
-    local pip_installed="install"
-    local pip_removed="uninstall"
-
-    local pacman_pre="$sudo"
-    local pacman_installed='-S'
-    local pacman_removed='-R'
-
-    local yaourt_pre=" "
-    local yaourt_installed='-S'
-    local yaourt_removed='-R'
-    # a list of software managers, listed by priority
-    # a package will try to install on the first manager its available on
-    local managers='pip pacman yaourt'
-    ## CONFIG }}}
-
-    local operation=$1; shift
-    for man in $managers; do
-        local pre="$(pm_unwrap ${man}_pre)"
-        local cmd="$(which $man 2>/dev/null)"
-        local op="$(pm_unwrap ${man}_$operation)"
-        # ensure the current man is fully configured for the current operation
-        # otherwise skip it
-        if [[ -z "$pre" || -z "$cmd" || -z "$op" ]]
-        then
-            continue
-        fi
-
-        # show what we're about to do
-        echo "pm: $pre $(basename $cmd) $op $1"
-        # run the command. if it succeeds, then don't continue
-        if $pre $cmd $op $1 ;then 
-            return 0
-        fi
+    for package in "$@$up"; do
+        for man in $(pm_config); do
+            if ! which $man >/dev/null 2>&1 ; then continue; fi
+            echo "===== $man ====="
+            pm_config_$man $operation $package
+        done
     done
-    echo pm: no candidate manager found
 }
 subtool pm

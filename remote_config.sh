@@ -9,7 +9,6 @@ case $- in
 esac
 
 ## SHOPT
-set -o vi
 shopt -s expand_aliases
 shopt -s histappend
 shopt -s checkwinsize
@@ -32,22 +31,11 @@ source $REMOTE_CONFIG_DIR/bash_include/infect.sh
 if [ -d $REMOTE_CONFIG_DIR/scripts ]; then
     export PATH="$PATH:$REMOTE_CONFIG_DIR/scripts"
 fi
-# BOILERPLATE }}}
-
-# BASH
-# unlike most other injected params, the remote config here should be escaped so that the same
-# function can be applied across different machines via 'infect ssh'
-infect options bash --rcfile \$REMOTE_CONFIG_DIR/$(basename $BASH_SOURCE)
-infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc
-export VISUAL=vim
-export EDITOR=vim
-
-export RANGER_LOAD_DEFAULT_RC=FALSE
-infect options ranger -u $REMOTE_CONFIG_DIR/ranger/
-
-infect options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
-
-
+## BOILERPLATE }}}
+## READLINE {{{
+set -o vi
+#bind TAB:menu-complete
+## READLINE }}}
 ## PROMPT {{{
 # Change the window title of X terminals
 case ${TERM} in
@@ -61,7 +49,7 @@ esac
 
 export PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
 export PS2="... "
-# PROMPT }}}
+## PROMPT }}}
 ## COLORS {{{
 colors() {
 	local fgc bgc vals seq0
@@ -94,7 +82,7 @@ alias grep='grep --colour=auto'
 alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
-# COLORS }}}
+## COLORS }}}
 ## ALIASES {{{
 alias l='ls'
 alias la='ls -A'
@@ -112,7 +100,7 @@ alias df='df -h'
 alias free='free -m'
 alias vi='vim'
 
-# ALIASES }}}
+## ALIASES }}}
 ## FUNCTIONS {{{
 # show path in a nice format
 alias path='echo $PATH | tr ":" "\012"'
@@ -148,6 +136,15 @@ ex ()
   fi
 }
 
-# FUNCTIONS }}}
+## FUNCTIONS }}}
+## INFECT {{{
+export VISUAL=vim
+export EDITOR=vim
+
+export RANGER_LOAD_DEFAULT_RC=FALSE
+infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc
+infect options ranger -r $REMOTE_CONFIG_DIR/ranger/
+infect options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
 
 infect autoupdate
+## INFECT }}}

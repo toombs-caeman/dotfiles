@@ -1,11 +1,16 @@
 #!/bin/bash
 
-# depends on subtool and pm
+# depends on subtool
 # set config dir if it isn't yet and get the config if it isn't there
-function infect_ {
+function infect {
+: 'infect main help'
     export REMOTE_CONFIG_DIR=${REMOTE_CONFIG_DIR:-~/.remote_config}
     if [ ! -d $REMOTE_CONFIG_DIR ]; then
         git clone https://toombs-caeman/dotfiles $REMOTE_CONFIG_DIR
+        echo "    
+export  REMOTE_CONFIG_DIR=$REMOTE_CONFIG_DIR
+source \$REMOTE_CONFIG_DIR/remote_config.sh
+" >> ~/.bashrc
         source $REMOTE_CONFIG_DIR/remote_config.sh
     fi
 }
@@ -20,16 +25,16 @@ function infect_options {
     export -f $cmd
 }
 
-function infect_ssh {
-    # make a random, temp install directory unless 'persistent'
-    local cmd='REMOTE_CONFIG_DIR=\$(mktemp -d) infect; bash;rm -rf \$REMOTE_CONFIG_DIR'
-    if [[ "$1" == "-p" ]];then
-        cmd='infect; bash'
-        shift
-    fi
-
-    ssh $@ "$(typeset -f infect bash);$cmd"
-}
+#function infect_ssh {
+#    # make a random, temp install directory unless 'persistent'
+#    local cmd='REMOTE_CONFIG_DIR=\$(mktemp -d) infect; bash;rm -rf \$REMOTE_CONFIG_DIR'
+#    if [[ "$1" == "-p" ]];then
+#        cmd='infect; bash'
+#        shift
+#    fi
+#
+#    ssh $@ "$(typeset -f infect bash);$cmd"
+#}
 
 # reload this config file
 function infect_update {
@@ -48,10 +53,10 @@ function infect_update {
         echo $done
     fi
 }
+function infect_autoupdate {
 # calling the function in this way allows the logs and also
 # doesn't notify when it finishes, even with `set -m`
-function infect_autoupdate {
-    { inject_update >$REMOTE_CONFIG_DIR/inject_update.log 2>&1 & disown ; } 2>/dev/null;
+    { inject_update >$REMOTE_CONFIG_DIR/.inject_update.log 2>&1 & disown ; } 2>/dev/null;
 }
 
 subtool infect

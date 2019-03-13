@@ -42,22 +42,54 @@ This will start a bash session on the remote with all the correct aliases in pla
 
 # TODO
 
-* test more programs and add examples
-* move bash history into config, gitignore
-* add vim/airline tmux.line etc. for consistent powerlining
+* add ssh pass through for infect
+* add bash completions to subtool
+    * https://stackoverflow.com/questions/17879322/how-do-i-autocomplete-nested-multi-level-subcommands
+* change infect ssh to use mosh, default to ssh
+* create some sort of vault?
+* print warnings if core programs not found
+    * vim
+    * tmux
+    * mosh
+    * browsh
+    * peco/fzf
+    * 
+    * use pm to install core on 'infect install'
+* tmux
+    * integrate with vim split
+        - https://thoughtbot.com/blog/seamlessly-navigate-vim-and-tmux-splits
+
+* make test docker container to try to thoroughly isolate files to REMOTE_CONFIG_DIR
+    * move bash history into config, gitignore
 * create a consistent look and feel
-    * really maybe this is a local term configuration?
-    * introduce terminal font 'powerline/hack' or maybe a full unicode font
-    * include xresources to set color palette on xterm-likes `xrdb`
-    * consistent solarized theme based on xterm-256color
+    * SOLARIZED
+        - https://github.com/altercation/solarized
+        - tmux
         - bash
         - vim
-        - ranger
+    * powerline?
+        - vim
         - tmux
-        - xterm
+        - bash
+    * xterm
+        - expect at least xterm 256 and possibly xterm full color
+        - introduce terminal font 'powerline/hack' or maybe a full unicode font
+        - include xresources to set color palette/font on xterm-likes `xrdb`
 * trim the fat, try to get the total size down to a few kilobytes
     * main culprit is vim/vim81, most of which isn't needed
-* configure rifle/scope to respect aliases
-* make bash_includes/ and scripts
-* add bash completions to subtool
+        - remove translation files, examples
+    * get rid of ranger, replace with netwr w/ config
+        - https://shapeshed.com/vim-netrw/#netrw-the-unloved-directory-browser
+* add browsh
+* re add mouse support for vim
+* add mouse select pane for tmux
+    * integrate with vim to also pass through to move the cursor
 
+* include i3 config
+* bind tab to a function that allows complete and menu-complete w/ background highlights
+* vim plugins
+    * netwr
+        - can be used to browse over ssh/mosh, inspect directories
+        - https://kgrz.io/editing-files-over-network.html
+    * ctags?
+    * vim-tmux

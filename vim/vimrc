@@ -1,19 +1,21 @@
+" shout-out to http://dougblack.io/words/a-good-vimrc.html
+"TODO" {{{ 
+" configure netwr
+" add powerline
+" powerline https://github.com/powerline/powerline
+" }}}
+"Runtime" {{{
+ 
 " what is the name of the directory containing this file?
 let s:portable = expand('<sfile>:p:h')
 
 " Isolate the runtime to the current directory
 let &runtimepath = printf('%s,%s/vim81', s:portable, s:portable)
-
-" include default settings
-runtime default.vim
+"Runtime" }}}
+" Include {{{
 set nocompatible
-
-" shout-out to http://dougblack.io/words/a-good-vimrc.html
-"TODO" {{{ 
-" add ranger integration
-" add powerline
-" powerline https://github.com/powerline/powerline
-" }}}
+runtime default.vim
+" Include }}}
 "Folding" {{{
 set foldenable
 set foldnestmax=10
