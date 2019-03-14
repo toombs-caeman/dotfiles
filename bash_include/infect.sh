@@ -39,14 +39,14 @@ function infect_update {
     # pull the new changes and load those instead
     git --git-dir $REMOTE_CONFIG_DIR/.git fetch
     if [[ "$done" == *"$(git --git-dir $REMOTE_CONFIG_DIR/.git status)"* ]]; then
+        echo $done
+    else
         # pull and start processing the new file
         if git --git-dir $REMOTE_CONFIG_DIR/.git pull ; then
             source $REMOTE_CONFIG_DIR/remote_config.sh
         else
             echo pulling the config failed, not reconfiguring
         fi
-    else
-        echo $done
     fi
 }
 function infect_autoupdate {
