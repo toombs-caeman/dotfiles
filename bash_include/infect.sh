@@ -4,13 +4,19 @@
 # set config dir if it isn't yet and get the config if it isn't there
 function infect {
 : 'install the infect config set and add an include to ~/.bashrc'
-    export REMOTE_CONFIG_DIR=${REMOTE_CONFIG_DIR:-~/.remote_config}
-    if [ ! -d $REMOTE_CONFIG_DIR ]; then
-        git clone https://github.com/toombs-caeman/dotfiles $REMOTE_CONFIG_DIR
-        source $REMOTE_CONFIG_DIR/remote_config.sh
+    # guard against accidentally running infect with parameters
+    if [[ ! -z "$1" ]]; then
+        subtool helpstr infect
+        return 1
+    else
+        export REMOTE_CONFIG_DIR=${REMOTE_CONFIG_DIR:-~/.remote_config}
+        if [ ! -d $REMOTE_CONFIG_DIR ]; then
+            git clone https://github.com/toombs-caeman/dotfiles $REMOTE_CONFIG_DIR
+            source $REMOTE_CONFIG_DIR/remote_config.sh
+        fi
+        infect_lineinfile ~/.bashrc "export  REMOTE_CONFIG_DIR=$REMOTE_CONFIG_DIR"
+        infect_lineinfile ~/.bashrc "source \$REMOTE_CONFIG_DIR/remote_config.sh"
     fi
-    infect_lineinfile ~/.bashrc "export  REMOTE_CONFIG_DIR=$REMOTE_CONFIG_DIR"
-    infect_lineinfile ~/.bashrc "source \$REMOTE_CONFIG_DIR/remote_config.sh"
 }
 
 function infect_lineinfile {
@@ -25,10 +31,26 @@ function infect_options {
 : 'create a function which masks and calls an executable while injecting the passed parameters'
     #have to give a default value because passing no parameters is a bad time. 
     # with the default it is essentially a no-op
-    local cmd=${1:-echo}
+    [[ -z "$1" ]] && return 1
+    local cmd=$1
     shift
     eval "function $cmd { which $cmd >/dev/null && \$(which $cmd) $@ \$@; }"
     export -f $cmd
+}
+
+function infect_prefix {
+: 'start an interactive subshell which prefixes every command with a given argument.
+    $1 = command prefix
+    $2 = prompt
+'
+    #TODO autocomplete no longer works
+    local cmd_prefix="$1"
+    local prompt="${2:-$cmd_prefix}"
+    echo -n $prompt
+    while read line; do
+        $cmd_prefix $line
+        echo -n $prompt
+    done
 }
 
 # 
