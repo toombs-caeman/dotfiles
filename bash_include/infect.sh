@@ -3,20 +3,26 @@
 # depends on subtool
 # set config dir if it isn't yet and get the config if it isn't there
 function infect {
-: 'infect main help'
+: 'install the infect config set and add an include to ~/.bashrc'
     export REMOTE_CONFIG_DIR=${REMOTE_CONFIG_DIR:-~/.remote_config}
     if [ ! -d $REMOTE_CONFIG_DIR ]; then
-        git clone https://toombs-caeman/dotfiles $REMOTE_CONFIG_DIR
-        echo "    
-export  REMOTE_CONFIG_DIR=$REMOTE_CONFIG_DIR
-source \$REMOTE_CONFIG_DIR/remote_config.sh
-" >> ~/.bashrc
+        git clone https://github.com/toombs-caeman/dotfiles $REMOTE_CONFIG_DIR
         source $REMOTE_CONFIG_DIR/remote_config.sh
     fi
+    infect_lineinfile ~/.bashrc "export  REMOTE_CONFIG_DIR=$REMOTE_CONFIG_DIR"
+    infect_lineinfile ~/.bashrc "source \$REMOTE_CONFIG_DIR/remote_config.sh"
 }
 
-# create a function which masks and calls an executable while injecting the passed parameters
+function infect_lineinfile {
+: 'append a file with a string only if it isnt in the file yet'
+    f=$1
+    s=$2
+    if ! grep -qxF -e "$2" $1; then
+        echo "$2" >> $1
+    fi
+}
 function infect_options {
+: 'create a function which masks and calls an executable while injecting the passed parameters'
     #have to give a default value because passing no parameters is a bad time. 
     # with the default it is essentially a no-op
     local cmd=${1:-echo}
@@ -25,19 +31,9 @@ function infect_options {
     export -f $cmd
 }
 
-#function infect_ssh {
-#    # make a random, temp install directory unless 'persistent'
-#    local cmd='REMOTE_CONFIG_DIR=\$(mktemp -d) infect; bash;rm -rf \$REMOTE_CONFIG_DIR'
-#    if [[ "$1" == "-p" ]];then
-#        cmd='infect; bash'
-#        shift
-#    fi
-#
-#    ssh $@ "$(typeset -f infect bash);$cmd"
-#}
-
-# reload this config file
+# 
 function infect_update {
+: 'update the infect tool and related config from the repo'
     local done='Your branch is up to date'
     # if there are changes to the upstream
     # pull the new changes and load those instead
@@ -54,8 +50,8 @@ function infect_update {
     fi
 }
 function infect_autoupdate {
-# calling the function in this way allows the logs and also
-# doesn't notify when it finishes, even with `set -m`
+: 'start an update in the background and disown. This will not notify the shell when complete.
+Even with 'set -m'. The output is logged to REMOTE_CONFIG_DIR/.infect_update.log'
     { infect_update >$REMOTE_CONFIG_DIR/.infect_update.log 2>&1 & disown ; } 2>/dev/null;
 }
 
