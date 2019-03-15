@@ -44,27 +44,25 @@ function infect_prefix {
     $2 = prompt
 '
     #TODO autocomplete no longer works
-    local cmd_prefix="$1"
-    local prompt="${2:-$cmd_prefix}"
+    local cmd_prefix="${argv[0]}"
+    local prompt="${argv[1]:-> }"
     echo -n $prompt
     while read line; do
-        $cmd_prefix $line
+        $cmd_prefix$line
         echo -n $prompt
     done
 }
-
-# 
 function infect_update {
 : 'update the infect tool and related config from the repo'
     local done='Your branch is up to date'
     # if there are changes to the upstream
     # pull the new changes and load those instead
-    git --git-dir $REMOTE_CONFIG_DIR/.git fetch
-    if [[ "$done" == *"$(git --git-dir $REMOTE_CONFIG_DIR/.git status)"* ]]; then
+    git -C $REMOTE_CONFIG_DIR fetch
+    if [[ "$done" == *"$(git -C $REMOTE_CONFIG_DIR status)"* ]]; then
         echo $done
     else
         # pull and start processing the new file
-        if git --git-dir $REMOTE_CONFIG_DIR/.git pull ; then
+        if git -C $REMOTE_CONFIG_DIR pull ; then
             source $REMOTE_CONFIG_DIR/remote_config.sh
         else
             echo pulling the config failed, not reconfiguring

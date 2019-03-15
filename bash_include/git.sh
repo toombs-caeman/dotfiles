@@ -3,6 +3,6 @@
 infect options git
 
 git_shell() {
-    infect prefix git 'git>'
+    infect prefix "git $* " "git> "
 }
 subtool git

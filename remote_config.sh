@@ -28,6 +28,7 @@ fi
 source $REMOTE_CONFIG_DIR/bash_include/subtool.sh
 source $REMOTE_CONFIG_DIR/bash_include/pm.sh
 source $REMOTE_CONFIG_DIR/bash_include/infect.sh
+source $REMOTE_CONFIG_DIR/bash_include/git.sh
 if [ -d $REMOTE_CONFIG_DIR/scripts ]; then
     export PATH="$PATH:$REMOTE_CONFIG_DIR/scripts"
 fi

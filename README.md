@@ -7,6 +7,7 @@ Only really for basic config files like:
 
 but others might work alright
 
+
 # Design
 
 # Configuration
@@ -14,6 +15,7 @@ but others might work alright
 # Usage
 
 # TODO
+* SUBTOOL slightly BREAKS PARAMETER PASSING!!!
 
 * update repo with git subtree pattern to include plugins
 

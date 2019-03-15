@@ -81,7 +81,7 @@ function pm {
 
     # if we're updating or listing, create a dummy target so we enter the loop
     local up=''
-    [[ "update list" == "update list" ]] && up=' '
+    [[ "update list" == *"$operation"* ]] && up=' '
 
     for package in "$@$up"; do
         for man in $(pm_config); do
