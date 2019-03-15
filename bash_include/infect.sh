@@ -43,14 +43,29 @@ function infect_prefix {
     $1 = command prefix
     $2 = prompt
 '
-    #TODO autocomplete no longer works
     local cmd_prefix="${argv[0]}"
-    local prompt="${argv[1]:-> }"
-    echo -n $prompt
-    while read line; do
+    local prompt="${argv[1]:-$cmd_prefix}"
+
+    local old_complete_e="$(complete -p -E 2>/dev/null)"
+    local old_complete_d="$(complete -p -D 2>/dev/null)"
+    function new_complete {
+        echo asdf
+        $(complete -p "$cmd_prefix$1" 2>/dev/null|sed 's/complete/compgen/')
+    }
+    complete -D 'new_complete'
+    complete -E 'new_complete'
+
+    while read -e -p "$prompt" line; do
         $cmd_prefix$line
-        echo -n $prompt
     done
+
+    # clean up
+    $old_complete_e
+    $old_complete_d
+    unset -f new_complete
+    echo
+    
+    
 }
 function infect_update {
 : 'update the infect tool and related config from the repo'

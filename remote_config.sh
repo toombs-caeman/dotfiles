@@ -1,13 +1,19 @@
 #!/bin/bash --init-file
 # Author    : Caeman Toombs
 
-# BOILERPLATE {{{
+## BOILERPLATE {{{
 ## do nothing if not in an interactive shell
 case $- in
     *i*) ;;
       *) return;;
 esac
 
+## always start in tmux if it's available
+if [[ -z "$TMUX"  ]] && which tmux 2> /dev/null; then
+    tmux -f $REMOTE_CONFIG_DIR/tmux.conf
+    exit 0
+fi
+    
 ## SHOPT
 shopt -s expand_aliases
 shopt -s histappend
@@ -35,55 +41,65 @@ fi
 ## BOILERPLATE }}}
 ## READLINE {{{
 set -o vi
-#bind TAB:menu-complete
 ## READLINE }}}
-## PROMPT {{{
-# Change the window title of X terminals
-case ${TERM} in
-	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
-		PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"'
-		;;
-	screen*)
-		PROMPT_COMMAND='echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"'
-		;;
-esac
-
-export PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
-export PS2="... "
-## PROMPT }}}
 ## COLORS {{{
-colors() {
-	local fgc bgc vals seq0
-
-	printf "Color escapes are %s\n" '\e[${value};...;${value}m'
-	printf "Values 30..37 are \e[33mforeground colors\e[m\n"
-	printf "Values 40..47 are \e[43mbackground colors\e[m\n"
-	printf "Value  1 gives a  \e[1mbold-faced look\e[m\n\n"
-
-	# foreground colors
-	for fgc in {30..37}; do
-		# background colors
-		for bgc in {40..47}; do
-			fgc=${fgc#37} # white
-			bgc=${bgc#40} # black
-
-			vals="${fgc:+$fgc;}${bgc}"
-			vals=${vals%%;}
-
-			seq0="${vals:+\e[${vals}m}"
-			printf "  %-9s" "${seq0:-(default)}"
-			printf " ${seq0}TEXT\e[m"
-			printf " \e[${vals:+${vals+$vals;}}1mBOLD\e[m"
-		done
-		echo; echo
-	done
-}
+#TODO determine if the terminal supports true color, use that if possible
+#   otherwise default to 256 and complain
 alias ls='ls --color=auto'
 alias grep='grep --colour=auto'
 alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
+
+color () {
+#TODO collapsing function here
+    local ret
+    case $1 in
+        GREEN)  ret="\[\033[0;32m\]";;
+        CYAN)   ret="\[\033[0;36m\]";;
+        BCYAN)  ret="\[\033[1;36m\]";;
+        BLUE)   ret="\[\033[0;34m\]";;
+        GRAY)   ret="\[\033[0;37m\]";;
+        DKGRAY) ret="\[\033[1;30m\]";;
+        WHITE)  ret="\[\033[1;37m\]";;
+        RED)    ret="\[\033[0;31m\]";;
+        *)      ret="\[\033[0;39m\]";;
+    esac
+    echo $ret
+
+}
+
 ## COLORS }}}
+## PROMPT {{{
+xterm_prompt() {
+    # Change the window title of X terminals
+    echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"
+    export PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
+    export PS2="... "
+}
+tmux_prompt() {
+#TODO use solarized colors
+    local err="$(echo $? | sed 's/^0$//')"
+    # set the status line of tmux
+    echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"
+    # let us know if we're in a git repo
+    local branch="$(git branch 2>/dev/null | sed -n 's/^\* \(.*\)/(\1) /p')"
+    export PS1="$(color GREEN)$branch$(color BCYAN)\w $(color RED)$err$(color)$"
+}
+
+case ${TERM} in
+	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
+		PROMPT_COMMAND=xterm_prompt ;;
+	screen*)
+		PROMPT_COMMAND=tmux_prompt ;;
+        *)
+        export PS1="\u@\h: \w$"
+        export PS2="... "
+        echo "not configured for terminal '$TERM'" ;;
+esac
+
+
+## PROMPT }}}
 ## ALIASES {{{
 alias l='ls'
 alias la='ls -A'
