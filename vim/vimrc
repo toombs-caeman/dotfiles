@@ -21,18 +21,16 @@ set foldenable
 set foldnestmax=10
 set foldlevel=0
 set foldmethod=marker
-set modeline
-set modelines=1
 " }}}
 "Colors & Syntax" {{{
+" Setup term color support. This assumes color support of some kind
+set termguicolors
+let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
+let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
+
 syntax enable
 set background=dark
 colorscheme solarized
-" Setup term color support
-if $TERM == "xterm-256color" || $TERM == "screen-256color" || $COLORTERM == "gnome-terminal"
-  set t_Co=256
-endif
-set t_Co=256
 " }}}
 "Movement" {{{
 " move visually
@@ -40,6 +38,10 @@ nnoremap j gj
 nnoremap k gk
 " highlight last inserted text
 nnoremap gv `[v`]
+nnoremap t gt
+nnoremap T gT
+
+set mouse=a
 " }}}
 "Tabstop" {{{
 set tabstop=4 " number of spaces tabs are visually
@@ -64,17 +66,35 @@ set hlsearch            " highlight matches
 set noswapfile          " turn off swap files
 " }}}
 "History" {{{
+" persistent undo
+let undodir=printf("%s/undodir/", s:portable)
+exe "set undodir=".undodir
+call mkdir(undodir, 'p')
+set undofile
 set history=700
 " Tell vim to remember certain things when we exit
 "  '10  :  marks will be remembered for up to 10 previously edited files
 "  "100 :  will save up to 100 lines for each register
 "  :20  :  up to 20 lines of command-line history will be remembered
 "  %    :  saves and restores the buffer list
-"  n... :  where to save the viminfo files
-set viminfo='10,\"100,:20,%,n~/.viminfo
+set viminfo='10,\"100,:20,%
 
-" TODO don't remember what this does!!
-" I believe it restores the cursor to where it was
+" allow vim to write to non exisistent directories by recursively creating the needed directories
+function s:MkNonExDir(file, buf)
+    if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
+        let dir=fnamemodify(a:file, ':h')
+        if !isdirectory(dir)
+            call mkdir(dir, 'p')
+        endif
+    endif
+endfunction
+augroup BWCCreateDir
+    autocmd!
+    autocmd BufWritePre * :call s:MkNonExDir(expand('<afile>'), +expand('<abuf>'))
+augroup END
+
+
+" restore the cursor to where it was the last time we edited this file
 function! ResCur()
   if line("'\"") <= line("$")
     normal! g`"
@@ -100,3 +120,12 @@ nnoremap <leader>j :tabn<CR>
 nnoremap <leader>k :tabp<CR>
 
 " }}}
+"Status Line" {{{
+" make sure it is tmux aware
+"Status Line" }}}
+"Terminal" {{{
+" check to see if we have a terminal
+if has('termainal')
+    set termwinkey=CTRL-W
+endif
+"Terminal" }}}

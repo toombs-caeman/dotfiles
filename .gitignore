@@ -2,4 +2,5 @@
 *.pyc
 *.log
 .netrwhist
-.infect_update.log
+viminfo
+undodir/

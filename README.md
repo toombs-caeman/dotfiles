@@ -7,7 +7,6 @@ Only really for basic config files like:
 
 but others might work alright
 
-
 # Design
 
 # Configuration
@@ -15,11 +14,12 @@ but others might work alright
 # Usage
 
 # TODO
+* configure find for vim open
 * SUBTOOL slightly BREAKS PARAMETER PASSING!!!
 
+* prefer neovim
+    - add 'select' command to pm? only install the first of a list of options
 * update repo with git subtree pattern to include plugins
-
-* bind tab to a function that allows complete and menu-complete w/ background highlights
 
 * make test docker container to try to thoroughly isolate files to REMOTE_CONFIG_DIR
     * move bash history into config, gitignore
@@ -28,6 +28,7 @@ but others might work alright
         - remove translation files, examples
     * get rid of ranger, replace with netwr w/ config
         - https://shapeshed.com/vim-netrw/#netrw-the-unloved-directory-browser
+* backup script
 ## bash includes
 * add ssh pass through for infect
 * add bash completions to subtool
@@ -72,4 +73,5 @@ but others might work alright
         - https://kgrz.io/editing-files-over-network.html
     * ctags?
     * vim-tmux
+    * vim-terraform
 * tmux

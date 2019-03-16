@@ -158,9 +158,7 @@ ex ()
 export VISUAL=vim
 export EDITOR=vim
 
-export RANGER_LOAD_DEFAULT_RC=FALSE
-infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc
-infect options ranger -r $REMOTE_CONFIG_DIR/ranger/
+infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc -i $REMOTE_CONFIG_DIR/vim/viminfo
 infect options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
 
 infect autoupdate
