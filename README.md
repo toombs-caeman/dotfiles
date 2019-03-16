@@ -15,7 +15,6 @@ but others might work alright
 
 # TODO
 * configure find for vim open
-* SUBTOOL slightly BREAKS PARAMETER PASSING!!!
 
 * prefer neovim
     - add 'select' command to pm? only install the first of a list of options
@@ -29,6 +28,11 @@ but others might work alright
     * get rid of ranger, replace with netwr w/ config
         - https://shapeshed.com/vim-netrw/#netrw-the-unloved-directory-browser
 * backup script
+* integrate t/T tabbing with terminal
+* configure clipboard integration for X, wayland
+    * looks like neovim has wayland support through wlclipboard, which vim8 might not
+* SUBTOOL slightly BREAKS PARAMETER PASSING!!!
+    * this is given a hard fix with the ${argv[0]} syntax
 ## bash includes
 * add ssh pass through for infect
 * add bash completions to subtool
@@ -45,7 +49,7 @@ but others might work alright
     - tmux
     - bash
     - vim
-* powerline?
+* consistent/integrated status line
     - vim
     - tmux
     - bash

@@ -29,13 +29,16 @@ function infect_lineinfile {
 }
 function infect_options {
 : 'create a function which masks and calls an executable while injecting the passed parameters'
-    #have to give a default value because passing no parameters is a bad time. 
-    # with the default it is essentially a no-op
     [[ -z "$1" ]] && return 1
     local cmd=$1
     shift
     eval "function $cmd { which $cmd >/dev/null && \$(which $cmd) $@ \$@; }"
     export -f $cmd
+}
+
+function infect_remote {
+: 'returns a command that will introduce the infect namespace to a remote host'
+    echo bash -c "\"\$SHELL -i --rcfile <(echo "$(printf '%q' "$(declare -f infect)")")\""
 }
 
 function infect_prefix {

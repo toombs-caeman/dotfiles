@@ -46,6 +46,8 @@ set mouse=a
 "Tabstop" {{{
 set tabstop=4 " number of spaces tabs are visually
 set expandtab " tabs are spaces. annoying when editing python
+" allow backspace after insert mode
+set bs=2
 " }}}
 "UI Config" {{{
 set nonumber            " hide line numbers
