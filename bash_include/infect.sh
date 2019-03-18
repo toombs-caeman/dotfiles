@@ -75,16 +75,17 @@ function infect_update {
     local done='Your branch is up to date'
     # if there are changes to the upstream
     # pull the new changes and load those instead
-    git -C $REMOTE_CONFIG_DIR fetch
-    if [[ "$done" == *"$(git -C $REMOTE_CONFIG_DIR status)"* ]]; then
-        echo $done
-    else
+    
+    if git -C $REMOTE_CONFIG_DIR fetch && \
+        [[ "$done" == *"$(git -C $REMOTE_CONFIG_DIR status)"* ]]; then
         # pull and start processing the new file
-        if git -C $REMOTE_CONFIG_DIR pull ; then
+        if git -C $REMOTE_CONFIG_DIR pull; then
             source $REMOTE_CONFIG_DIR/remote_config.sh
         else
             echo pulling the config failed, not reconfiguring
         fi
+    else
+        echo $done
     fi
 }
 function infect_autoupdate {

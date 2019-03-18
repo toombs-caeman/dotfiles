@@ -8,11 +8,12 @@ case $- in
       *) return;;
 esac
 
+export HISTFILE=$REMOTE_CONFIG_DIR/.bash_history
 ## always start in tmux if it's available
-if [[ -z "$TMUX"  ]] && which tmux 2> /dev/null; then
-    tmux -f $REMOTE_CONFIG_DIR/tmux.conf
-    exit 0
-fi
+#if [[ -z "$TMUX"  ]] && which tmux 2> /dev/null; then
+#    tmux -f $REMOTE_CONFIG_DIR/tmux.conf
+#    exit 0
+#fi
     
 ## SHOPT
 shopt -s expand_aliases
@@ -32,8 +33,9 @@ fi
 
 ## INCLUDES
 source $REMOTE_CONFIG_DIR/bash_include/subtool.sh
-source $REMOTE_CONFIG_DIR/bash_include/pm.sh
 source $REMOTE_CONFIG_DIR/bash_include/infect.sh
+
+source $REMOTE_CONFIG_DIR/bash_include/pm.sh
 source $REMOTE_CONFIG_DIR/bash_include/git.sh
 if [ -d $REMOTE_CONFIG_DIR/scripts ]; then
     export PATH="$PATH:$REMOTE_CONFIG_DIR/scripts"
@@ -161,5 +163,13 @@ export EDITOR=vim
 infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc -i $REMOTE_CONFIG_DIR/vim/viminfo
 infect options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
 
+# make git open a prefix shell
+infect options git
+git_shell() {
+    infect prefix "git $* " "git> "
+}
+subtool git
+
+# auto update this config
 infect autoupdate
 ## INFECT }}}

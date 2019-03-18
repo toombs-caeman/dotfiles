@@ -1,9 +1,4 @@
 " shout-out to http://dougblack.io/words/a-good-vimrc.html
-"TODO" {{{ 
-" configure netwr
-" add powerline
-" powerline https://github.com/powerline/powerline
-" }}}
 "Runtime" {{{
  
 " what is the name of the directory containing this file?
@@ -25,8 +20,6 @@ set foldmethod=marker
 "Colors & Syntax" {{{
 " Setup term color support. This assumes color support of some kind
 set termguicolors
-let &t_8f = "\<Esc>[38:2:%lu:%lu:%lum"
-let &t_8b = "\<Esc>[48:2:%lu:%lu:%lum"
 
 syntax enable
 set background=dark

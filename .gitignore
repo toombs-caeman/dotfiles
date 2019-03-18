@@ -2,5 +2,6 @@
 *.pyc
 *.log
 .netrwhist
+.bash_history
 viminfo
 undodir/
