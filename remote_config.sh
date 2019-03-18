@@ -7,21 +7,16 @@ case $- in
     *i*) ;;
       *) return;;
 esac
-
-export HISTFILE=$REMOTE_CONFIG_DIR/.bash_history
-## always start in tmux if it's available
-#if [[ -z "$TMUX"  ]] && which tmux 2> /dev/null; then
-#    tmux -f $REMOTE_CONFIG_DIR/tmux.conf
-#    exit 0
-#fi
-    
 ## SHOPT
 shopt -s expand_aliases
 shopt -s histappend
 shopt -s checkwinsize
 HISTSIZE=1000
 HISTFILESIZE=2000
+HISTFILE=$REMOTE_CONFIG_DIR/.bash_history
 
+export VISUAL='vim'
+export EDITOR='vim'
 ## COMPLETIONS
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
@@ -36,7 +31,6 @@ source $REMOTE_CONFIG_DIR/bash_include/subtool.sh
 source $REMOTE_CONFIG_DIR/bash_include/infect.sh
 
 source $REMOTE_CONFIG_DIR/bash_include/pm.sh
-source $REMOTE_CONFIG_DIR/bash_include/git.sh
 if [ -d $REMOTE_CONFIG_DIR/scripts ]; then
     export PATH="$PATH:$REMOTE_CONFIG_DIR/scripts"
 fi
@@ -73,34 +67,32 @@ color () {
 
 ## COLORS }}}
 ## PROMPT {{{
-xterm_prompt() {
-    # Change the window title of X terminals
-    echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"
-    export PS1="\[\e]0;\u@\h: \w\a\]${debian_chroot:+($debian_chroot)}\[\033[01;31m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$"
-    export PS2="... "
+
+#collapsing function that produces prompt_command
+make_prompt() {
+    local who branch term_line err_code
+
+    case ${TERM} in
+    	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
+            # Change the window title of X terminals
+    		term_line='echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007"' ;;
+            *) echo "not configured for terminal '$TERM'" ;;
+    esac
+    # if we're not running in vim or tmux then let's say who we are
+    [[ -z "$VIM_TERMINAL$TMUX" ]] && who="$(color RED)\u@\h:"
+    
+    # check if git is available
+    which git >/dev/null 2>&1 && branch="$(color GREEN)\$(git branch 2>/dev/null | sed -n 's/^\* \(.*\)/(\1) /p')"
+
+    eval "prompt_command() {
+        # get the err code, this must be the first thing run in the prompt to be useful
+        local err=\"$(color RED)\$(echo \$? | sed 's/^0$//')\"
+        $term_line
+        export PS1=\"$branch$who$(color BCYAN)\w\${debian_chroot:+($(color BLUE)\$debian_chroot)}\$err $(color)$\"
+    }"
+    PROMPT_COMMAND=prompt_command
 }
-tmux_prompt() {
-#TODO use solarized colors
-    local err="$(echo $? | sed 's/^0$//')"
-    # set the status line of tmux
-    echo -ne "\033_${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\033\\"
-    # let us know if we're in a git repo
-    local branch="$(git branch 2>/dev/null | sed -n 's/^\* \(.*\)/(\1) /p')"
-    export PS1="$(color GREEN)$branch$(color BCYAN)\w $(color RED)$err$(color)$"
-}
-
-case ${TERM} in
-	xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
-		PROMPT_COMMAND=xterm_prompt ;;
-	screen*)
-		PROMPT_COMMAND=tmux_prompt ;;
-        *)
-        export PS1="\u@\h: \w$"
-        export PS2="... "
-        echo "not configured for terminal '$TERM'" ;;
-esac
-
-
+make_prompt
 ## PROMPT }}}
 ## ALIASES {{{
 alias l='ls'
@@ -157,14 +149,17 @@ ex ()
 
 ## FUNCTIONS }}}
 ## INFECT {{{
-export VISUAL=vim
-export EDITOR=vim
 
 infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc -i $REMOTE_CONFIG_DIR/vim/viminfo
 infect options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
+#infect options bash --init-file $REMOTE_CONFIG_DIR/remote_config.sh
 
 # make git open a prefix shell
 infect options git
+git_tree() {
+    echo $@
+    git $@ log --graph --all --oneline --color 
+}
 git_shell() {
     infect prefix "git $* " "git> "
 }

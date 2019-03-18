@@ -15,6 +15,7 @@ My workflow is built around these tools so I've configured the crap out of them.
 Also, since these tools are installed already (or easily available) on pretty much every linux box and I'm a minimalist nut I've attempted to reduce the dependencies of this entire project to only those 5 tools and the gnu coreutils, so that it's possible to have an immediately consistent experience on any machine or linux flavor.
 
 # New Tools
+
 a few new command/scripts have been written, and put in bash_include/
 
 * pm - Prime Minister
@@ -27,7 +28,7 @@ A utility used to create a bash function with the 'subcommand' pattern. It also 
 
 * infect
 
-used to inject options, autoupdate the repo, create prefixed subshells, etc.
+used to inject options, autoupdate the repo on login, create prefixed subshells, etc.
 
 # TODO
 
@@ -55,24 +56,18 @@ used to inject options, autoupdate the repo, create prefixed subshells, etc.
 * restructure to search each manager for the package before attempting to install it
 * add more managers
 * add 'select' command? only install the first of a list of options
-* use pm to install core programs on infect install
-    * neovim
-    * tmux
-    * mosh
-    * peco/fzf
-    * git
 
 ## infect
 
 * prefix seems to break bash completion for everything after exit
 * fix ssh passthrough and add infect install
 * change infect ssh to use mosh, default to ssh
-
-## xterm
-
-* expect at least xterm 256 and possibly xterm full color
-* introduce terminal font 'powerline/hack' or maybe a full unicode font
-* include xresources to set color palette/font on xterm-likes `xrdb`
+* use pm to install core programs on infect install
+    * neovim
+    * tmux
+    * mosh
+    * peco/fzf/ag
+    * git
 
 ## vim
 
@@ -89,7 +84,6 @@ used to inject options, autoupdate the repo, create prefixed subshells, etc.
 * https://alex.dzyoba.com/blog/vim-revamp/
 * autocomplete |ins-completion|
 * sessions
-* git integration (vimagit?)
 * plugin commentary
 * plugin netwr
     - https://shapeshed.com/vim-netrw/#netrw-the-unloved-directory-browser
@@ -112,12 +106,14 @@ some things need to be integrated among each core component.
     - vim
     - tmux
     - bash
-* substitute vim sessions when tmux isn't available
 * configure clipboard integration for X, wayland
     * looks like neovim has wayland support through wlclipboard, which vim8 might not
-* vim-tmux
-    * add mouse select pane for tmux
-        * integrate with vim to also pass through to move the cursor
+* vim/tmux
+    * substitute vim sessions when tmux isn't available
+    * fine tune tmux/vim/vim-terminal/terminal interaction
+* vim/git
+    * git doesn't use vim config for editing commit messages (calls editor directly?)
+    * git integration (vimagit?)
 
 ## potential additions
 * i3 config
