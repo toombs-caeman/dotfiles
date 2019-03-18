@@ -151,7 +151,7 @@ ex ()
 ## INFECT {{{
 
 infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc -i $REMOTE_CONFIG_DIR/vim/viminfo
-infect options tmux -f $REMOTE_CONFIG_DIR/tmux.conf
+infect options tmux -2 -f $REMOTE_CONFIG_DIR/tmux.conf
 #infect options bash --init-file $REMOTE_CONFIG_DIR/remote_config.sh
 
 # make git open a prefix shell
