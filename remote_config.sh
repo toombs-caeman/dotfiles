@@ -113,6 +113,10 @@ alias vi='vim'
 
 ## ALIASES }}}
 ## FUNCTIONS {{{
+fkill () {
+    local to_kill=$(ps aux|peco |awk '{print $2}')
+    [[ -z "$to_kill" ]] || kill $1 $to_kill
+}
 # show path in a nice format
 alias path='echo $PATH | tr ":" "\012"'
 # trace how a process was called by pid
