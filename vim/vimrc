@@ -79,7 +79,9 @@ set noswapfile          " turn off swap files
 " persistent undo
 let undodir=printf("%s/undodir/", s:portable)
 exe "set undodir=".undodir
-call mkdir(undodir, 'p')
+if !isdirectory(undodir)
+    call mkdir(undodir, 'p')
+endif
 set undofile
 set history=700
 " Tell vim to remember certain things when we exit
