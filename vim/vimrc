@@ -19,7 +19,9 @@ set foldmethod=marker
 " }}}
 "Colors & Syntax" {{{
 " Setup term color support. This assumes color support of some kind
-set termguicolors
+if has('termguicolors')
+    set termguicolors
+endif
 
 syntax enable
 set background=dark

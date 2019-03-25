@@ -88,7 +88,7 @@ make_prompt() {
         # get the err code, this must be the first thing run in the prompt to be useful
         local err=\"$(color RED)\$(echo \$? | sed 's/^0$//')\"
         $term_line
-        export PS1=\"$branch$who$(color BCYAN)\w\${debian_chroot:+($(color BLUE)\$debian_chroot)}\$err $(color)$\"
+        export PS1=\"$branch$who\${debian_chroot:+$(color BLUE)[\$debian_chroot]}$(color BCYAN)\w\$err $(color)$\"
     }"
     PROMPT_COMMAND=prompt_command
 }
