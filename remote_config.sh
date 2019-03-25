@@ -1,4 +1,4 @@
-#!/bin/bash --init-file
+#!/usr/bin/env bash
 # Author    : Caeman Toombs
 
 ## BOILERPLATE {{{
@@ -15,8 +15,6 @@ HISTSIZE=1000
 HISTFILESIZE=2000
 HISTFILE=$REMOTE_CONFIG_DIR/.bash_history
 
-export VISUAL='vim'
-export EDITOR='vim'
 ## COMPLETIONS
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
@@ -35,9 +33,11 @@ if [ -d $REMOTE_CONFIG_DIR/scripts ]; then
     export PATH="$PATH:$REMOTE_CONFIG_DIR/scripts"
 fi
 ## BOILERPLATE }}}
-## READLINE {{{
+## DETECT VIM {{{
 set -o vi
-## READLINE }}}
+export VISUAL='vim'
+export EDITOR='vim'
+## DETECT VIM }}}
 ## COLORS {{{
 #TODO determine if the terminal supports true color, use that if possible
 #   otherwise default to 256 and complain
@@ -109,7 +109,7 @@ alias cp="cp -i"
 alias du='du -hs'
 alias df='df -h'
 alias free='free -m'
-alias vi='vim'
+alias vi="$(which nvim 2>/dev/null || which vim 2>/dev/null || printf 'vi')"
 
 ## ALIASES }}}
 ## FUNCTIONS {{{

@@ -41,6 +41,8 @@ used to inject options, autoupdate the repo on login, create prefixed subshells,
 * figure out the best search/indexing option
     * find
     * grep -rn
+    * fzf
+    * locate
 
 ## subtool
 
@@ -89,6 +91,7 @@ used to inject options, autoupdate the repo on login, create prefixed subshells,
     - https://shapeshed.com/vim-netrw/#netrw-the-unloved-directory-browser
     - can be used to browse over ssh/mosh, inspect directories
     - https://kgrz.io/editing-files-over-network.html
+    - fff instead?
 * https://thoughtbot.com/blog/seamlessly-navigate-vim-and-tmux-splits
 * vim-terraform syntax
 * language based linting integration
