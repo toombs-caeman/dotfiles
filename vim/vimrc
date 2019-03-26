@@ -136,6 +136,7 @@ nnoremap <leader>k :tabp<CR>
 " }}}
 "Status Line" {{{
 " make sure it is tmux aware
+set ruler
 "Status Line" }}}
 "Terminal" {{{
 " check to see if we have a terminal

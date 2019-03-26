@@ -10,6 +10,11 @@ function subtool_helpstr {
     typeset -f $1 | sed -n "/: '/,/';$/p;/';$/q" | sed "s/\\s*: '//;s/';$//"
 }
 
+function subtool_getbody {
+: 'Get the body of a function with out its helpstring'
+: #TODO
+}
+
 function subtool {
 : 'Description
 This is a tool to collect bash functions under a single namespace using the subcommand pattern

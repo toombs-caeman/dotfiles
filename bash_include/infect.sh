@@ -29,11 +29,19 @@ function infect_lineinfile {
 }
 function infect_options {
 : 'create a function which masks and calls an executable while injecting the passed parameters'
-    [[ -z "$1" ]] && return 1
-    local cmd=$1
-    shift
-    eval "function $cmd { which $cmd >/dev/null && \$(which $cmd) $@ \$@; }"
-    export -f $cmd
+    local name=$1
+    local cmd=$2
+    shift 2
+    if [[ -z "$cmd" ]] || ! which $cmd >/dev/null 2>&1;then
+        return 1
+    fi
+    # mangle the name because the bash name resolution order is 
+    # alias -> command -> function
+    # this ensures our function will always be prefered even if $name is the name of a command on $PATH
+    eval "function _$name { \$(which $cmd) $@ \$@; }"
+    export -f _$name
+    alias $name=_$name
+
 }
 
 function infect_remote {

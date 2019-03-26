@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 # https://github.com/dylanaraps/writing-a-tui-in-bash
 # https://github.com/dylanaraps/fff
+tuikit () {
+: 'a utility to help create tui programs in pure bash+coreutils. The majority of this is simply wrapping vt1000 escape codes or coreutils in a nice way
+'
+:
+}
 # WRAPPER {{{
 tuikit_init () {
-
+:
 }
 tuikit_end () {
+:
 }
 # WRAPPER }}}
 # TERM {{{

@@ -26,17 +26,15 @@ fi
 
 ## INCLUDES
 source $REMOTE_CONFIG_DIR/bash_include/subtool.sh
-source $REMOTE_CONFIG_DIR/bash_include/infect.sh
-
-source $REMOTE_CONFIG_DIR/bash_include/pm.sh
-if [ -d $REMOTE_CONFIG_DIR/scripts ]; then
-    export PATH="$PATH:$REMOTE_CONFIG_DIR/scripts"
-fi
+for f in $REMOTE_CONFIG_DIR/bash_include/*.sh; do
+    source $f
+done
 ## BOILERPLATE }}}
 ## DETECT VIM {{{
 set -o vi
-export VISUAL='vim'
-export EDITOR='vim'
+export VISUAL="vi"
+export EDITOR="vi"
+infect options vi vim -u $REMOTE_CONFIG_DIR/vim/vimrc -i $REMOTE_CONFIG_DIR/vim/viminfo
 ## DETECT VIM }}}
 ## COLORS {{{
 #TODO determine if the terminal supports true color, use that if possible
@@ -48,7 +46,6 @@ alias fgrep='fgrep --colour=auto'
 export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
 
 color () {
-#TODO collapsing function here
     local ret
     case $1 in
         GREEN)  ret="\[\033[0;32m\]";;
@@ -79,7 +76,7 @@ make_prompt() {
             *) echo "not configured for terminal '$TERM'" ;;
     esac
     # if we're not running in vim or tmux then let's say who we are
-    [[ -z "$VIM_TERMINAL$TMUX" ]] && who="$(color RED)\u@\h:"
+    #[[ -z "$VIM_TERMINAL$TMUX" ]] && who="$(color RED)\u@\h:"
     
     # check if git is available
     which git >/dev/null 2>&1 && branch="$(color GREEN)\$(git branch 2>/dev/null | sed -n 's/^\* \(.*\)/(\1) /p')"
@@ -109,7 +106,6 @@ alias cp="cp -i"
 alias du='du -hs'
 alias df='df -h'
 alias free='free -m'
-alias vi="$(which nvim 2>/dev/null || which vim 2>/dev/null || printf 'vi')"
 
 ## ALIASES }}}
 ## FUNCTIONS {{{
@@ -154,12 +150,13 @@ ex ()
 ## FUNCTIONS }}}
 ## INFECT {{{
 
-infect options vim -u $REMOTE_CONFIG_DIR/vim/vimrc -i $REMOTE_CONFIG_DIR/vim/viminfo
-infect options tmux -2 -f $REMOTE_CONFIG_DIR/tmux.conf
+infect options tmux tmux -2 -f $REMOTE_CONFIG_DIR/tmux.conf
 #infect options bash --init-file $REMOTE_CONFIG_DIR/remote_config.sh
 
 # make git open a prefix shell
-infect options git
+git () {
+	$(which git) $@
+}
 git_tree() {
     echo $@
     git $@ log --graph --all --oneline --color 
