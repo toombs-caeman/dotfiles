@@ -37,12 +37,6 @@ used to inject options, autoupdate the repo on login, create prefixed subshells,
 * trim the fat, try to get the total size down to a few kilobytes
     * main culprit is vim/vim81, most of which isn't needed
         - remove translation files, examples
-* pushd/popd?
-* figure out the best search/indexing option
-    * find
-    * grep -rn
-    * fzf
-    * locate
 
 ## subtool
 
@@ -66,17 +60,20 @@ used to inject options, autoupdate the repo on login, create prefixed subshells,
 * change infect ssh to use mosh, default to ssh
 * use pm to install core programs on infect install
     * neovim
+    * fzf
     * tmux
     * mosh
-    * peco/fzf/ag
     * git
 
 ## vim
 
+* vim terminal and neovim terminal are incompatible. As such, we need to either detect the version or prefer one over the other
+    * looks like neovim has wayland support through wlclipboard, which vim8 might not
+    * terminal-api is different
 * add feature detection to vimrc since different systems will have different features compiled in by default
 * integrate t/T tabbing with :term
-    * how to detect vim from bash?
-* how to get the directory of the current file instead of where vim was opened?
+    * how to detect vim from bash? use [[ ! -z $VIM ]]
+* how to get the directory of the current file instead of where vim was opened for netwr?
 * search
     * git repo level search
     * search relative to the current file
@@ -93,8 +90,10 @@ used to inject options, autoupdate the repo on login, create prefixed subshells,
     - https://kgrz.io/editing-files-over-network.html
     - fff instead?
 * https://thoughtbot.com/blog/seamlessly-navigate-vim-and-tmux-splits
-* vim-terraform syntax
-* language based linting integration
+* syntax
+    * terraform
+    * go fmt - https://stackoverflow.com/questions/10969366/vim-automatically-formatting-golang-source-code-when-saving
+    * rustlang
 
 ## integrations
 
@@ -109,8 +108,6 @@ some things need to be integrated among each core component.
     - vim
     - tmux
     - bash
-* configure clipboard integration for X, wayland
-    * looks like neovim has wayland support through wlclipboard, which vim8 might not
 * vim/tmux
     * substitute vim sessions when tmux isn't available
     * fine tune tmux/vim/vim-terminal/terminal interaction
@@ -120,4 +117,5 @@ some things need to be integrated among each core component.
 
 ## potential additions
 * i3 config
+* fzf
 * bash_include/tuikit.sh - for tui based commands 

@@ -6,6 +6,10 @@ let s:portable = expand('<sfile>:p:h')
 
 " Isolate the runtime to the current directory
 let &runtimepath = printf('%s,%s/vim81', s:portable, s:portable)
+
+if &compatible
+  set nocompatible
+endif
 "Runtime" }}}
 "Hard Mode" {{{
 " break bad habits
@@ -22,10 +26,6 @@ nnoremap <Down>  <NOP>
 nnoremap <Left>  <NOP>
 nnoremap <Right> <NOP>
 "Hard Mode" }}}
-" Include {{{
-set nocompatible
-runtime default.vim
-" Include }}}
 "Folding" {{{
 set foldenable
 set foldnestmax=10
@@ -51,7 +51,9 @@ nnoremap gv `[v`]
 nnoremap t gt
 nnoremap T gT
 
-set mouse=a
+if has('mouse')
+  set mouse=a
+endif
 " }}}
 "Tabstop" {{{
 set tabstop=4 " number of spaces tabs are visually
@@ -60,6 +62,12 @@ set expandtab " tabs are spaces. annoying when editing python
 set bs=2
 " }}}
 "UI Config" {{{
+filetype plugin indent on
+" Do incremental searching when it's possible to timeout.
+if has('reltime')
+  set incsearch
+endif
+set display=truncate
 set nonumber            " hide line numbers
 set wildmenu            " visual autocomplete for command menu
 
@@ -108,18 +116,22 @@ augroup BWCCreateDir
 augroup END
 
 
-" restore the cursor to where it was the last time we edited this file
-function! ResCur()
-  if line("'\"") <= line("$")
-    normal! g`"
-    return 1
-  endif
-endfunction
-
-augroup resCur
-  autocmd!
-  autocmd BufWinEnter * call ResCur()
+augroup vimStartup
+  au!
+  " When editing a file, always jump to the last known cursor position.
+  autocmd BufReadPost *
+    \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+    \ |   exe "normal! g`\""
+    \ | endif
 augroup END
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+" Revert with: ":delcommand DiffOrig".
+if !exists(":DiffOrig")
+  command DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis
+		  \ | wincmd p | diffthis
+endif
 " }}}
 "Keymapping" {{{
 let mapleader=";"
@@ -142,7 +154,14 @@ set ruler
 " check to see if we have a terminal
 if has('termainal')
     set termwinkey=CTRL-W
+    "TODO allow an embedded terminal to reuse the existing vim session instead of nesting instances
+    function Tapi_edit(bufnum, arglist)
+        execute "e ".fnameescape(a:arglist[0])
+    endfunc
+    
+    "TODO allow the embedded terminal to paste the contents of the yank buffer
 endif
+
 "Terminal" }}}
 "NETRW" {{{
 let g:netrw_banner=0

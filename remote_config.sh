@@ -30,12 +30,21 @@ for f in $REMOTE_CONFIG_DIR/bash_include/*.sh; do
     source $f
 done
 ## BOILERPLATE }}}
-## DETECT VIM {{{
+## VIM {{{
 set -o vi
 export VISUAL="vi"
 export EDITOR="vi"
 infect options vi vim -u $REMOTE_CONFIG_DIR/vim/vimrc -i $REMOTE_CONFIG_DIR/vim/viminfo
-## DETECT VIM }}}
+# if we're starting inside the vim terminal then alias vi to open a new split
+# rather than a new vi instance
+#TODO
+if [[ ! -z "$VIM" ]]; then
+    _vi() {
+        printf "\e]51;[\"call\",\"Tapi_edit\",\"$1\"]\007"
+    }
+    
+fi
+## VIM }}}
 ## COLORS {{{
 #TODO determine if the terminal supports true color, use that if possible
 #   otherwise default to 256 and complain
@@ -76,7 +85,7 @@ make_prompt() {
             *) echo "not configured for terminal '$TERM'" ;;
     esac
     # if we're not running in vim or tmux then let's say who we are
-    #[[ -z "$VIM_TERMINAL$TMUX" ]] && who="$(color RED)\u@\h:"
+    #[[ -z "$VIM$TMUX" ]] && who="$(color RED)\u@\h:"
     
     # check if git is available
     which git >/dev/null 2>&1 && branch="$(color GREEN)\$(git branch 2>/dev/null | sed -n 's/^\* \(.*\)/(\1) /p')"
@@ -158,7 +167,6 @@ git () {
 	$(which git) $@
 }
 git_tree() {
-    echo $@
     git $@ log --graph --all --oneline --color 
 }
 git_shell() {

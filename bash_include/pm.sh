@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ## CONFIG {{{
 function pm_config {
 : 'print the currently configured managers in order by priority'
@@ -14,7 +14,7 @@ function pm_config_yaourt {
         list) yaourt -Ssq | grep -e $@;;
         query) yaourt -Qq $@;;
     esac
-    [[ "$?" == "0" ]] && pm_done='done'
+    return $?
 }
 function pm_config_pacman {
     op=$1; shift
@@ -25,7 +25,7 @@ function pm_config_pacman {
         query) pacman -Qq $@;;
         update) $sudo pacman -Sy ;;
     esac
-    [[ "$?" == "0" ]] && pm_done='done'
+    return $?
 }
 function pm_config_pip {
     op=$1; shift
@@ -35,7 +35,7 @@ function pm_config_pip {
         list) pip list | grep -e $@;;
         query) pip search $@ | sed 's/^\([^ ]*\) .*/\1/';;
     esac
-    [[ "$?" == "0" ]] && pm_done='done'
+    return $?
 }
 function pm_config_apt {
     op=$1; shift
@@ -46,7 +46,7 @@ function pm_config_apt {
         query) apt search $@ ;;
         update) apt update ;;
     esac
-    [[ "$?" == "0" ]] && pm_done='done'
+    return $?
 }
 function pm_config_apk {
     op=$1; shift
@@ -57,7 +57,7 @@ function pm_config_apk {
         query) apk search $@ ;;
         update) apk update ;;
     esac
-    [[ "$?" == "0" ]] && pm_done='done'
+    return $?
 }
 #function pm_config_template {
 #    op=$1; shift
@@ -68,6 +68,7 @@ function pm_config_apk {
 #        query) ;;
 #        update) ;;
 #    esac
+#    return $?
 #}
 ## CONFIG }}}
 
@@ -83,21 +84,23 @@ function pm {
     local operation=$1; shift
     # use sudo unless root
     local sudo="sudo"
-    [[ "$(whoami)" == "root" ]] && sudo=''
+    [[ "$(whoami)" == "root" ]] && unset sudo
+    # try to get permission if we need it so that we don't ask later
+    $sudo echo "===== delegating =====" || return $?
 
     # if we're updating or listing, create a dummy target so we enter the loop
     local up=''
     [[ "update list" == *"$operation"* ]] && up=' '
 
     for package in "$@$up"; do
-        unset pm_done
         for man in $(pm_config); do
+            # if we can't find the manager then continue
             if ! which $man >/dev/null 2>&1 ; then continue; fi
             echo "===== $man ====="
-            pm_config_$man $operation $package
-            [[ -z ${pm_done+x} ]] || break
+            # exit the loop if we've successfully completed the operation
+            pm_config_$man $operation $package && break
         done
     done
-    unset pm_done
 }
+
 subtool pm
