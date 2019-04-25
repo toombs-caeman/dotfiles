@@ -172,6 +172,10 @@ git_tree() {
 git_shell() {
     infect prefix "git $* " "git> "
 }
+git_branch() {
+    local _1=$1; shift
+    $(which git) branch ${_1:--a} $@
+}
 subtool git
 
 # auto update this config

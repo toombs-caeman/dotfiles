@@ -95,6 +95,9 @@ au BufNewFile,BufRead *.ino,*.pde		setf arduino
 " Apache style config file
 au BufNewFile,BufRead proftpd.conf*		call s:StarSetf('apachestyle')
 
+" openscad file
+au BufNewFile,BufRead *.scad		setf openscad
+
 " Apache config file
 au BufNewFile,BufRead .htaccess,*/etc/httpd/*.conf		setf apache
 au BufNewFile,BufRead */etc/apache2/sites-*/*.com		setf apache
