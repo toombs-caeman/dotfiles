@@ -119,7 +119,7 @@ alias free='free -m'
 ## ALIASES }}}
 ## FUNCTIONS {{{
 fkill () {
-    local to_kill=$(ps aux|peco |awk '{print $2}')
+    local to_kill=$(ps aux|fzf |awk '{print $2}')
     [[ -z "$to_kill" ]] || kill $1 $to_kill
 }
 # show path in a nice format
@@ -157,27 +157,22 @@ ex ()
 }
 
 ## FUNCTIONS }}}
-## INFECT {{{
 
-infect options tmux tmux -2 -f $REMOTE_CONFIG_DIR/tmux.conf
+#infect options tmux tmux -2 -f $REMOTE_CONFIG_DIR/tmux.conf
 #infect options bash --init-file $REMOTE_CONFIG_DIR/remote_config.sh
 
 # make git open a prefix shell
-git () {
-	$(which git) $@
-}
-git_tree() {
-    git $@ log --graph --all --oneline --color 
-}
-git_shell() {
-    infect prefix "git $* " "git> "
-}
-git_branch() {
-    local _1=$1; shift
-    $(which git) branch ${_1:--a} $@
-}
-subtool git
+#git () {
+#	$(which git) $@
+#}
+#git_tree() {
+#    git $@ log --graph --all --oneline --color 
+#}
+#git_shell() {
+#    infect prefix "git $* " "git> "
+#}
+#git_branch() {
+#    local _1=$1; shift
+#    $(which git) branch ${_1:--a} $@
+#}
 
-# auto update this config
-infect autoupdate
-## INFECT }}}

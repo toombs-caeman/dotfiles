@@ -32,6 +32,9 @@ used to inject options, autoupdate the repo on login, create prefixed subshells,
 
 # TODO
 
+* include nvim.appimage
+* fix copy paste with nvim
+* fix vim packages, get go
 * update repo with git subtree pattern to include plugins rather than directly include them
 * make test docker container to try to thoroughly isolate files to REMOTE_CONFIG_DIR
 * trim the fat, try to get the total size down to a few kilobytes
@@ -92,7 +95,7 @@ used to inject options, autoupdate the repo on login, create prefixed subshells,
 * https://thoughtbot.com/blog/seamlessly-navigate-vim-and-tmux-splits
 * syntax
     * terraform
-    * go fmt - https://stackoverflow.com/questions/10969366/vim-automatically-formatting-golang-source-code-when-saving
+    * fatih/vim-go
     * rustlang
 
 ## integrations
