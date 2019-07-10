@@ -16,9 +16,6 @@ This stuff is changing a lot at the moment so be careful using anything, it is p
 
 a few new command/scripts have been written, and put in bash_include/
 
-* pm - Prime Minister
-
-A unified interface for package management. Have a fedora, ubuntu, and arch machine? Ever forget how to install things for each separate system? Don't remember if you installed that package through pip, npm or apt? The Prime Minister has got your back. pm will install packages through the highest priority package manager which provides the package and remove them from any manager which has that package installed. Still a work in progress and is only intended to support basic usage common across most managers (install, remove, query available, list installed).
 
 * subtool
 

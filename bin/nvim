@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NVIM=$(dir_resolve $BASH_SOURCE)/nvim.appimage
+NVIM=$(abs_dir $BASH_SOURCE)/nvim.appimage
 # TODO 
 # if we're starting inside the nvim terminal then alias vi to open a new split
 # rather than a new vi instance
