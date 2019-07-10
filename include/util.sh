@@ -75,3 +75,5 @@ alias_options () {
     export -f _$name
     alias $name=_$name
 }
+
+export -f alias_options help delegate dir_resolve lineinfile
