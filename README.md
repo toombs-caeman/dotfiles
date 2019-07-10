@@ -11,8 +11,6 @@ This stuff is changing a lot at the moment so be careful using anything, it is p
 * git
 * xterm
 
-My workflow is built around these tools so I've configured the crap out of them.
-Also, since these tools are installed already (or easily available) on pretty much every linux box and I'm a minimalist nut I've attempted to reduce the dependencies of this entire project to only those 5 tools and the gnu coreutils, so that it's possible to have an immediately consistent experience on any machine or linux flavor.
 
 # New Tools
 
@@ -32,53 +30,18 @@ used to inject options, autoupdate the repo on login, create prefixed subshells,
 
 # TODO
 
-* include nvim.appimage
 * fix copy paste with nvim
 * fix vim packages, get go
 * update repo with git subtree pattern to include plugins rather than directly include them
 * make test docker container to try to thoroughly isolate files to REMOTE_CONFIG_DIR
-* trim the fat, try to get the total size down to a few kilobytes
-    * main culprit is vim/vim81, most of which isn't needed
-        - remove translation files, examples
-
-## subtool
-
-* SUBTOOL slightly BREAKS PARAMETER PASSING!!!
-    * this is given a hard fix with the ${argv[0]} syntax
-    * need to have more extensive testing
-* add proper getopt support
-* add bash completions to subtool
-    * https://stackoverflow.com/questions/17879322/how-do-i-autocomplete-nested-multi-level-subcommands
-
-## pm
-
-* restructure to search each manager for the package before attempting to install it
-* add more managers
-* add 'select' command? only install the first of a list of options
-
-## infect
-
-* prefix seems to break bash completion for everything after exit
-* fix ssh passthrough and add infect install
-* change infect ssh to use mosh, default to ssh
-* use pm to install core programs on infect install
-    * neovim
-    * fzf
-    * tmux
-    * mosh
-    * git
 
 ## vim
 
-* vim terminal and neovim terminal are incompatible. As such, we need to either detect the version or prefer one over the other
-    * looks like neovim has wayland support through wlclipboard, which vim8 might not
-    * terminal-api is different
-* add feature detection to vimrc since different systems will have different features compiled in by default
 * integrate t/T tabbing with :term
     * how to detect vim from bash? use [[ ! -z $VIM ]]
 * how to get the directory of the current file instead of where vim was opened for netwr?
 * search
-    * git repo level search
+    * git repo level search (cd $(git rev-parse --show-toplevel) && grep -rn $1)
     * search relative to the current file
     * in text search
     * find usages

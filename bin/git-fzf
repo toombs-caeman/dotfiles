@@ -1,0 +1,8 @@
+#!/bin/bash
+# do a file search from the root of a git repo
+GITROOT=$(git rev-parse --show-toplevel) || exit $?
+if [ -z "$1" ]; then
+    (cd $GITROOT && fzf)
+else
+    grep -rn $@ $GITROOT | fzf | cut -f1 -d":"
+fi
