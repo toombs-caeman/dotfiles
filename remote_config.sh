@@ -17,7 +17,7 @@ export -f abs_dir
 # set root
 export REMOTE_CONFIG_DIR=$(abs_dir $BASH_SOURCE)
 # add bin to start of path
-export PATH="$REMOTE_CONFIG_DIR/bin/:$PATH"
+export PATH="$(find $REMOTE_CONFIG_DIR/bin/ -maxdepth 1 -type d | tr "\n" ":")$PATH"
 # include scripts
 . <(cat $REMOTE_CONFIG_DIR/include/*.sh)
 # hook this file into .bashrc
