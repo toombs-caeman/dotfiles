@@ -46,13 +46,12 @@ alias df='df -h'
 alias free='free -m'
 
 # include scripts
-. <(cat $REMOTE_CONFIG_DIR/include/*.sh)
+. <(cat $(find $REMOTE_CONFIG_DIR/include/ -name '*.sh' -type f))
 # re-export all included functions for subshells
 # this just provides a little more consistent behavior
 export -f $(declare -F | awk '{ print $3 }'| xargs)
 # add bin to start of path
-export PATH="$REMOTE_CONFIG_DIR/bin/:$PATH"
-
+export PATH="$(find $REMOTE_CONFIG_DIR/bin -type d | tr '\012' ':'):$PATH"
 #TODO
 # start an update in the background and disown. This will not notify the shell when complete.
 # Even with 'set -m'. The output is logged to a file

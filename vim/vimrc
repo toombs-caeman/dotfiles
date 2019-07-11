@@ -5,7 +5,7 @@
 let s:portable = expand('<sfile>:p:h')
 
 " Isolate the runtime to the current directory
-let &runtimepath = printf('%s,%s/vim81', s:portable, s:portable)
+" let &runtimepath = printf('%s,%s/vim81', s:portable, s:portable)
 
 if &compatible
   set nocompatible

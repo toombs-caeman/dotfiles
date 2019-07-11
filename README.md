@@ -2,59 +2,17 @@ take your config stuff with you when you shell around.
 
 This stuff is changing a lot at the moment so be careful using anything, it is probably a little broken. On the other hand if you see something you like feel free to take it.
 
-# Core components
+# Dependencies
 
+core components are expected:
 * bash
-* vim
-* tmux
-* ssh
+* coreutils
 * git
-* xterm
 
-My workflow is built around these tools so I've configured the crap out of them.
-Also, since these tools are installed already (or easily available) on pretty much every linux box and I'm a minimalist nut I've attempted to reduce the dependencies of this entire project to only those 5 tools and the gnu coreutils, so that it's possible to have an immediately consistent experience on any machine or linux flavor.
-
-# New Tools
-
-a few new command/scripts have been written, and put in bash_include/
-
-* pm - Prime Minister
-
-A unified interface for package management. Have a fedora, ubuntu, and arch machine? Ever forget how to install things for each separate system? Don't remember if you installed that package through pip, npm or apt? The Prime Minister has got your back. pm will install packages through the highest priority package manager which provides the package and remove them from any manager which has that package installed. Still a work in progress and is only intended to support basic usage common across most managers (install, remove, query available, list installed).
-
-* subtool
-
-A utility used to create a bash function with the 'subcommand' pattern. It also provides automatic help commands and will soon provide bash completions for the subcommand names. Totally not trying to create namespaces in a scripting language *cough cough*
-
-* infect
-
-used to inject options, autoupdate the repo on login, create prefixed subshells, etc.
-
-# TODO
-
-* include nvim.appimage
-* fix copy paste with nvim
-* fix vim packages, get go
-* update repo with git subtree pattern to include plugins rather than directly include them
-* make test docker container to try to thoroughly isolate files to REMOTE_CONFIG_DIR
-* trim the fat, try to get the total size down to a few kilobytes
-    * main culprit is vim/vim81, most of which isn't needed
-        - remove translation files, examples
-
-## subtool
-
-* SUBTOOL slightly BREAKS PARAMETER PASSING!!!
-    * this is given a hard fix with the ${argv[0]} syntax
-    * need to have more extensive testing
-* add proper getopt support
-* add bash completions to subtool
-    * https://stackoverflow.com/questions/17879322/how-do-i-autocomplete-nested-multi-level-subcommands
-
-## pm
-
-* restructure to search each manager for the package before attempting to install it
-* add more managers
-* add 'select' command? only install the first of a list of options
+extra components will cause graceful degradation if not found:
+* mosh
+* ssh
+* fzf
 
 ## infect
 
@@ -120,5 +78,3 @@ some things need to be integrated among each core component.
 
 ## potential additions
 * i3 config
-* fzf
-* bash_include/tuikit.sh - for tui based commands 

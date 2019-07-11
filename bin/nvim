@@ -1,6 +1,7 @@
 #!/bin/bash
 
-NVIM=$(dir_resolve $BASH_SOURCE)/nvim.appimage
+#NVIM=$(dir_resolve $BASH_SOURCE)/nvim.appimage
+NVIM=$(which nvim.appimage)
 # TODO 
 # if we're starting inside the nvim terminal then alias vi to open a new split
 # rather than a new vi instance
@@ -14,4 +15,4 @@ fi
 
 # TODO set all options here
 # rc file and history options
-$NVIM $@
+$NVIM -u $REMOTE_CONFIG_DIR/vim/vimrc $@

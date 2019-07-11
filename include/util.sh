@@ -36,24 +36,11 @@ delegate() {
     fi
 }
 
-git_version() {
-    GITROOT=$(git rev-parse --show-toplevel) || return $?
-    VERSION=$(git describe --tags --abbrev=0 HEAD --always)
-    HASH=$(git rev-parse HEAD)
-    BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
-
-    if [ "$HASH" != "$(git rev-parse $VERSION)" ]; then
-        VERSION=$VERSION-SNAPSHOT-$HASH
-    fi
-    echo "preparing environment for $(basename $GITROOT):$VERSION on branch $BRANCH"
-    echo $VERSION > $GITROOT/VERSION
-}
-
-git_update () {
-    if ! git -C "$BASH_SOURCE" pull; then
-        echo $0: couldn\'t auto update. check $BASH_SOURCE
-        return 1
-    fi
+which_fallthrough() {
+: 'return the first command which is available on the path
+returns non-zero code if none are found'
+    r=$(which $@ 2>/dev/null | head -n1)
+    [ ! -z "$r" ] && echo $r
 }
 
 help() {
