@@ -12,15 +12,6 @@ lineinfile () {
     fi
 }
 
-# resolve the absolute name of a directory
-# https://stackoverflow.com/questions/7126580/expand-a-possible-relative-path-in-bash
-dir_resolve()
-{
-    [[ -f "$1" ]] && name=$(dirname "$1") || name=$1
-    cd "$name" 2>/dev/null || return $?  # cd to desired directory; if fail, quell any error messages but return exit status
-    echo "`pwd -P`" # output full, link-resolved path
-}
-
 # call subcommands in the path based on the name of the calling file
 delegate() {
     bn=$(basename $0)
@@ -62,3 +53,5 @@ alias_options () {
     export -f _$name
     alias $name=_$name
 }
+
+export -f alias_options help delegate lineinfile

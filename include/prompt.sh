@@ -23,6 +23,7 @@ make_prompt() {
         $term_line
         export PS1=\"$branch$who\${debian_chroot:+$(color BLUE)[\$debian_chroot]}$(color BCYAN)\w\$err $(color)$\"
     }"
-    PROMPT_COMMAND=prompt_command
+    export -f prompt_command
+    export PROMPT_COMMAND=prompt_command
 }
 make_prompt

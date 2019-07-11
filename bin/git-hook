@@ -1,0 +1,13 @@
+#!/bin/bash
+
+GITROOT="$(git rev-parse --show-toplevel)" || exit $?
+
+case $1 in
+    init)
+        echo initializing git hooks
+        cp $GITROOT/hooks/* $GITROOT/.git/hooks
+        chmod +x $GITROOT/.git/hooks/*
+        ;;
+    *)
+        echo "try 'git hook init'"
+esac

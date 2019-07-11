@@ -14,29 +14,14 @@ extra components will cause graceful degradation if not found:
 * ssh
 * fzf
 
-## infect
-
-* prefix seems to break bash completion for everything after exit
-* fix ssh passthrough and add infect install
-* change infect ssh to use mosh, default to ssh
-* use pm to install core programs on infect install
-    * neovim
-    * fzf
-    * tmux
-    * mosh
-    * git
 
 ## vim
 
-* vim terminal and neovim terminal are incompatible. As such, we need to either detect the version or prefer one over the other
-    * looks like neovim has wayland support through wlclipboard, which vim8 might not
-    * terminal-api is different
-* add feature detection to vimrc since different systems will have different features compiled in by default
 * integrate t/T tabbing with :term
     * how to detect vim from bash? use [[ ! -z $VIM ]]
 * how to get the directory of the current file instead of where vim was opened for netwr?
 * search
-    * git repo level search
+    * git repo level search (cd $(git rev-parse --show-toplevel) && grep -rn $1)
     * search relative to the current file
     * in text search
     * find usages
