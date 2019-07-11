@@ -26,4 +26,3 @@ make_prompt() {
     export -f prompt_command
     export PROMPT_COMMAND=prompt_command
 }
-make_prompt

@@ -19,8 +19,9 @@ export REMOTE_CONFIG_DIR=$(abs_dir $BASH_SOURCE)
 # add bin to start of path
 export PATH="$(find $REMOTE_CONFIG_DIR/bin/ -maxdepth 1 -type d | tr "\n" ":")$PATH"
 # include scripts
-. <(cat $REMOTE_CONFIG_DIR/include/*.sh)
+. <(cat $(find $REMOTE_CONFIG_DIR/include/ -name '*.sh' | xargs))
 # hook this file into .bashrc
 if ! lineinfile ~/.bashrc ". $REMOTE_CONFIG_DIR/remote_config.sh"; then
     echo 'added remote_config.sh to local .bashrc'
 fi
+make_prompt
