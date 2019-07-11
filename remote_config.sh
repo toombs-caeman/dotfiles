@@ -21,4 +21,6 @@ export PATH="$REMOTE_CONFIG_DIR/bin/:$PATH"
 # include scripts
 . <(cat $REMOTE_CONFIG_DIR/include/*.sh)
 # hook this file into .bashrc
-lineinfile ~/.bashrc ". $REMOTE_CONFIG_DIR/remote_config.sh"
+if ! lineinfile ~/.bashrc ". $REMOTE_CONFIG_DIR/remote_config.sh"; then
+    echo 'added remote_config.sh to local .bashrc'
+fi

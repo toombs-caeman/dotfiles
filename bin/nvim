@@ -4,7 +4,7 @@ NVIM=$(dirname $BASH_SOURCE)/nvim.appimage
 # TODO 
 # if we're starting inside the nvim terminal then alias vi to open a new split
 # rather than a new vi instance
-if [[ ! -z "$VIM" ]]; then
+if [[ ! -z "$NVIM_LISTEN_ADDRESS" ]]; then
     printf "\e]51;[\"call\",\"Tapi_edit\",\"$1\"]\007"
     exit $?
 fi

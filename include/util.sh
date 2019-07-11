@@ -2,14 +2,16 @@
 
 # a 'stdlib'
 
-# if the line isn't in the file, append it
+# if the line isn't in the file, append it and return 1
 # 1: a filename
 # 2: a line
 lineinfile () {
 : 'append a file with a string only if it isnt in the file yet'
     if ! grep -qxF -e "$2" $1; then
         echo "$2" >> $1
+        return 1
     fi
+    return 0
 }
 
 # call subcommands in the path based on the name of the calling file
