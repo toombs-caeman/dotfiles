@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+import colorpicker as color
+import jinja2 as jj
+
+c = color.isolate_colors('/home/ubernormal/Pictures/Backgrounds/celeste.png', 16)
+c = color.dedupe(c)
+c = color.get_xcolors(c)
+# TODO use ensure_value to make sure the lights are light and the darks are dark
+# print(c)
+for color in c:
+    # print("printf '\e]4;18;rgb:%02x/%02x/%02x\\a\e[38;5;18mThis is color\e[m\\n'" % color)
+    print("printf '\e]4;18;rgb:ff/00/ff\\a\e[38;5;18mThis is magenta\e[m\\n'")

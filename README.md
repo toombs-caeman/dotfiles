@@ -21,17 +21,28 @@ extra components will cause graceful degradation if not found:
 * fzf
 
 # TODO: Theming
+
+probably want to separate this into a few stages.
+* receive hook from i3 config
+* determine background image and palette
+    * http://charlesleifer.com/blog/suffering-for-fashion-a-glimpse-into-my-linux-theming-toolchain/
+* template config files with the palette
+    - https://www.reddit.com/r/unixporn/comments/8giij5/guide_defining_program_colors_through_xresources/
+* default to solarized theme https://github.com/altercation/solarized
+
 ideas:
-* http://charlesleifer.com/blog/suffering-for-fashion-a-glimpse-into-my-linux-theming-toolchain/
-* solarized theme as default? https://github.com/altercation/solarized
+* may want to steer around xresources considering wayland is a thing
 * fonts
 * https://wiki.installgentoo.com/index.php/GNU/Linux_ricing
 
 components:
-* i3
+* i3 - requires manual reload, but would be fine if it triggered the script
 * vim
-* xterm
-* .Xresources
+* alacritty
+* firefox
+    - can get a solarized theme with 'Zen Fox' plugin
+    - not sure how to do dynamic themes
+    - userChrome.css
 
 ## TODO: vim
 
@@ -53,7 +64,6 @@ other:
     * rustlang
     * golang  https://github.com/fatih/vim-go
 * correct panel movement
-* setup fzf/git-fzf bindings
 * how to get the directory of the current file instead of where vim was opened for netwr?
 * open links with xdg-open/lynx/elinks
 * https://alex.dzyoba.com/blog/vim-revamp/
@@ -82,3 +92,9 @@ other:
 * https://old.reddit.com/r/wallpaperdump/
 
 * include whitefox layout
+
+* http://charlesleifer.com/blog/suffering-for-fashion-a-glimpse-into-my-linux-theming-toolchain/
+* https://github.com/altercation/solarized
+* https://www.divio.com/blog/documentation/
+
+* track xdg-settings?

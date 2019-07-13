@@ -1,0 +1,7 @@
+template_dir: ../../config/
+output_dir:   ../../config/
+
+templates:
+  alacritty.yml.in: alacritty.yml
+  i3config.sh: i3config
+  theme.vim.in: theme.vim
