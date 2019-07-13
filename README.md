@@ -81,8 +81,4 @@ other:
 * https://old.reddit.com/r/FirefoxCSS/
 * https://old.reddit.com/r/wallpaperdump/
 
-* i3 config
-* alacritty
-    - supports wayland
-    - has good solarized theme
-    - yaml config
+* include whitefox layout

@@ -24,6 +24,10 @@ if ! lineinfile ~/.bashrc ". $REMOTE_CONFIG_DIR/remote_config.sh"; then
     
     # link out i3 config
     mkdir -p ~/.i3
-    ln -sf $REMOTE_CONFIG_DIR/i3config.sh ~/.i3/config
+    ln -sf $REMOTE_CONFIG_DIR/config/i3config.sh ~/.i3/config
+
+    #link out alacritty config
+    mkdir -p ~/.config/alacritty
+    ln -sf $REMOTE_CONFIG_DIR/config/alacritty.yml ~/.config/alacritty/alacritty.yml
 fi
 make_prompt
