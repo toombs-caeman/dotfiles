@@ -5,7 +5,7 @@ Prime Minister (pm) provides a uniform package management interface in pure bash
 ### installation
 
 ```
-curl <url> /usr/bin/pm && chmod +x /usr/bin/pm
+curl https://github.com/toombs-caeman/pm/blob/master/pm /usr/bin/pm && chmod +x /usr/bin/pm
 ```
 
 ### basic usage

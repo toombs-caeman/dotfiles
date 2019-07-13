@@ -2,15 +2,21 @@ take your config stuff with you when you shell around.
 
 This stuff is changing a lot at the moment so be careful using anything, it is probably a little broken. On the other hand if you see something you like feel free to take it.
 
+# Installation
+
+direct installation is not recommended.
+
+`git clone https://github.com/toombs-caeman/dotfiles ~/.remote_config && ~/.remote_config/remote_config.sh`
+
 # Dependencies
 
 core components are expected:
 * bash
 * coreutils
-* git
-* ssh
 
 extra components will cause graceful degradation if not found:
+* git
+* ssh
 * mosh
 * fzf
 
@@ -56,7 +62,6 @@ other:
 * vim sessions?
 
 ## potential additions / things to look at
-* i3 config
 * https://github.com/rhysd/NyaoVim
 * some sort of detach/reattach program
     * http://www.brain-dump.org/projects/abduco/
@@ -67,3 +72,17 @@ other:
     - https://access.redhat.com/articles/2455211
     - could be used for remote sessions
 * fonts
+* http://blog.z3bra.org/2014/04/pop-it-up.html
+* http://blog.z3bra.org/2015/06/vomiting-colors.html
+* https://old.reddit.com/r/dotfiles/
+* http://dotfiles.github.io/
+
+* https://old.reddit.com/r/startpages/
+* https://old.reddit.com/r/FirefoxCSS/
+* https://old.reddit.com/r/wallpaperdump/
+
+* i3 config
+* alacritty
+    - supports wayland
+    - has good solarized theme
+    - yaml config

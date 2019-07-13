@@ -1,8 +1,11 @@
 #!/bin/bash
 # do a file search from the root of a git repo
 GITROOT=$(git rev-parse --show-toplevel) || exit $?
+cd $GITROOT
 if [ -z "$1" ]; then
-    (cd $GITROOT && fzf)
+    SEL=$(git ls-files | fzf) || exit $?
 else
-    grep -rn $@ $GITROOT | fzf | cut -f1 -d":"
+    SEL=$(grep -rn -e $(echo "$*" | sed 's/ / -e /g') $(git ls-files) | fzf ) || exit $?
+    SEL=$(echo $SEL | cut -f1 -d":")
 fi
+realpath $SEL
