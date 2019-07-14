@@ -40,9 +40,8 @@ components:
 * vim
 * alacritty
 * firefox
-    - can get a solarized theme with 'Zen Fox' plugin
-    - not sure how to do dynamic themes
     - userChrome.css
+    - https://userstyles.org/styles/98305/solarized-dark-everywhere
 
 ## TODO: vim
 
@@ -70,6 +69,7 @@ other:
 * sessions
 * https://thoughtbot.com/blog/seamlessly-navigate-vim-and-tmux-splits
 * vim sessions?
+* default 'IDE' panels
 
 ## potential additions / things to look at
 * https://github.com/rhysd/NyaoVim
@@ -98,3 +98,6 @@ other:
 * https://www.divio.com/blog/documentation/
 
 * track xdg-settings?
+* notifications?
+    - sway -> mako
+    - i3 -> dunst

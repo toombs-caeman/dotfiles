@@ -2,6 +2,7 @@
 shopt -s expand_aliases
 shopt -s histappend
 shopt -s checkwinsize
+shopt -s autocd
 HISTSIZE=1000
 HISTFILESIZE=2000
 HISTFILE=$REMOTE_CONFIG_DIR/.bash_history
@@ -34,3 +35,7 @@ alias cp="cp -i"
 alias du='du -hs'
 alias df='df -h'
 alias free='free -m'
+
+-() {
+        cd -
+}

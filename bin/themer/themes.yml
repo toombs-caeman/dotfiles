@@ -1,7 +1,8 @@
-template_dir: ../../config/
-output_dir:   ../../config/
+background_dir: ~/Pictures/Backgrounds
+template_dir: templates
+output_dir:   output
 
 templates:
+  i3config.sh: i3config.sh
   alacritty.yml.in: alacritty.yml
-  i3config.sh: i3config
   theme.vim.in: theme.vim

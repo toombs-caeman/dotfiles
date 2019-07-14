@@ -167,6 +167,12 @@ font:
   # effect.
   use_thin_strokes: true
 
+# Specifying a `duration` of `0` will disable the visual bell.
+visual_bell:
+  animation: EaseOutExpo
+  duration: 0
+  color: '0x{{color[1]}}'
+
 # If `true`, bold text is drawn using the bright color variants.
 draw_bold_text_with_bright_colors: true
 
@@ -174,32 +180,15 @@ draw_bold_text_with_bright_colors: true
 colors:
   # Default colors
   primary:
-    background: '0x39283c'
-    foreground: '0xe5dbc5'
+    background: '0x{{color[0]}}'
+    foreground: '0x{{color[7]}}'
 
   # Normal colors
-
-  normal:
-    black: '0x39283c'
-    red: '0x653a52'
-    green: '0x2d736a'
-    yellow: '0xfedc8c'
-    blue: '0x876a75'
-    magenta: '0xccc1da'
-    cyan: '0xa7a9b1'
-    white: '0xe5dbc5'
-
-  bright:
-    black: '0x39283c'
-    red: '0x653a52'
-    green: '0x2d736a'
-    yellow: '0xffe399'
-    blue: '0x2d736a'
-    magenta: '0xccc1da'
-    cyan: '0xa7a9b1'
-    white: '0xfffbd6'
-
-
+{% set color_list =('black','red','green','yellow','blue','magenta','cyan','white') -%}
+{% for block in ('normal','bright') %}
+  {{block}}:{% for n in range(8) %}
+    {{color_list[n]}}: '0x{{color.pop(0)}}'{% endfor %}
+{% endfor -%}
 
 # Visual Bell
 #
@@ -221,11 +210,6 @@ colors:
 #   - EaseOutCirc
 #   - Linear
 #
-# Specifying a `duration` of `0` will disable the visual bell.
-visual_bell:
-  animation: EaseOutExpo
-  duration: 0
-  color: '0xffffff'
 
 # Background opacity
 #
