@@ -1,4 +1,5 @@
 # Configuration for Alacritty, the GPU enhanced terminal emulator.
+# DO NOT EDIT!! This file was templated with ricer, so your changes will be lost.
 
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
@@ -167,6 +168,12 @@ font:
   # effect.
   use_thin_strokes: true
 
+# Specifying a `duration` of `0` will disable the visual bell.
+visual_bell:
+  animation: EaseOutExpo
+  duration: 0
+  color: '0x7c4532'
+
 # If `true`, bold text is drawn using the bright color variants.
 draw_bold_text_with_bright_colors: true
 
@@ -174,33 +181,30 @@ draw_bold_text_with_bright_colors: true
 colors:
   # Default colors
   primary:
-    background: '0x39283c'
-    foreground: '0xe5dbc5'
+    background: '0x180c09'
+    foreground: '0xe8e0a4'
 
   # Normal colors
 
   normal:
-    black: '0x39283c'
-    red: '0x653a52'
-    green: '0x2d736a'
-    yellow: '0xfedc8c'
-    blue: '0x876a75'
-    magenta: '0xccc1da'
-    cyan: '0xa7a9b1'
-    white: '0xe5dbc5'
+    black: '0x180c09'
+    red: '0x7c4532'
+    green: '0x345247'
+    yellow: '0xe2cb66'
+    blue: '0x55a9a8'
+    magenta: '0xd19d6d'
+    cyan: '0x85eef1'
+    white: '0xe8e0a4'
 
   bright:
-    black: '0x39283c'
-    red: '0x653a52'
-    green: '0x2d736a'
-    yellow: '0xffe399'
-    blue: '0x2d736a'
-    magenta: '0xccc1da'
-    cyan: '0xa7a9b1'
-    white: '0xfffbd6'
-
-
-
+    black: '0x2e3b33'
+    red: '0x5f1e1c'
+    green: '0x677368'
+    yellow: '0xe1be6e'
+    blue: '0x2c281d'
+    magenta: '0xd19d6d'
+    cyan: '0x85eef1'
+    white: '0xe8e0a4'
 # Visual Bell
 #
 # Any time the BEL code is received, Alacritty "rings" the visual bell. Once
@@ -221,17 +225,12 @@ colors:
 #   - EaseOutCirc
 #   - Linear
 #
-# Specifying a `duration` of `0` will disable the visual bell.
-visual_bell:
-  animation: EaseOutExpo
-  duration: 0
-  color: '0xffffff'
 
 # Background opacity
 #
 # Window opacity as a floating point number from `0.0` to `1.0`.
 # The value `0.0` is completely transparent and `1.0` is opaque.
-background_opacity: 0.8
+background_opacity: 0.9
 
 # Mouse bindings
 #

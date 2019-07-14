@@ -10,7 +10,7 @@ import math
 import heapq
 from PIL import Image
 
-# from http://charlesleifer.com/blog/suffering-for-fashion-a-glimpse-into-my-linux-theming-toolchain/
+# image to color palette from http://charlesleifer.com/blog/suffering-for-fashion-a-glimpse-into-my-linux-theming-toolchain/
 
 canonical = [
     (0, 0, 0),  # Black
@@ -120,19 +120,28 @@ fallback = [ '073642', 'dc322f', '859900', 'b58900',
              '839496', '6c71c4', '93a1a1', 'fdf6e3' ]
 
 def get_hexcodes(filename):
-    c = color.isolate_colors(filename, 16)
-    c = color.dedupe(c)
-    c = color.get_xcolors(c)
+    c = isolate_colors(filename, 16)
+    c = dedupe(c)
+    c = get_xcolors(c)
     # convert rgb tuples to hex codes
     hexcodes = []
     for t in c:
         hexcodes.append('%02x%02x%02x' % t)
     return hexcodes
 
+def normalize_paths(m):
+    for k, v in m.items():
+        if type(v) is str and k != 'callback':
+            m[k] = os.path.abspath(os.path.expanduser(v))
+        if type(v) is dict:
+            m[k] = normalize_paths(v)
+    return m
+
+
 def get_conf(tmplfile):
     try:
         with open(tmplfile, 'r') as stream:
-            return yaml.safe_load(stream)
+            return normalize_paths(yaml.safe_load(stream))
     except yaml.YAMLError as ex:
         print(exc)
         exit(1)
@@ -150,27 +159,30 @@ def render(conf, background, colors):
         with open(value['dest'], "w") as f:
             f.write(output)
         if 'link' in value.keys():
+            subprocess.call(['mkdir', '-p', os.path.dirname(value['link'])])
             subprocess.call(['ln','-sf',value['dest'], value['link']])
         if 'callback' in value.keys():
-            subprocess.call(value['callback'])
+            subprocess.call(value['callback'].split())
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='generate themes from images and template config files with jinja2')
     parser.add_argument('config_file', help='the yaml configuration')
     parser.add_argument('-f', metavar='FILE', dest='image', help='the background image to use')
+    parser.add_argument('--default', dest='default', action='store_true', help='use the default theme (solarized dark)')
     args = parser.parse_args()
 
     conf = get_conf(args.config_file)
     background = ''
-    if hasattr(args, 'image'):
-        background = args.image
+    if args.image is not None:
+        background = os.path.abspath(args.image)
     else:
-        background = random.choice(os.listdir(conf['background_dir']))
+        background = os.path.abspath(
+            conf['background_dir'] + '/' + 
+            random.choice(os.listdir(conf['background_dir']))
+        )
 
     colors = fallback
-    try: # try to get colors from a background image
-        colors = get_hexcodes(args.image)
-    except Exception:
-        pass
+    if not args.default:
+            colors = get_hexcodes(background)
 
     render(conf, background, colors)

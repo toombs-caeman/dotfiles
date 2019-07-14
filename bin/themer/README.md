@@ -1,9 +1,14 @@
 automatically generate color themes from background images.
+also allows jinja2 templating for config files and callbacks
 
 # requires
 * python3
-    - heapq
-    - pillow
-    - jinja2
+
+# examples
 
 # configuration
+
+
+# TODO
+* template warning to include the template path
+* tolerate failure in a template

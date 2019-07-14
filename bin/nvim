@@ -4,10 +4,10 @@ NVIM=$(dirname $BASH_SOURCE)/nvim.appimage
 # TODO use nvim-remote instead of this
 # if we're starting inside the nvim terminal then alias vi to open a new split
 # rather than a new vi instance
-if [[ ! -z "$NVIM_LISTEN_ADDRESS" ]]; then
-    printf "\e]51;[\"call\",\"Tapi_edit\",\"$1\"]\007"
-    exit $?
-fi
+# if [[ ! -z "$NVIM_LISTEN_ADDRESS" ]]; then
+#     printf "\e]51;[\"call\",\"Tapi_edit\",\"$1\"]\007"
+#     exit $?
+# fi
 
 # TODO detect architecture and get the correct binary
 # TODO autoupdate nvim.appimage

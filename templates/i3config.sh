@@ -115,10 +115,9 @@ bindsym $mod+Ctrl+Right workspace next
 bindsym $mod+Ctrl+Left workspace prev
 
 {% for n in range(1, 9) %}
-set $ws{{n}} {{n}} {# workspace names #} 
-bindsym $mod+{{n}} workspace $ws{{n}} {# switch to workspace #}
-bindsym $mod+Ctrl+{{n}} move container to workspace $ws{{n}} {# Move focused container to workspace #}
-bindsym $mod+Shift+{{n}} move container to workspace $ws{{n}}; workspace $ws{{n}} {# Move to workspace with focused container #}
+bindsym $mod+{{n}} workspace {{n}}{# switch to workspace #}
+bindsym $mod+Ctrl+{{n}} move container to workspace {{n}}{# Move focused container to workspace #}
+bindsym $mod+Shift+{{n}} move container to workspace {{n}}; workspace {{n}}{# Move to workspace with focused container #}
 {% endfor %}
 
 # Open applications on specific workspaces
@@ -194,6 +193,7 @@ bindsym $mod+9 exec --no-startup-id blurlock
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id nitrogen --set-zoom-fill --random ~/Pictures/Backgrounds/; sleep 1; compton -b
+exec_always feh --bg-scale {{background}}
 #exec --no-startup-id manjaro-hello
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager

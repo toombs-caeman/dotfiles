@@ -3,12 +3,12 @@ template_dir: ~/.remote_config/templates/
 
 templates:
   i3config.sh: 
-    dest: ~/.remote_config/out/i3config.sh
+    dest: ~/.remote_config/config/i3config.sh
     link: ~/.i3/config
-    callback: i3-msg reload
+    callback: i3-msg restart
   alacritty.yml: 
-    dest: ~/.remote_config/out/alacritty.yml
+    dest: ~/.remote_config/config/alacritty.yml
     link: ~/.alacritty/alacritty.yml
   theme.vim: 
-    dest: ~/.remote_config/out/theme.vim
+    dest: ~/.remote_config/config/theme.vim
     link: ~/.vim/colors/theme.vim
