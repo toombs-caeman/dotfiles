@@ -7,6 +7,12 @@ let s:portable = expand('<sfile>:p:h')
 " Isolate the runtime to the current directory
 " let &runtimepath = printf('%s,%s/vim81', s:portable, s:portable)
 
+" autoreload vimrc
+augroup myvimrc
+    au!
+    au BufWritePost .vimrc,_vimrc,vimrc,.gvimrc,_gvimrc,gvimrc so $MYVIMRC | if has('gui_running') | so $MYGVIMRC | endif
+augroup END
+
 if &compatible
   set nocompatible
 endif
