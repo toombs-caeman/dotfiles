@@ -141,7 +141,11 @@ def normalize_paths(m):
 def get_conf(tmplfile):
     try:
         with open(tmplfile, 'r') as stream:
-            return normalize_paths(yaml.safe_load(stream))
+            r = yaml.safe_load(stream)
+            for k, v in r['templates'].items():
+                if type(v) is str:
+                    r['templates'][k] = { 'dest': v}
+            return normalize_paths(r)
     except yaml.YAMLError as ex:
         print(exc)
         exit(1)
@@ -150,19 +154,22 @@ def render(conf, background, colors):
     jjenv = jj.Environment(autoescape=True,
         loader=jj.FileSystemLoader(conf['template_dir']))
     for name, value in conf['templates'].items():
-        template = jjenv.get_template(name)
-        output = template.render(
-                color=colors, 
-                background=background,
-                msg=warning
-                )
-        with open(value['dest'], "w") as f:
-            f.write(output)
-        if 'link' in value.keys():
-            subprocess.call(['mkdir', '-p', os.path.dirname(value['link'])])
-            subprocess.call(['ln','-sf',value['dest'], value['link']])
-        if 'callback' in value.keys():
-            subprocess.call(value['callback'].split())
+        try:
+            template = jjenv.get_template(name)
+            output = template.render(
+                    color=colors, 
+                    background=background,
+                    msg=warning
+                    )
+            with open(value['dest'], "w") as f:
+                f.write(output)
+            if 'link' in value.keys():
+                subprocess.call(['mkdir', '-p', os.path.dirname(value['link'])])
+                subprocess.call(['ln', '-sf', value['dest'], value['link']])
+            if 'callback' in value.keys():
+                subprocess.call(value['callback'].split())
+        except Exception as ex:
+            print(ex)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='generate themes from images and template config files with jinja2')
@@ -172,6 +179,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     conf = get_conf(args.config_file)
+    print(conf)
     background = ''
     if args.image is not None:
         background = os.path.abspath(args.image)
@@ -183,6 +191,6 @@ if __name__ == "__main__":
 
     colors = fallback
     if not args.default:
-            colors = get_hexcodes(background)
+        colors = get_hexcodes(background)
 
     render(conf, background, colors)
