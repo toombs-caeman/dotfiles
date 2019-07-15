@@ -68,20 +68,20 @@ bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
 focus_follows_mouse no
 
 
-bindsym $mod+j focus left
-bindsym $mod+k focus down
-bindsym $mod+l focus up
-bindsym $mod+semicolon focus right
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
 
 bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 
-bindsym $mod+Shift+j move left
-bindsym $mod+Shift+k move down
-bindsym $mod+Shift+l move up
-bindsym $mod+Shift+semicolon move right
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
 
 bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
@@ -95,8 +95,8 @@ bindsym $mod+b workspace back_and_forth
 bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
 # split orientation
-bindsym $mod+h split h;exec notify-send 'tile horizontally'
-bindsym $mod+v split v;exec notify-send 'tile vertically'
+# bindsym $mod+h split h;exec notify-send 'tile horizontally'
+# bindsym $mod+v split v;exec notify-send 'tile vertically'
 bindsym $mod+q split toggle
 
 # toggle fullscreen mode for the focused container
@@ -242,7 +242,7 @@ bindsym $mod+9 exec --no-startup-id blurlock
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id nitrogen --set-zoom-fill --random ~/Pictures/Backgrounds/; sleep 1; compton -b
-exec_always feh --bg-scale /home/ubernormal/Pictures/Backgrounds/madeline.jpg
+exec_always feh --bg-scale /home/ubernormal/Pictures/Backgrounds/OjBNYaz.jpg
 #exec --no-startup-id manjaro-hello
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
@@ -304,22 +304,14 @@ bar {
 	strip_workspace_numbers yes
 
     colors {
-#         background #222D31
-#         statusline #F9FAF9
-#         separator  #454947
-#         focused_workspace  #F9FAF9 #16a085 #292F34
-#         active_workspace   #595B5B #353836 #FDF6E3
-#         inactive_workspace #595B5B #222D31 #EEE8D5
-#         binding_mode       #16a085 #2C2C2C #F9FAF9
-#         urgent_workspace   #16a085 #FDF6E3 #E5201D
-
-        background #002b36
-        statusline #839496
-        separator  #586e75
-        focused_workspace  #b58900 #b58900 #002b36
-        active_workspace   #586e75 #586e75 #002b36
-        inactive_workspace #073642 #002b36 #839496
-        urgent_workspace   #dc322f #dc322f #fdf6e3
+        background #073642
+        statusline #eee8d5
+        separator  #268bd2
+        # class            border         backgr.        text  indicator child_border
+        focused_workspace  #586e75 #586e75 #fdf6e3
+        active_workspace   #859900  #859900  #fdf6e3
+        inactive_workspace #073642  #073642  #fdf6e3
+        urgent_workspace   #cb4b16  #cb4b16  #fdf6e3
     }
 }
 
@@ -397,3 +389,6 @@ mode "$mode_gaps_outer" {
         bindsym Return mode "default"
         bindsym Escape mode "default"
 }
+
+
+exec ricer ~/.remote_config/themes.yml

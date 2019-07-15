@@ -22,34 +22,35 @@ extra components will cause graceful degradation if not found:
 
 # TODO: misc
 * rename remote_config.sh -> .profile
-* rename themer -> ricer
+* nail down graphics pipline for x and wayland
+    - X
+        * i3
+        * feh
+        * dunst
+        * conky_maia
+    - wayland
+        * sway
+        * swaybg
+        * mako
 * split out ricer and git extensions
 * have nvim autoupdate nvim.appimage and pull the correct architecture
+* emulate dmenu with https://github.com/swaywm/sway/issues/1367#issuecomment-495306710
+
+* figure out a good sub repo pattern for ricer, pm, etc.
+    - git modules
+    - git subtree https://www.atlassian.com/blog/git/alternatives-to-git-submodule-git-subtree
+    - git subrepo https://github.com/ingydotnet/git-subrepo#readme
 
 # TODO: Theming
 
-probably want to separate this into a few stages.
-* determine background image and palette
-    * http://charlesleifer.com/blog/suffering-for-fashion-a-glimpse-into-my-linux-theming-toolchain/
-    * http://blog.z3bra.org/2015/06/vomiting-colors.html
-* template config files with the palette
-    - https://www.reddit.com/r/unixporn/comments/8giij5/guide_defining_program_colors_through_xresources/
-* execute callbacks to update running programs
-* default to solarized theme https://github.com/altercation/solarized
-
-ideas:
-* palette creation should fail if the input image isn't very color diverse
-    - this should prevent any unreadable configs
-* may want to steer around xresources considering wayland is a thing
-* fonts
 * https://wiki.installgentoo.com/index.php/GNU/Linux_ricing
 
-components:
-* i3 / sway
+* i3
 * vim
 * alacritty
 * firefox
     - userChrome.css
+    - https://www.userchrome.org/how-create-userchrome-css.html
     - https://userstyles.org/styles/98305/solarized-dark-everywhere
 
 ## TODO: vim
@@ -81,9 +82,9 @@ other:
 * vim sessions?
 * default 'IDE' panels
 * default file manager panels (netwr)
+* https://github.com/rhysd/NyaoVim
 
 ## potential additions / things to look at
-* https://github.com/rhysd/NyaoVim
 * some sort of detach/reattach program
     * http://www.brain-dump.org/projects/abduco/
     * tmux

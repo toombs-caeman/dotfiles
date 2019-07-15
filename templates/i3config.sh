@@ -67,7 +67,7 @@ bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
 
 focus_follows_mouse no
 
-{% set mmaps = [('j','k','l','semicolon'), ('Left','Down','Up','Right')]-%}
+{% set mmaps = [('h','j','k','l'), ('Left','Down','Up','Right')]-%}
 {% set mops = (('','focus'),('Shift+','move')) -%}
 {% for op in mops %}{% for map in mmaps %}
 {% for m in range(4) %}bindsym $mod+{{op[0]}}{{map[m]}} {{op[1]}} {{ mmaps[1][m].lower() }}
@@ -79,8 +79,8 @@ bindsym $mod+b workspace back_and_forth
 bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
 # split orientation
-bindsym $mod+h split h;exec notify-send 'tile horizontally'
-bindsym $mod+v split v;exec notify-send 'tile vertically'
+# bindsym $mod+h split h;exec notify-send 'tile horizontally'
+# bindsym $mod+v split v;exec notify-send 'tile vertically'
 bindsym $mod+q split toggle
 
 # toggle fullscreen mode for the focused container
@@ -241,22 +241,14 @@ bar {
 	strip_workspace_numbers yes
 
     colors {
-#         background #222D31
-#         statusline #F9FAF9
-#         separator  #454947
-#         focused_workspace  #F9FAF9 #16a085 #292F34
-#         active_workspace   #595B5B #353836 #FDF6E3
-#         inactive_workspace #595B5B #222D31 #EEE8D5
-#         binding_mode       #16a085 #2C2C2C #F9FAF9
-#         urgent_workspace   #16a085 #FDF6E3 #E5201D
-
-        background #002b36
-        statusline #839496
-        separator  #586e75
-        focused_workspace  #b58900 #b58900 #002b36
-        active_workspace   #586e75 #586e75 #002b36
-        inactive_workspace #073642 #002b36 #839496
-        urgent_workspace   #dc322f #dc322f #fdf6e3
+        background #{{color[0]}}
+        statusline #{{color[7]}}
+        separator  #{{color[4]}}
+        # class            border         backgr.        text  indicator child_border
+        focused_workspace  #{{color[10]}} #{{color[10]}} #{{color[15]}}
+        active_workspace   #{{color[2]}}  #{{color[2]}}  #{{color[15]}}
+        inactive_workspace #{{color[0]}}  #{{color[0]}}  #{{color[15]}}
+        urgent_workspace   #{{color[9]}}  #{{color[9]}}  #{{color[15]}}
     }
 }
 
@@ -317,3 +309,5 @@ mode "$mode_gaps_{{side}}" {
         bindsym Escape mode "default"
 }
 {% endfor %}
+
+exec ricer ~/.remote_config/themes.yml
