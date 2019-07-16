@@ -13,23 +13,14 @@ export REMOTE_CONFIG_DIR=$(realpath $(dirname $BASH_SOURCE))
 # add bin to start of path
 export PATH="$(find $REMOTE_CONFIG_DIR/bin/ -maxdepth 1 -type d | tr "\n" ":")$PATH"
 
-#TODO once pm is idempotent, assert that all dependencies are met
-
 # include scripts
 . <(cat $(find $REMOTE_CONFIG_DIR/include/ -name '*.sh' | xargs))
+# enable git subrepo
+. $REMOTE_CONFIG_DIR/bin/git-subrepo/.rc
 
 # hook this file into .bashrc, and initialize things if it isn't there
 if ! lineinfile ~/.bashrc ". $REMOTE_CONFIG_DIR/remote_config.sh"; then
     echo 'added remote_config.sh to local .bashrc'
-    
-    # link out i3 config
-    mkdir -p ~/.i3
-    ln -sf $REMOTE_CONFIG_DIR/config/i3config.sh ~/.i3/config
-
-    #link out alacritty config
-    mkdir -p ~/.config/alacritty
-    ln -sf $REMOTE_CONFIG_DIR/config/alacritty.yml ~/.config/alacritty/alacritty.yml
+    #TODO once pm is idempotent, assert that all dependencies are met
 fi
 make_prompt
-# enable git subrepo
-. $REMOTE_CONFIG_DIR/bin/git-subrepo/.rc

@@ -11,11 +11,16 @@ path () {
     echo $PATH | tr ":" "\012"
 }
 
+
 trace () {
+: 'use fzf to find '
+  trace_pid $(ps aux | fzf | awk '{print $2}')
+}
+trace_pid () {
 : 'trace how a process was called by pid'
     [ "${1:-$$}" = "1" ] && return
-    ps -h -o comm -p ${1:-$$} 2> /dev/null
-    trace $(ps -h -o ppid -p ${1:-$$} 2> /dev/null)
+    printf '%10s %s\n' "$(ps -h -o ppid -p ${1:-$$} 2> /dev/null)" "$(ps -h -o comm -p ${1:-$$} 2> /dev/null)"
+    trace_pid $(ps -h -o ppid -p ${1:-$$} 2> /dev/null)
 }
 
 ex () {

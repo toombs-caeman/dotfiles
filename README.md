@@ -21,8 +21,10 @@ extra components will cause graceful degradation if not found:
 * fzf
 
 # TODO: misc
-* rename remote_config.sh -> .profile
+* rename remote_config.sh -> rc
+* include .bash_profile to initialize graphical interface
 * nail down graphics pipline for x and wayland
+    - make switch configurable through ricer
     - X
         * i3
         * feh
@@ -34,6 +36,8 @@ extra components will cause graceful degradation if not found:
         * mako
         * system monitor?
 * emulate dmenu with https://github.com/swaywm/sway/issues/1367#issuecomment-495306710
+* move git-subrepo out of bin/
+    - it doesn't really need to be on the path
 
 # TODO: Theming
 
