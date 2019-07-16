@@ -1,0 +1,13 @@
+#!/bin/bash
+# use git tags to create a git version file
+GITROOT=$(git rev-parse --show-toplevel) || exit $?
+VERSION=$(git describe --tags --abbrev=0 HEAD --always)
+HASH=$(git rev-parse HEAD)
+BRANCH=$(git branch | grep \* | cut -d ' ' -f2)
+
+if [ "$HASH" != "$(git rev-parse $VERSION)" ]; then
+    VERSION=$VERSION-SNAPSHOT-$HASH
+fi
+echo "preparing environment for $(basename $GITROOT):$VERSION on branch $BRANCH"
+echo $VERSION > $GITROOT/VERSION
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+GITROOT="$(git rev-parse --show-toplevel)" || exit $?
+
+case $1 in
+    init)
+        echo initializing git hooks
+        # symlink each file in .githooks to .git/hooks
+        (cd $GITROOT/.githooks && ln -sf -t $GITROOT/.git/hooks *)
+        ;;
+    *)
+        echo "try 'git hook init'"
+esac

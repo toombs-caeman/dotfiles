@@ -1,0 +1,3 @@
+#!/bin/bash
+# git automatically follows the subcommand pattern for files named git-*, otherwise this would easily be an alias
+git $@ log --graph --all --oneline --color 

@@ -1,0 +1,12 @@
+#!/bin/bash
+# do a file search with fzf from the root of a git repo
+# search within a file with extra parameters
+GITROOT=$(git rev-parse --show-toplevel) || exit $?
+cd $GITROOT
+if [ -z "$1" ]; then
+    SEL=$(git ls-files | fzf) || exit $?
+else
+    SEL=$(grep -rn -e $(echo "$*" | sed 's/ / -e /g') $(git ls-files) | fzf ) || exit $?
+    SEL=$(echo $SEL | cut -f1 -d":")
+fi
+realpath $SEL
