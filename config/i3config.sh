@@ -1,7 +1,7 @@
 # i3 config file (v4)
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 
-# DO NOT EDIT!! This file was templated with ricer, so your changes will be lost.
+# DO NOT EDIT!! created with ricer template:/home/ubernormal/.remote_config/templates/i3config.sh
 
 # Set mod key (Mod1=<Alt>, Mod4=<Super>)
 set $mod Mod4
@@ -35,7 +35,7 @@ bindsym $mod+Return exec alacritty
 bindsym $mod+Shift+q kill
 
 # start program launcher
-bindsym $mod+d exec --no-startup-id dmenu_recency
+bindsym $mod+d exec --no-startup-id dmenu_recency -nb '#073642' -nf '#eee8d5' -sb '#002b36' -sf '#fdf6e3'
 
 # launch categorized menu
 bindsym $mod+z exec --no-startup-id morc_menu
@@ -241,8 +241,7 @@ bindsym $mod+9 exec --no-startup-id blurlock
 
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-exec --no-startup-id nitrogen --set-zoom-fill --random ~/Pictures/Backgrounds/; sleep 1; compton -b
-exec_always feh --bg-scale /home/ubernormal/Pictures/Backgrounds/OjBNYaz.jpg
+exec --no-startup-id compton -b
 #exec --no-startup-id manjaro-hello
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
@@ -391,4 +390,4 @@ mode "$mode_gaps_outer" {
 }
 
 
-exec ricer ~/.remote_config/themes.yml
+exec --no-startup-id sh -c ricer ~/.remote_config/themes.yml

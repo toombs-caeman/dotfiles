@@ -1,4 +1,4 @@
-" DO NOT EDIT!! This file was templated with ricer, so your changes will be lost.
+" DO NOT EDIT!! created with ricer template:/home/ubernormal/.remote_config/templates/theme.vim
 set background=dark
 hi clear
 if exists("syntax_on")

@@ -1,5 +1,5 @@
 # Configuration for Alacritty, the GPU enhanced terminal emulator.
-# DO NOT EDIT!! This file was templated with ricer, so your changes will be lost.
+# DO NOT EDIT!! created with ricer template:/home/ubernormal/.remote_config/templates/alacritty.yml
 
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
