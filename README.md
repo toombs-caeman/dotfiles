@@ -32,31 +32,25 @@ extra components will cause graceful degradation if not found:
         * sway
         * swaybg
         * mako
-* split out ricer and git extensions
-* have nvim autoupdate nvim.appimage and pull the correct architecture
+        * system monitor?
 * emulate dmenu with https://github.com/swaywm/sway/issues/1367#issuecomment-495306710
-
-* figure out a good sub repo pattern for ricer, pm, etc.
-    - git modules
-    - git subtree https://www.atlassian.com/blog/git/alternatives-to-git-submodule-git-subtree
-    - git subrepo https://github.com/ingydotnet/git-subrepo#readme
 
 # TODO: Theming
 
 * https://wiki.installgentoo.com/index.php/GNU/Linux_ricing
 
-* i3
 * vim
-* alacritty
 * firefox
     - userChrome.css
     - https://www.userchrome.org/how-create-userchrome-css.html
     - https://userstyles.org/styles/98305/solarized-dark-everywhere
 
-* use xresources config from ricer example
-
 ## TODO: vim
 
+* have nvim autoupdate nvim.appimage and pull the correct architecture
+* break vim into a self contained subrepo
+* theme with this: https://stackoverflow.com/questions/37400174/can-i-set-the-vim-colorscheme-from-the-command-line
+    - this will leave the self contained theme intact when ricer isn't available
 configure plugins:
 * Plug looks pretty easy to use
 * nvr https://github.com/mhinz/neovim-remote
