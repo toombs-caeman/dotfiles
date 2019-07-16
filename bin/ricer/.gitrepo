@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/toombs-caeman/ricer
+	branch = master
+	commit = 97ecd6657598daa7e38c5a944aa7b296f37dfcbf
+	parent = de62beae9bbe3f32997f2543c6de29e0e98636c1
+	method = merge
+	cmdver = 0.4.0

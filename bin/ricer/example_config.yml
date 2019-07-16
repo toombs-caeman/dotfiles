@@ -1,0 +1,7 @@
+template_dir: ./
+background_dir: ~/Pictures/
+
+templates:
+  Xresources.template:
+    dest: ~/Xresources.render
+    callback: xrdb -merge ~/Xresources.render

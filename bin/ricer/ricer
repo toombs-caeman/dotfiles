@@ -1,0 +1,200 @@
+#!/usr/bin/env python3
+import yaml
+import jinja2 as jj
+import argparse
+import subprocess
+
+import os, random
+import colorsys  # stdlib
+import math
+import heapq
+from PIL import Image
+
+canonical = [
+    # Normal colors
+    (0, 0, 0),        # Black
+    (255, 0, 0),      # Red
+    (0, 255, 0),      # Green
+    (255, 255, 0),    # Yellow
+    (0, 0, 255),      # Blue
+    (255, 0, 255),    # Magenta
+    (0, 255, 255),    # Cyan
+    (192, 192, 192),  # Light gray
+
+    # Bright colors
+    (64, 64, 64),     # Dark gray
+    (255, 0, 0),      # Red
+    (0, 255, 0),      # Green
+    (255, 255, 0),    # Yellow
+    (0, 0, 255),      # Blue
+    (255, 0, 255),    # Magenta
+    (0, 255, 255),    # Cyan
+    (255, 255, 255),  # White
+]
+
+def isolate_colors(filename, ncolors):
+    img = Image.open(filename)
+    if img.mode != 'RGB':
+        img = img.convert('RGB')
+    img = img.convert('P', palette=Image.ADAPTIVE, colors=ncolors)
+    img = img.convert('RGB')
+    return sorted(img.getcolors(ncolors), reverse=True)
+
+def euclidean_dist(p1, p2):
+    return math.sqrt(sum((p1[i] - p2[i]) ** 2 for i in range(3)))
+
+# count_color is a sorted (desc) list of: [(pixel count, (r, g, b)), ...]
+# rollup is the distance heuristic, arrived at by fiddling til it looked ok
+
+def dedupe(count_color, rollup=10):
+    result = {}
+    for count, rgb in count_color:
+        if rgb in result:
+            result[rgb] += count
+        else:
+            for rrgb in result:
+                dist = euclidean_dist(rrgb, rgb)
+                if dist < rollup:
+                    result[rrgb] += count
+                    break
+            else:
+                result[rgb] = count
+
+    return sorted([(count, color) for color, count in result.items()],
+                  reverse=True)
+
+def get_xcolors(colors, substitution_distance=20):
+    results = []
+    for crgb in canonical:
+        distances = []
+        for _, rgb in colors:
+            distance = euclidean_dist(crgb, rgb)
+            heapq.heappush(distances, (distance, rgb))
+
+        # First, try the closest RGB match.
+        best = heapq.nsmallest(1, distances)[0][1]
+        if best not in results:
+            results.append(best)
+        else:
+            # Attempt to find a substitute.
+            current = 0  # Distance from best color to potential substitute.
+            min_dist = None
+            vals = []
+            while distances and current < substitution_distance:
+                dist, rgb = heapq.heappop(distances)
+                vals.append(rgb)
+
+                # Here we're keeping an eye on the distance between
+                # the potential substitute color, and the original
+                # best color.
+                if min_dist is None:
+                    min_dist = dist
+                else:
+                    current = dist - min_dist
+
+            for rgb in vals:
+                if rgb not in results:
+                    # We found a substitute that isn't in use.
+                    results.append(rgb)
+                    break
+            else:
+                # No substitute found, just use the best match.
+                results.append(vals[0])
+
+    return results
+
+# Example, to ensure that black has a value between 0 and .2:
+# fixed_black_rgb = ensure_value(black_rgb, 0.0, 0.2)
+# def ensure_value(rgb, low, high):
+#     r, g, b = rgb
+#     h, s, v = colorsys.rgb_to_hsv(r / 256., g / 256., b / 256.)
+#     v = max(min(v, high), low)
+#     return tuple([i * 256. for i in colorsys.hsv_to_rgb(h, s, v)])
+
+
+warning ='DO NOT EDIT!! created with ricer template:%s'
+# as a fallback, use the solarized dark theme
+fallback = [ '073642', 'dc322f', '859900', 'b58900',
+             '268bd2', 'd33682', '2aa198', 'eee8d5',
+             '002b36', 'cb4b16', '586e75', '657b83',
+             '839496', '6c71c4', '93a1a1', 'fdf6e3' ]
+
+def get_hexcodes(filename):
+    c = isolate_colors(filename, 16)
+    c = dedupe(c)
+    c = get_xcolors(c)
+    # convert rgb tuples to hex codes
+    hexcodes = []
+    for t in c:
+        hexcodes.append('%02x%02x%02x' % t)
+    return hexcodes
+
+def normalize_paths(m):
+    for k, v in m.items():
+        if type(v) is str and k != 'callback':
+            m[k] = os.path.abspath(os.path.expanduser(v))
+        if type(v) is dict:
+            m[k] = normalize_paths(v)
+    return m
+
+
+def get_conf(tmplfile):
+    try:
+        with open(tmplfile, 'r') as stream:
+            r = yaml.safe_load(stream)
+            for k, v in r['templates'].items():
+                if type(v) is str:
+                    r['templates'][k] = { 'dest': v}
+            return normalize_paths(r)
+    except yaml.YAMLError as ex:
+        print(ex)
+        exit(1)
+
+def render(conf, background, colors):
+    jjenv = jj.Environment(autoescape=True,
+        loader=jj.FileSystemLoader(conf['template_dir']))
+    for name, value in conf['templates'].items():
+        try:
+            template = jjenv.get_template(name)
+            output = template.render(
+                    color=colors, 
+                    background=background,
+                    msg=warning % (conf['template_dir'] + "/" + name)
+                    )
+            with open(value['dest'], "w") as f:
+                f.write(output)
+            if 'link' in value.keys():
+                subprocess.call(['mkdir', '-p', os.path.dirname(value['link'])])
+                subprocess.call(['ln', '-sf', value['dest'], value['link']])
+            if 'callback' in value.keys():
+                subprocess.call(['sh', '-c',value['callback']])
+        except Exception as ex:
+            print(ex)
+
+
+# list files recursively given a directory
+def lsR(d):
+    # https://stackoverflow.com/questions/19309667/recursive-os-listdir
+    return [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(d)) for f in fn]
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='generate themes from images and template config files with jinja2')
+    parser.add_argument('config_file', help='the yaml configuration')
+    parser.add_argument('-f', metavar='FILE', dest='image', help='the background image to use')
+    parser.add_argument('--default', dest='default', action='store_true', help='use the default theme (solarized dark)')
+    args = parser.parse_args()
+
+    conf = get_conf(args.config_file)
+    background = ''
+    if args.image is not None:
+        background = os.path.abspath(args.image)
+    else:
+        background = os.path.abspath(
+            random.choice(lsR(conf['background_dir']))
+        )
+
+    colors = fallback
+    if not args.default:
+        colors = get_hexcodes(background)
+
+    render(conf, background, colors)
