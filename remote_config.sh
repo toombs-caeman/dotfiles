@@ -31,3 +31,5 @@ if ! lineinfile ~/.bashrc ". $REMOTE_CONFIG_DIR/remote_config.sh"; then
     ln -sf $REMOTE_CONFIG_DIR/config/alacritty.yml ~/.config/alacritty/alacritty.yml
 fi
 make_prompt
+# enable git subrepo
+. $REMOTE_CONFIG_DIR/bin/git-subrepo/.rc
