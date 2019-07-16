@@ -35,7 +35,7 @@ bindsym $mod+Return exec alacritty
 bindsym $mod+Shift+q kill
 
 # start program launcher
-bindsym $mod+d exec --no-startup-id dmenu_recency
+bindsym $mod+d exec --no-startup-id dmenu_recency -nb '#{{color[0]}}' -nf '#{{color[7]}}' -sb '#{{color[8]}}' -sf '#{{color[15]}}'
 
 # launch categorized menu
 bindsym $mod+z exec --no-startup-id morc_menu
@@ -192,8 +192,8 @@ bindsym $mod+9 exec --no-startup-id blurlock
 
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-exec --no-startup-id nitrogen --set-zoom-fill --random ~/Pictures/Backgrounds/; sleep 1; compton -b
-exec_always feh --bg-scale {{background}}
+exec --no-startup-id compton -b
+exec_always --no-startup-id feh --bg-fill {{background}} --no-fehbg --image-bg '#{{color[0]}}'
 #exec --no-startup-id manjaro-hello
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
@@ -310,4 +310,4 @@ mode "$mode_gaps_{{side}}" {
 }
 {% endfor %}
 
-exec ricer ~/.remote_config/themes.yml
+exec --no-startup-id sh -c ricer ~/.remote_config/themes.yml

@@ -2,6 +2,10 @@ background_dir: ~/Pictures/Backgrounds
 template_dir: ~/.remote_config/templates/
 
 templates:
+  Xresources.template:
+    dest: ~/.remote_config/config/.Xresources
+    link: ~/.Xresources
+    callback: xrdb -merge ~/.remote_config/config/.Xresources
   i3config.sh: 
     dest: ~/.remote_config/config/i3config.sh
     link: ~/.i3/config
@@ -9,6 +13,8 @@ templates:
   alacritty.yml: 
     dest: ~/.remote_config/config/alacritty.yml
     link: ~/.alacritty/alacritty.yml
+    # alacritty autoreloads on its own
   theme.vim: 
     dest: ~/.remote_config/config/theme.vim
     link: ~/.vim/colors/theme.vim
+    # callback is handled by augroup in vimrc

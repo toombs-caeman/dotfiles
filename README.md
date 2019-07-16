@@ -53,6 +53,8 @@ extra components will cause graceful degradation if not found:
     - https://www.userchrome.org/how-create-userchrome-css.html
     - https://userstyles.org/styles/98305/solarized-dark-everywhere
 
+* use xresources config from ricer example
+
 ## TODO: vim
 
 configure plugins:

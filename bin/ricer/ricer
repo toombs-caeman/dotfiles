@@ -10,27 +10,25 @@ import math
 import heapq
 from PIL import Image
 
-# image to color palette from http://charlesleifer.com/blog/suffering-for-fashion-a-glimpse-into-my-linux-theming-toolchain/
-
 canonical = [
     # Normal colors
-    (0, 0, 0),  # Black
-    (255, 0, 0),  # Red
-    (0, 255, 0),  # Green
-    (255, 255, 0),  # Yellow
-    (0, 0, 255),  # Blue
-    (255, 0, 255), # Magenta
-    (0, 255, 255),  # Cyan
+    (0, 0, 0),        # Black
+    (255, 0, 0),      # Red
+    (0, 255, 0),      # Green
+    (255, 255, 0),    # Yellow
+    (0, 0, 255),      # Blue
+    (255, 0, 255),    # Magenta
+    (0, 255, 255),    # Cyan
     (192, 192, 192),  # Light gray
 
     # Bright colors
-    (64, 64, 64),  # Dark gray
-    (255, 0, 0),  # Red
-    (0, 255, 0),  # Green
-    (255, 255, 0),  # Yellow
-    (0, 0, 255),  # Blue
-    (255, 0, 255), # Magenta
-    (0, 255, 255),  # Cyan
+    (64, 64, 64),     # Dark gray
+    (255, 0, 0),      # Red
+    (0, 255, 0),      # Green
+    (255, 255, 0),    # Yellow
+    (0, 0, 255),      # Blue
+    (255, 0, 255),    # Magenta
+    (0, 255, 255),    # Cyan
     (255, 255, 255),  # White
 ]
 
@@ -114,7 +112,7 @@ def get_xcolors(colors, substitution_distance=20):
 #     return tuple([i * 256. for i in colorsys.hsv_to_rgb(h, s, v)])
 
 
-warning ='DO NOT EDIT!! This file was templated with ricer, so your changes will be lost.'
+warning ='DO NOT EDIT!! created with ricer template:%s'
 # as a fallback, use the solarized dark theme
 fallback = [ '073642', 'dc322f', '859900', 'b58900',
              '268bd2', 'd33682', '2aa198', 'eee8d5',
@@ -161,7 +159,7 @@ def render(conf, background, colors):
             output = template.render(
                     color=colors, 
                     background=background,
-                    msg=warning
+                    msg=warning % (conf['template_dir'] + "/" + name)
                     )
             with open(value['dest'], "w") as f:
                 f.write(output)
@@ -169,9 +167,15 @@ def render(conf, background, colors):
                 subprocess.call(['mkdir', '-p', os.path.dirname(value['link'])])
                 subprocess.call(['ln', '-sf', value['dest'], value['link']])
             if 'callback' in value.keys():
-                subprocess.call(value['callback'].split())
+                subprocess.call(['sh', '-c',value['callback']])
         except Exception as ex:
             print(ex)
+
+
+# list files recursively given a directory
+def lsR(d):
+    # https://stackoverflow.com/questions/19309667/recursive-os-listdir
+    return [os.path.join(dp, f) for dp, dn, fn in os.walk(os.path.expanduser(d)) for f in fn]
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='generate themes from images and template config files with jinja2')
@@ -186,8 +190,7 @@ if __name__ == "__main__":
         background = os.path.abspath(args.image)
     else:
         background = os.path.abspath(
-            conf['background_dir'] + '/' + 
-            random.choice(os.listdir(conf['background_dir']))
+            random.choice(lsR(conf['background_dir']))
         )
 
     colors = fallback
