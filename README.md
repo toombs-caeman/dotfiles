@@ -23,6 +23,7 @@ extra components will cause graceful degradation if not found:
 # TODO: misc
 * rename remote_config.sh -> rc
 * include .bash_profile to initialize graphical interface
+* oomox for theming gtk icons?
 * nail down graphics pipline for x and wayland
     - make switch configurable through ricer
     - X
@@ -67,6 +68,10 @@ configure plugins:
 * more at https://github.com/tpope/
     * commentary https://github.com/tpope/vim-commentary
     * git integration (vimagit/vim-fugitive)
+* more at https://github.com/akrawchyk/awesome-vim
+    * vim-indent-guides
+    * targets.vim
+    * vim-lastplace
 
 other:
 * syntax highlighting for

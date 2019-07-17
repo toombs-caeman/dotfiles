@@ -131,7 +131,7 @@ def get_hexcodes(filename):
 
 def normalize_paths(m):
     for k, v in m.items():
-        if type(v) is str and k != 'callback':
+        if type(v) is str and k not in ('callback','when'):
             m[k] = os.path.abspath(os.path.expanduser(v))
         if type(v) is dict:
             m[k] = normalize_paths(v)
@@ -155,6 +155,11 @@ def render(conf, background, colors):
         loader=jj.FileSystemLoader(conf['template_dir']))
     for name, value in conf['templates'].items():
         try:
+            if 'when' in value.keys():
+                if subprocess.call(['sh','-c',value['when']]):
+                    print('%s - skipped' % name)
+                    continue
+            print(name)
             template = jjenv.get_template(name)
             output = template.render(
                     color=colors, 
@@ -189,9 +194,10 @@ if __name__ == "__main__":
     if args.image is not None:
         background = os.path.abspath(args.image)
     else:
-        background = os.path.abspath(
-            random.choice(lsR(conf['background_dir']))
-        )
+        f = lsR(conf['background_dir'])
+        if len(f):
+            background = os.path.abspath(
+                random.choice(f))
 
     colors = fallback
     if not args.default:
