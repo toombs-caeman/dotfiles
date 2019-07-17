@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/toombs-caeman/scnvim
 	branch = master
-	commit = f8d615fbc221eaeb32747efa92e10e09b9c564ac
-	parent = b3a00f32e721e900238ce1d2855cd5746de1327c
+	commit = 265d1fb39b06161ab83d262fcb4a119a9ac05348
+	parent = 6fc6cf0900bdd7aec8703017886ea7a8b5b79a7c
 	method = merge
 	cmdver = 0.4.0

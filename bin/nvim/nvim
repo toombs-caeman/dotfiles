@@ -1,19 +1,15 @@
 #!/bin/bash
 
-NVIMDIR=$(dirname $BASH_SOURCE)
-NVIM=$NVIMDIR/vim/nvim.appimage
-# TODO use nvim-remote instead of this
-# if we're starting inside the nvim terminal then alias vi to open a new split
-# rather than a new vi instance
-# if [[ ! -z "$NVIM_LISTEN_ADDRESS" ]]; then
-#     printf "\e]51;[\"call\",\"Tapi_edit\",\"$1\"]\007"
-#     exit $?
-# fi
+NVIMDIR=$(realpath $(dirname $BASH_SOURCE))
+
+export NVR_CMD="$NVIMDIR/vim/nvim.appimage -u $NVIMDIR/vim/.vimrc"
+
+if which nvr >&2 2>/dev/null; then
+        exec nvr -s "$@"
+else
+        exec $NVR_CMD +"echo 'nvr not found'" "$@"
+
+fi
 
 # TODO detect architecture and get the correct binary
-# TODO autoupdate nvim.appimage
 #[[ ! -f $NVIM ]] && curl <url> > $NVIM
-
-# TODO set all options here
-# rc file and history options
-$NVIM -u $NVIMDIR/vim/.vimrc "$@"

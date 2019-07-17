@@ -13,19 +13,6 @@ if &compatible
 endif
 
 "Settings" {{{
-" break bad habits
-inoremap <Up>    <NOP>
-inoremap <Down>  <NOP>
-inoremap <Left>  <NOP>
-inoremap <Right> <NOP>
-vnoremap <Up>    <NOP>
-vnoremap <Down>  <NOP>
-vnoremap <Left>  <NOP>
-vnoremap <Right> <NOP>
-nnoremap <Up>    <NOP>
-nnoremap <Down>  <NOP>
-nnoremap <Left>  <NOP>
-nnoremap <Right> <NOP>
 
 " Colors
 if has('termguicolors')
@@ -70,22 +57,96 @@ set hlsearch            " highlight matches
 set noswapfile          " turn off swap files
 " }}}
 "Movement" {{{
-" TODO panel movement
 " move visually
 nnoremap j gj
 nnoremap k gk
-" highlight last inserted text
-nnoremap gv `[v`]
-nnoremap t gt
-nnoremap T gT
+
+" tab movement
+" use alt-<num> to move splits in any mode
+tnoremap <A-1> <C-\><C-N>1gt
+inoremap <A-1> <C-\><C-N>1gt
+nnoremap <A-1> 1gt
+
+tnoremap <A-2> <C-\><C-N>2gt
+inoremap <A-2> <C-\><C-N>2gt
+nnoremap <A-2> 2gt
+
+tnoremap <A-3> <C-\><C-N>3gt
+inoremap <A-3> <C-\><C-N>3gt
+nnoremap <A-3> 3gt
+
+tnoremap <A-4> <C-\><C-N>4gt
+inoremap <A-4> <C-\><C-N>4gt
+nnoremap <A-4> 4gt
+
+tnoremap <A-5> <C-\><C-N>5gt
+inoremap <A-5> <C-\><C-N>5gt
+nnoremap <A-5> 5gt
+
+tnoremap <A-6> <C-\><C-N>6gt
+inoremap <A-6> <C-\><C-N>6gt
+nnoremap <A-6> 6gt
+
+tnoremap <A-7> <C-\><C-N>7gt
+inoremap <A-7> <C-\><C-N>7gt
+nnoremap <A-7> 7gt
+
+tnoremap <A-8> <C-\><C-N>8gt
+inoremap <A-8> <C-\><C-N>8gt
+nnoremap <A-8> 8gt
+
 " close fold
 nnoremap <leader>f zc
 
-" Down: move to the next tab
-nnoremap <leader>j :tabn<CR>
+" highlight last inserted text
+nnoremap gv `[v`]
 
-" Up: move to the previous tab
-nnoremap <leader>k :tabp<CR>
+" use ESC to exit the terminal
+" this does mask 'set -o vi' but we don't care
+tnoremap <Esc> <C-\><C-n>
+
+" use alt to navigate splits in any mode
+tnoremap <A-h> <C-\><C-N><C-w>h
+tnoremap <A-j> <C-\><C-N><C-w>j
+tnoremap <A-k> <C-\><C-N><C-w>k
+tnoremap <A-l> <C-\><C-N><C-w>l
+inoremap <A-h> <C-\><C-N><C-w>h
+inoremap <A-j> <C-\><C-N><C-w>j
+inoremap <A-k> <C-\><C-N><C-w>k
+inoremap <A-l> <C-\><C-N><C-w>l
+nnoremap <A-h> <C-w>h
+nnoremap <A-j> <C-w>j
+nnoremap <A-k> <C-w>k
+nnoremap <A-l> <C-w>l
+
+" use shift-alt to move splits in any mode
+tnoremap <A-H> <C-\><C-N><C-w>H
+tnoremap <A-J> <C-\><C-N><C-w>J
+tnoremap <A-K> <C-\><C-N><C-w>K
+tnoremap <A-L> <C-\><C-N><C-w>L
+inoremap <A-H> <C-\><C-N><C-w>H
+inoremap <A-J> <C-\><C-N><C-w>J
+inoremap <A-K> <C-\><C-N><C-w>K
+inoremap <A-L> <C-\><C-N><C-w>L
+nnoremap <A-H> <C-w>H
+nnoremap <A-J> <C-w>J
+nnoremap <A-K> <C-w>K
+nnoremap <A-L> <C-w>L
+
+" break bad habits
+inoremap <Up>    <NOP>
+inoremap <Down>  <NOP>
+inoremap <Left>  <NOP>
+inoremap <Right> <NOP>
+vnoremap <Up>    <NOP>
+vnoremap <Down>  <NOP>
+vnoremap <Left>  <NOP>
+vnoremap <Right> <NOP>
+nnoremap <Up>    <NOP>
+nnoremap <Down>  <NOP>
+nnoremap <Left>  <NOP>
+nnoremap <Right> <NOP>
+
 " }}}
 "History" {{{
 " persistent undo
@@ -135,19 +196,6 @@ if !exists(":DiffOrig")
 		  \ | wincmd p | diffthis
 endif
 " }}}
-"Terminal" {{{
-" check to see if we have a terminal
-if has('termainal')
-    set termwinkey=CTRL-W
-    "TODO allow an embedded terminal to reuse the existing vim session instead of nesting instances
-    function Tapi_edit(bufnum, arglist)
-        execute "e ".fnameescape(a:arglist[0])
-    endfunc
-    
-    "TODO allow the embedded terminal to paste the contents of the yank buffer
-endif
-
-"Terminal" }}}
 "NETRW" {{{
 let g:netrw_banner=0
 let g:netrw_browse_split=1
