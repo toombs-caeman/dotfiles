@@ -8,19 +8,16 @@ direct installation is not recommended.
 
 `git clone https://github.com/toombs-caeman/dotfiles ~/.remote_config && ~/.remote_config/remote_config.sh`
 
+
 # Dependencies
 
 core components are expected:
 * bash
 * coreutils
 
-extra components will cause graceful degradation if not found:
-* git
-* ssh
-* mosh
-* fzf
-
 # TODO: misc
+* create some sort of requirements format for required packages.
+    - fzf neovim-remote mosh git
 * rename remote_config.sh -> rc
 * include .bash_profile to initialize graphical interface
 * oomox for theming gtk icons?
@@ -39,6 +36,7 @@ extra components will cause graceful degradation if not found:
 * emulate dmenu with https://github.com/swaywm/sway/issues/1367#issuecomment-495306710
 * move git-subrepo out of bin/
     - it doesn't really need to be on the path
+    - also change rc to match path
 
 # TODO: Theming
 
@@ -49,50 +47,12 @@ extra components will cause graceful degradation if not found:
     - userChrome.css
     - https://www.userchrome.org/how-create-userchrome-css.html
     - https://userstyles.org/styles/98305/solarized-dark-everywhere
-
-## TODO: vim
-
-* have nvim autoupdate nvim.appimage and pull the correct architecture
-* break vim into a self contained subrepo
-* theme with this: https://stackoverflow.com/questions/37400174/can-i-set-the-vim-colorscheme-from-the-command-line
-    - this will leave the self contained theme intact when ricer isn't available
-configure plugins:
-* Plug looks pretty easy to use
-* nvr https://github.com/mhinz/neovim-remote
-    * https://hkupty.github.io/2016/Ditching-TMUX/
-    * setup terminal escapes
-* netwr
-    - https://shapeshed.com/vim-netrw/#netrw-the-unloved-directory-browser
-    - can be used to browse over ssh/mosh, inspect directories
-    - https://kgrz.io/editing-files-over-network.html
-* more at https://github.com/tpope/
-    * commentary https://github.com/tpope/vim-commentary
-    * git integration (vimagit/vim-fugitive)
-* more at https://github.com/akrawchyk/awesome-vim
-    * vim-indent-guides
-    * targets.vim
-    * vim-lastplace
-
-other:
-* syntax highlighting for
-    * terraform
-    * rustlang
-    * golang  https://github.com/fatih/vim-go
-* correct panel movement
-* how to get the directory of the current file instead of where vim was opened for netwr?
-* open links with xdg-open/lynx/elinks
-* https://alex.dzyoba.com/blog/vim-revamp/
-* sessions
-* https://thoughtbot.com/blog/seamlessly-navigate-vim-and-tmux-splits
-* vim sessions?
-* default 'IDE' panels
-* default file manager panels (netwr)
-* https://github.com/rhysd/NyaoVim
+    - https://old.reddit.com/r/FirefoxCSS/
 
 ## potential additions / things to look at
 * some sort of detach/reattach program
     * http://www.brain-dump.org/projects/abduco/
-    * tmux
+    * not tmux
     * dtach
 * criu 
     - checkpoint and restore processes over reboot 
@@ -103,7 +63,6 @@ other:
 * http://dotfiles.github.io/
 
 * https://old.reddit.com/r/startpages/
-* https://old.reddit.com/r/FirefoxCSS/
 * https://old.reddit.com/r/wallpaperdump/
 
 * include whitefox layout
