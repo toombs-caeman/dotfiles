@@ -1,4 +1,4 @@
-background_dir: ~/Pictures/Backgrounds
+background_dir: ~/Pctures/Backgrounds
 template_dir: ~/.remote_config/templates/
 
 templates:
@@ -15,7 +15,7 @@ templates:
   alacritty.yml: 
     when: which alacritty >/dev/null
     dest: ~/.remote_config/config/alacritty.yml
-    link: ~/.alacritty/alacritty.yml
+    link: ~/.config/alacritty/alacritty.yml
     # alacritty autoreloads on its own
   theme.vim: 
     dest: ~/.remote_config/config/theme.vim

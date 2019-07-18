@@ -70,4 +70,8 @@ alias_options () {
     alias $name=_$name
 }
 
+silent () {
+    "$@" 2>&1 >/dev/null
+}
+
 export -f alias_options help delegate lineinfile abs_dir
