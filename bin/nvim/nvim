@@ -4,7 +4,7 @@ NVIMDIR=$(realpath $(dirname $BASH_SOURCE))
 
 export NVR_CMD="$NVIMDIR/vim/nvim.appimage -u $NVIMDIR/vim/.vimrc"
 
-if which nvr >&2 2>/dev/null; then
+if which nvr >/dev/null 2>/dev/null; then
         exec nvr -s "$@"
 else
         exec $NVR_CMD +"echo 'nvr not found'" "$@"
