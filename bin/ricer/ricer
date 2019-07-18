@@ -198,9 +198,11 @@ if __name__ == "__main__":
         if len(f):
             background = os.path.abspath(
                 random.choice(f))
+        else:
+            print('no images found in %s : using default colorscheme' % conf['background_dir'])
 
     colors = fallback
-    if not args.default:
+    if not args.default and background:
         colors = get_hexcodes(background)
 
     render(conf, background, colors)
