@@ -1,4 +1,4 @@
-background_dir: ~/Pctures/Backgrounds
+background_dir: ~/Pictures/Backgrounds
 template_dir: ~/.remote_config/templates/
 
 templates:
@@ -18,6 +18,5 @@ templates:
     link: ~/.config/alacritty/alacritty.yml
     # alacritty autoreloads on its own
   theme.vim: 
-    dest: ~/.remote_config/config/theme.vim
-    link: ~/.vim/colors/theme.vim
+    dest: ~/.remote_config/bin/nvim/vim/colors/ricer.vim
     # callback is handled by augroup in vimrc
