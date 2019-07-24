@@ -10,7 +10,9 @@ cd scnvim
 ```
 
 #TODO
-* nvr https://github.com/mhinz/neovim-remote
+* remove nvr. It's annoying
+
+* learn about `:compiler`
 
 * have nvim autoupdate nvim.appimage and pull the correct architecture
 configure plugins:
@@ -36,3 +38,4 @@ other:
 * default 'IDE' panels
 * default file manager panels (netwr)
 * https://github.com/rhysd/NyaoVim
+* add vim undotree maybe

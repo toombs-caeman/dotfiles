@@ -165,6 +165,23 @@ set history=700
 "  %    :  saves and restores the buffer list
 set viminfo='10,\"100,:20,%
 
+" protect changes between writes, and from editing the same file twice
+set swapfile
+set directory^=s:portable./swapdir//
+" protect against crash-during-write
+set writebackup
+" but do not persist backup after successful write
+set nobackup
+" use rename-and-write-new method whenever safe
+set backupcopy=auto
+" patch required to honor double slash at end
+if has("patch-8.1.0251")
+	" consolidate the writebackups -- not a big
+	" deal either way, since they usually get deleted
+	set backupdir^=s:portable./backup//
+end
+
+
 " allow vim to write to non exisistent directories by recursively creating the needed directories
 function s:MkNonExDir(file, buf)
     if empty(getbufvar(a:buf, '&buftype')) && a:file!~#'\v^\w+\:\/'
@@ -204,5 +221,6 @@ let g:netrw_winsize=25
 let g:netrw_liststyle=4
 let g:netrw_altv=1
 
-let g:indent_guides_enable_on_vim_startup = 1
 "NETRW" }}}
+"" move the cursor anywhere
+" set virtualedit=all

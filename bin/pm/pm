@@ -139,8 +139,8 @@ _apt () {
         rm) $_sudo apt remove $@;;
         query) apt search $@ ;;
         list) apt list $@ | grep -e $@ ;;
-        update) apt update ;;
-        sync) apt upgrade ;;
+        update) $_sudo apt upgrade;;
+        sync) $_sudo apt update  ;;
     esac
     return $?
 }
@@ -151,8 +151,8 @@ _apk () {
         rm) $_sudo apk del $@;;
         query) apk search $@ ;;
         list) apk list | sed 's/^\([^ ]*\) .*/\1/' | grep -e $@ ;;
-        update) apk upgrade ;;
-        sync) apk update ;;
+        update) $_sudo apk upgrade ;;
+        sync) $_sudo apk update ;;
     esac
     return $?
 }
