@@ -14,16 +14,14 @@ export REMOTE_CONFIG_DIR=$(realpath $(dirname $BASH_SOURCE))
 export PATH="$(find $REMOTE_CONFIG_DIR/bin/ -maxdepth 1 -type d | tr "\n" ":")$PATH"
 
 # include scripts
-. <(cat $(find $REMOTE_CONFIG_DIR/include/ -name '*.sh' | xargs))
+for file in $(find $REMOTE_CONFIG_DIR/include/ -name '*.sh' | xargs); do
+    . $file
+done
 # enable git subrepo
 . $REMOTE_CONFIG_DIR/git-subrepo/.rc
 
-# hook this file into .bashrc, and initialize things if it isn't there
-#if ! lineinfile ~/.bashrc ". $REMOTE_CONFIG_DIR/remote_config.sh"; then
-#    echo 'added remote_config.sh to local .bashrc'
-#    #TODO once pm is idempotent, assert that all dependencies are met
-#fi
-
 silent which eksctl && . <(eksctl completion bash)
 silent which kubectl && . <(kubectl completion bash)
+silent which helm && . <(helm completion bash)
+
 make_prompt

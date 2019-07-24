@@ -34,9 +34,24 @@ alias free='free -m'
 
 # movement
 shopt -s autocd
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
+cmd='..'
+val='..'
+for N in {1..5}; do
+  alias $cmd="cd $val"
+  cmd="$cmd."
+  val="$val/.."
+done
+unset cmd val
 -() {
   cd -
+  tput cuu1; tput el1; tput el; # erase the extra data about OLDPWD
+}
+
+cd () {
+  # if called through autocd, then erase that annoying extra line
+  # this isn't 100% reliable of course, but it's probably good enough
+  if [[ "$1" == "--" ]]; then
+    tput cuu1; tput el1; tput el; 
+  fi
+  builtin cd "$@"
 }
