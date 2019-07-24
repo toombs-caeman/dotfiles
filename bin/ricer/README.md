@@ -22,6 +22,7 @@ ricer path/to/config.yml --default
 # render the configured templates,
 # use the specified image and the default palette
 ricer path/to/config.yml -f path/to/background.png --default
+
 ```
 
 # Installation
@@ -80,7 +81,8 @@ each of these variables is made available within the templates
 * msg: a message that warns not to edit the rendered file and links to the template.
 
 # TODO
-* tolerate failure in a template
+* ensure that normal and light colors are different
+    - use ensure
 
 
 probably want to separate this into a few stages.

@@ -4,20 +4,13 @@ template_dir: ~/.remote_config/templates/
 templates:
   Xresources.template:
     when: which xrdb >/dev/null
-    dest: ~/.remote_config/config/.Xresources
-    link: ~/.Xresources
-    callback: xrdb -merge ~/.remote_config/config/.Xresources
+    dest: ~/.Xresources
+    callback: xrdb -merge ~/.Xresources
   i3config.sh: 
     when: which i3-msg >/dev/null
-    dest: ~/.remote_config/config/i3config.sh
-    link: ~/.i3/config
+    dest: ~/.i3/config
     callback: i3-msg restart
   alacritty.yml: 
     when: which alacritty >/dev/null
-    dest: ~/.remote_config/config/alacritty.yml
-    link: ~/.alacritty/alacritty.yml
-    # alacritty autoreloads on its own
-  theme.vim: 
-    dest: ~/.remote_config/config/theme.vim
-    link: ~/.vim/colors/theme.vim
-    # callback is handled by augroup in vimrc
+    dest: ~/.config/alacritty/alacritty.yml
+  theme.vim: ~/.remote_config/bin/nvim/vim/colors/ricer.vim

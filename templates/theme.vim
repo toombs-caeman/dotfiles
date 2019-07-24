@@ -1,30 +1,34 @@
 " {{msg}}
-set background=dark
 hi clear
 if exists("syntax_on")
    syntax reset
 endif
+let colors_name = "ricer"
 
-let colors_name = "themer"
+{% macro hi(names=[], fg='NONE', bg='NONE', style='NONE') -%}
+{% set j= names | map('length') | max %}
+{% if fg != 'NONE' -%}
+        {% set fg='#'~fg -%}
+{% endif -%}
+{% if bg != 'NONE' -%}
+        {% set bg='#'~bg -%}
+{% endif -%}
+{% for name in names -%}
+hi {{name.ljust(j)}} gui={{style}} guifg={{fg}} guibg={{bg}}
+{% endfor -%}
+{% endmacro -%}
 
-hi Normal       guifg=#f0f0f0 guibg=#303030
-
+" Normal
+{{ hi(['Normal'], white) }}
 " Search
-hi IncSearch    gui=UNDERLINE guifg=#80ffff guibg=#0060c0
-hi Search       gui=NONE guifg=#ffffa8 guibg=#808000
-" hi Search       gui=NONE guifg=#b0ffb0 guibg=#008000
-
+{{ hi(['IncSearch','Search'], white, red, 'UNDERLINE' ) }}
 " Messages
-hi ErrorMsg     gui=BOLD guifg=#ffa0ff guibg=NONE
-hi WarningMsg   gui=BOLD guifg=#ffa0ff guibg=NONE
-hi ModeMsg      gui=BOLD guifg=#a0d0ff guibg=NONE
-hi MoreMsg      gui=BOLD guifg=#70ffc0 guibg=#8040ff
-hi Question     gui=BOLD guifg=#e8e800 guibg=NONE
+{{ hi([ 'ErrorMsg', 'WarningMsg', 'ModeMsg', 'MoreMsg', 'Question' ], magenta) }}
 " Split area
-hi StatusLine   gui=NONE guifg=#000000 guibg=#c4c4c4
-hi StatusLineNC gui=NONE guifg=#707070 guibg=#c4c4c4
-hi VertSplit    gui=NONE guifg=#707070 guibg=#c4c4c4
-hi WildMenu     gui=NONE guifg=#000000 guibg=#ff80c0
+hi WildMenu     gui=NONE guifg=#{{trueblack}} guibg=#{{yellow}}
+hi StatusLine   gui=NONE guifg=#{{trueblack}} guibg=#{{lgray}}
+hi StatusLineNC gui=NONE guifg=#{{gray}} guibg=#{{lgray}}
+hi VertSplit    gui=NONE guifg=#{{gray}} guibg=#{{lgray}}
 
 " Diff
 hi DiffText     gui=NONE guifg=#ff78f0 guibg=#a02860
@@ -33,32 +37,25 @@ hi DiffDelete   gui=NONE guifg=#a0d0ff guibg=#0020a0
 hi DiffAdd      gui=NONE guifg=#a0d0ff guibg=#0020a0
 
 " Cursor
-hi Cursor       gui=NONE guifg=#70ffc0 guibg=#8040ff
-hi lCursor      gui=NONE guifg=#ffffff guibg=#8800ff
-hi CursorIM     gui=NONE guifg=#ffffff guibg=#8800ff
-
+{{ hi(['Cursor', 'lCursor', 'CursorIM'], black, lgray)}}
 " Fold
-hi Folded       gui=NONE guifg=#40f0f0 guibg=#006090
-hi FoldColumn   gui=NONE guifg=#40c0ff guibg=#404040
-
+{{ hi(['Folded', "FoldedColumn"], lcyan, blue) }}
 " Other
 hi Directory    gui=NONE guifg=#c8c8ff guibg=NONE
 hi LineNr       gui=NONE guifg=#707070 guibg=NONE
-hi NonText      gui=BOLD guifg=#d84070 guibg=#383838
+hi NonText      gui=BOLD guifg=#{{truewhite}} guibg=NONE
 hi SpecialKey   gui=BOLD guifg=#8888ff guibg=NONE
 hi Title        gui=BOLD guifg=fg      guibg=NONE
-hi Visual       gui=NONE guifg=#b0ffb0 guibg=#008000
-hi VisualNOS    gui=NONE guifg=#ffe8c8 guibg=#c06800
+{{ hi (['Visual', 'VisualNOS'], lyellow, yellow) }}
 " Syntax group
-hi Comment      gui=NONE guifg=#c0c0c0 guibg=NONE
-hi Constant     gui=NONE guifg=#92d4ff guibg=NONE
-hi Error        gui=BOLD guifg=#ffffff guibg=#8000ff
-hi Identifier   gui=NONE guifg=#40f8f8 guibg=NONE
+hi Comment      gui=NONE guifg=#{{lgray}} guibg=NONE
+hi Constant     gui=NONE guifg=#{{red}} guibg=NONE
+hi Error        gui=BOLD guifg=#{{lred}} guibg=#8000ff
+hi Identifier   gui=NONE guifg=#{{cyan}} guibg=NONE
 hi Ignore       gui=NONE guifg=bg      guibg=NONE
-hi PreProc      gui=NONE guifg=#ffa8ff guibg=NONE
-hi Special      gui=NONE guifg=#ffc890 guibg=NONE
-hi Statement    gui=NONE guifg=#dcdc78 guibg=NONE
-hi Todo         gui=BOLD,UNDERLINE guifg=#ff80d0 guibg=NONE
-hi Type         gui=NONE guifg=#60f0a8 guibg=NONE
+hi PreProc      gui=NONE guifg=#{{red}} guibg=NONE
+hi Special      gui=NONE guifg=#{{green}} guibg=NONE
+hi Statement    gui=NONE guifg=#{{blue}} guibg=NONE
+hi Todo         gui=BOLD,UNDERLINE guifg=#{{magenta}} guibg=NONE
+hi Type         gui=NONE guifg=#{{green}} guibg=NONE
 hi Underlined   gui=UNDERLINE guifg=fg guibg=NONE
-
