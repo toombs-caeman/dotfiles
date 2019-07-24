@@ -13,6 +13,7 @@ if &compatible
   set nocompatible
 endif
 
+
 "Settings" {{{
 
 " Colors
@@ -21,9 +22,15 @@ if has('termguicolors')
 endif
 syntax enable
 colorscheme theme " this theme is dynamically generated, but defaults to solarized dark
+try
+        colorscheme ricer
+catch /.*/
+endtry
 
 "Tabstop
 set tabstop=4   " number of spaces tabs are visually
+set shiftwidth=4
+set softtabstop=4
 set expandtab   " tabs are spaces. annoying when editing python
 set bs=2        " allow backspace after insert mode
 set clipboard+=unnamedplus " TODO supposed to allow system clipboard

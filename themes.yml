@@ -17,6 +17,4 @@ templates:
     dest: ~/.remote_config/config/alacritty.yml
     link: ~/.config/alacritty/alacritty.yml
     # alacritty autoreloads on its own
-  theme.vim: 
-    dest: ~/.remote_config/bin/nvim/vim/colors/ricer.vim
-    # callback is handled by augroup in vimrc
+  theme.vim: ~/.remote_config/bin/nvim/vim/colors/ricer.vim

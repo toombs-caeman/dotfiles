@@ -3,15 +3,10 @@ import yaml
 import jinja2 as jj
 import argparse
 import subprocess
-
-import os, random
-import colorsys  # stdlib
-import math
-import heapq
+import os, random, colorsys, math, heapq
 from PIL import Image
 
 canonical = [
-    # Normal colors
     (0, 0, 0),        # Black
     (255, 0, 0),      # Red
     (0, 255, 0),      # Green
@@ -20,8 +15,6 @@ canonical = [
     (255, 0, 255),    # Magenta
     (0, 255, 255),    # Cyan
     (192, 192, 192),  # Light gray
-
-    # Bright colors
     (64, 64, 64),     # Dark gray
     (255, 0, 0),      # Red
     (0, 255, 0),      # Green
@@ -162,9 +155,28 @@ def render(conf, background, colors):
             print(name)
             template = jjenv.get_template(name)
             output = template.render(
-                    color=colors, 
+                    color=colors.copy(), 
                     background=background,
-                    msg=warning % (conf['template_dir'] + "/" + name)
+                    msg=warning % (conf['template_dir'] + "/" + name),
+                    black   =colors[0],
+                    red     =colors[1],
+                    green   =colors[2],
+                    yellow  =colors[3],
+                    blue    =colors[4],
+                    magenta =colors[5],
+                    cyan    =colors[6],
+                    lgray   =colors[7],
+                    gray    =colors[8],
+                    lred    =colors[9],
+                    lgreen  =colors[10],
+                    lyellow =colors[11],
+                    lblue   =colors[12],
+                    lmagenta=colors[13],
+                    lcyan   =colors[14],
+                    white   =colors[15],
+
+                    trueblack='000000',
+                    truewhite='ffffff'
                     )
             with open(value['dest'], "w") as f:
                 f.write(output)
