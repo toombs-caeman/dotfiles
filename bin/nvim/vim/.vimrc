@@ -35,7 +35,7 @@ set expandtab   " tabs are spaces. annoying when editing python
 set bs=2        " allow backspace after insert mode
 set clipboard+=unnamedplus " TODO supposed to allow system clipboard
 if has('mouse') " enable mouse support
-  set mouse=a
+  set mouse=n
 endif
 
 filetype plugin indent on

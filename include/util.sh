@@ -74,4 +74,8 @@ silent () {
     "$@" 2>/dev/null >/dev/null
 }
 
+inline() {
+    declare -f $1 | sed '1,2d;$d'
+}
+
 export -f alias_options help delegate lineinfile abs_dir
