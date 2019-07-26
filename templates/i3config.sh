@@ -36,6 +36,8 @@ bindsym $mod+Shift+q kill
 
 # start program launcher
 bindsym $mod+d exec --no-startup-id dmenu_recency -nb '#{{color[0]}}' -nf '#{{color[7]}}' -sb '#{{color[8]}}' -sf '#{{color[15]}}'
+#bindsym $mod+d exec alacritty -t 'launcher' --command bash -c 'compgen -c | sort -u | fzf | xargs -r swaymsg -t command exec'
+#for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 100 ppt, move position 0 px 0 px
 
 # launch categorized menu
 bindsym $mod+z exec --no-startup-id morc_menu
