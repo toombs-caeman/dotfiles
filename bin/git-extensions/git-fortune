@@ -1,0 +1,1 @@
+git commit -em "$(fortune -sn 50)"
