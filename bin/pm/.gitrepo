@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/toombs-caeman/pm
 	branch = master
-	commit = 845dde53151d01511517a081dc5fbd326663ecb3
-	parent = e065eaac453649758710d69139354d169d1777a3
+	commit = 8831f672bd02e51ac009eb748499c6ec595d34d8
+	parent = 02918c3838c33aac89fa5223b49bcef976473fe2
 	method = merge
 	cmdver = 0.4.0
