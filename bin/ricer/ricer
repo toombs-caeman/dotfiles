@@ -6,23 +6,27 @@ import subprocess
 import os, random, colorsys, math, heapq
 from PIL import Image
 
+dark = 64
+normal = 150
+light = 192
+bright = 255
 canonical = [
-    (0, 0, 0),        # Black
-    (255, 0, 0),      # Red
-    (0, 255, 0),      # Green
-    (255, 255, 0),    # Yellow
-    (0, 0, 255),      # Blue
-    (255, 0, 255),    # Magenta
-    (0, 255, 255),    # Cyan
-    (192, 192, 192),  # Light gray
-    (64, 64, 64),     # Dark gray
-    (255, 0, 0),      # Red
-    (0, 255, 0),      # Green
-    (255, 255, 0),    # Yellow
-    (0, 0, 255),      # Blue
-    (255, 0, 255),    # Magenta
-    (0, 255, 255),    # Cyan
-    (255, 255, 255),  # White
+   (0,      0,      0),     # Black
+   (normal, 0,      0),     # Red
+   (0,      normal, 0),     # Green
+   (normal, normal, 0),     # Yellow
+   (0,      0,      normal),# Blue
+   (normal, 0,      normal),# Magenta
+   (0,      normal, normal),# Cyan
+   (light,  light,  light), # Light gray
+   (dark,   dark,   dark),  # Dark gray
+   (bright, 0,      0),     # bright Red
+   (0,      bright, 0),     # bright Green
+   (bright, bright, 0),     # bright Yellow
+   (0,      0,      bright),# bright Blue
+   (bright, 0,      bright),# bright Magenta
+   (0,      bright, bright),# bright Cyan
+   (bright, bright, bright),# White
 ]
 
 def isolate_colors(filename, ncolors):
@@ -38,7 +42,6 @@ def euclidean_dist(p1, p2):
 
 # count_color is a sorted (desc) list of: [(pixel count, (r, g, b)), ...]
 # rollup is the distance heuristic, arrived at by fiddling til it looked ok
-
 def dedupe(count_color, rollup=10):
     result = {}
     for count, rgb in count_color:
@@ -113,7 +116,7 @@ fallback = [ '073642', 'dc322f', '859900', 'b58900',
              '839496', '6c71c4', '93a1a1', 'fdf6e3' ]
 
 def get_hexcodes(filename):
-    c = isolate_colors(filename, 16)
+    c = isolate_colors(filename, 256)
     c = dedupe(c)
     c = get_xcolors(c)
     # convert rgb tuples to hex codes

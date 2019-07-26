@@ -80,10 +80,6 @@ each of these variables is made available within the templates
 * background: an absolute path to the image used
 * msg: a message that warns not to edit the rendered file and links to the template.
 
-# TODO
-* ensure that normal and light colors are different
-    - use ensure
-
 
 probably want to separate this into a few stages.
 * determine background image and palette
@@ -94,7 +90,10 @@ probably want to separate this into a few stages.
 * default to solarized theme https://github.com/altercation/solarized
 
 ideas:
+* fonts
 * palette creation should fail if the input image isn't very color diverse
     - this should prevent any unreadable configs
-* may want to steer around xresources considering wayland is a thing
-* fonts
+
+* weigh saturation as well as count when determining initial color rank
+* normalize Value for normal and bright colors in HSV
+* perhaps a separate algorithm for low color diversity/ poorly saturated images
