@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/toombs-caeman/ricer
 	branch = master
-	commit = 751507d7408245405a9ac8af03c9ad61889f3b21
-	parent = 28127ef294e7a5ddec6840348dcb000c9963f0a7
+	commit = 600fbee3d972e0c8ffdf6e8990e54fd73d579a76
+	parent = c84a6c7f682cda17ad3a8a627ccb30182664dfd2
 	method = merge
 	cmdver = 0.4.0
