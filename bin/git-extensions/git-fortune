@@ -1,1 +1,1 @@
-git commit -em "$(fortune -sn 50)"
+git commit -em "$(fortune -sn 50 2>/dev/null)"
