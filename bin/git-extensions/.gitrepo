@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/toombs-caeman/git-extensions
 	branch = master
-	commit = ba2d0f49af46d1d3f92eef57e95090572f0a9772
-	parent = f9f867077346dbd229111a6df031e25fceb536b7
+	commit = 4feb9f2057d826a2caecb436376c13f97e9bf5ea
+	parent = d80e6d840cbcc51d9b4427856fbaafb28c78e325
 	method = merge
 	cmdver = 0.4.0
