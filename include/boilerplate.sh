@@ -53,4 +53,7 @@ cd () {
   if [[ "$1" == "--" ]]; then
     tput cuu1; tput cuu1; tput ed
   fi
+  if [[ $# -eq 0 ]]; then
+    tput cuu1; tput ed
+  fi
 }
