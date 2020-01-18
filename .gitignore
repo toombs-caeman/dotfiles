@@ -3,6 +3,7 @@
 *.log
 .netrwhist
 .bash_history
+contexts/
 viminfo
 undodir/
 config/

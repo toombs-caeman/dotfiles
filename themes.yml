@@ -11,6 +11,5 @@ templates:
     dest: ~/.i3/config
     callback: i3-msg restart
   alacritty.yml: 
-    when: which alacritty >/dev/null
-    dest: ~/.config/alacritty/alacritty.yml
+    dest: ~/.alacritty.yml
   theme.vim: ~/.remote_config/bin/nvim/vim/colors/ricer.vim

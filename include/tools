@@ -1,21 +1,10 @@
 #!/bin/bash
 
-fkill () {
-: 'interactively kill a process'
-    local to_kill=$(ps aux|fzf |awk '{print $2}')
-    [[ -z "$to_kill" ]] || kill $1 $to_kill
-}
-
-path () {
-: 'show path in a nice format'
-    echo $PATH | tr ":" "\012"
-}
-
-
 trace () {
 : 'use fzf to find '
   trace_pid $(ps aux | fzf | awk '{print $2}')
 }
+
 trace_pid () {
 : 'trace how a process was called by pid'
     [ "${1:-$$}" = "1" ] && return
@@ -45,4 +34,3 @@ ex () {
   fi
 }
 
-export -f fkill trace ex path

@@ -10,17 +10,43 @@ direct installation is not recommended. Instead use this as a pattern for constr
 
 If you are interested in using this repo directly, it's probably better to make your own fork. Also beware that running ricer may overwrite important config files on your system.
 
+# cygwin considerations
+* redo terminal colors https://github.com/mathiasbynens/dotfiles/blob/master/.bash_prompt
+    - may need modification considering ricer
+* The default shell is zsh
+* alacritty is basically non-functional, so base on iterm3 instead.
+* ricer is essentially useless here
+* still need to fix the shell commands a bit. cd is squirrelly
+* consider moving fully to exa/kak/fzf. making use of moreutils.
+* add brew to pm
+* git-fzf search is broken?
+ 
+* make a context switcher that will set things like the git folder, venv folder
+    - context
+    - REMOTE_CONFIG_DIR
+    - GIT DIRS
+    - GIT REMOTE
+    - VENV DIRS
+
 ``` bash
 git clone https://github.com/toombs-caeman/dotfiles ~/.remote_config
-echo . ~/.remote_config/.rc >> ~/.bashrc
+echo . ~/.remote_config/rc >> ~/.bashrc
 ```
 
 
 # Dependencies
 
 core components are expected:
-* bash
+* alacritty or iterm2
+* bash or zsh
 * coreutils
+
+tools will be configured if they are available:
+* kubectl
+* python virtualenv
+* golang
+* git
+* mosh
 
 # TODO: misc
 * fix dmenu launch replacement, needs some history

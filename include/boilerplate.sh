@@ -1,10 +1,7 @@
 ## SHOPT
 shopt -s expand_aliases
-shopt -s histappend
 shopt -s checkwinsize
-HISTSIZE=1000
-HISTFILESIZE=2000
-HISTFILE=$REMOTE_CONFIG_DIR/.bash_history
+shopt -s autocd
 
 ## COMPLETIONS
 if ! shopt -oq posix; then
@@ -15,45 +12,34 @@ if ! shopt -oq posix; then
   fi
 fi
 
-set -o vi
-export VISUAL="nvim"
-export EDITOR="nvim"
-alias vi=nvim
-alias vim=nvim
+alias cygwin='[[ $(uname -a) == *"Darwin"* ]]'
 
-alias l='ls'
-alias la='ls -A'
-alias ll='ls -l'
-alias sl='ls'
+set -o vi
+export VISUAL=kak
+export EDITOR=kak
+export PAGER=less
+alias vi=kak
+
 alias wget='wget -c'
 alias mkdir='mkdir -p'
 alias cp="cp -i"
 alias du='du -hs'
 alias df='df -h'
-alias free='free -m'
 
 # movement
-shopt -s autocd
+alias ls="$(failover exa ls)"
+alias l='ls'
+alias la='ls -A'
+alias ll='ls -l'
+alias sl='ls'
 cmd='..'
 val='..'
 for N in {1..5}; do
-  alias $cmd="echo ; cd -- $val"
+  alias $cmd="cd $val"
   cmd="$cmd."
   val="$val/.."
 done
 unset cmd val
 -() {
-  cd -- -
-}
-
-cd () {
-  # if called through autocd, then erase that annoying extra line
-  # this isn't 100% reliable of course, but it's probably good enough
-  builtin cd "$@"
-  if [[ "$1" == "--" ]]; then
-    tput cuu1; tput cuu1; tput ed
-  fi
-  if [[ $# -eq 0 ]]; then
-    tput cuu1; tput ed
-  fi
+  cd $OLDPWD
 }
