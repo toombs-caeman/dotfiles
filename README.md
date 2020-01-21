@@ -30,7 +30,9 @@ tools will be configured if they are available:
 * golang
 * git
 * bat
+* ripgrep
 * exa
+* fzf
 
 # TODO: general
 * set fzf to use rg as the search command
