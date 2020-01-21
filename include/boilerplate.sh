@@ -12,13 +12,16 @@ if ! shopt -oq posix; then
   fi
 fi
 
-alias cygwin='[[ $(uname -a) == *"Darwin"* ]]'
 
+#set editor
 set -o vi
-export VISUAL=kak
-export EDITOR=kak
-export PAGER=less
-alias vi=kak
+export EDITOR=$(failover kak vim vi)
+export VISUAL=$EDITOR
+alias vi=$EDITOR
+
+# set bat
+alias cat=$(failover bat cat)
+export PAGER=$(failover bat less)
 
 alias wget='wget -c'
 alias mkdir='mkdir -p'

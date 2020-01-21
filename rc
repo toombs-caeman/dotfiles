@@ -10,7 +10,7 @@ esac
 silent () {
     # execute silently
     # really this is just easier to read
-    "$@" 2>/dev/null >/dev/null
+    "$@" &>/dev/null
 }
 
 # gracefully degrade if the desired application isn't installed

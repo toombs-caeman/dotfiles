@@ -3,36 +3,19 @@ This repository is intended as a one stop shop for maintaining a consistent conf
 Sub-projects are included using [git-subrepo](https://github.com/ingydotnet/git-subrepo).
 This allows a fully functional copy of the repo with only `git clone`, while still keeping project histories cleanly separate.
 
-
 # Installation
 
 direct installation is not recommended. Instead use this as a pattern for constructing you're own dotfiles.
 
 If you are interested in using this repo directly, it's probably better to make your own fork. Also beware that running ricer may overwrite important config files on your system.
 
-# cygwin considerations
-* redo terminal colors https://github.com/mathiasbynens/dotfiles/blob/master/.bash_prompt
-    - may need modification considering ricer
-* The default shell is zsh
-* alacritty is basically non-functional, so base on iterm3 instead.
-* ricer is essentially useless here
-* still need to fix the shell commands a bit. cd is squirrelly
-* consider moving fully to exa/kak/fzf. making use of moreutils.
-* add brew to pm
-* git-fzf search is broken?
- 
-* make a context switcher that will set things like the git folder, venv folder
-    - context
-    - REMOTE_CONFIG_DIR
-    - GIT DIRS
-    - GIT REMOTE
-    - VENV DIRS
-
 ``` bash
 git clone https://github.com/toombs-caeman/dotfiles ~/.remote_config
 echo . ~/.remote_config/rc >> ~/.bashrc
 ```
 
+you may want to then edit the default context in contexts/
+or the prompt in include/pretty.sh
 
 # Dependencies
 
@@ -46,57 +29,58 @@ tools will be configured if they are available:
 * python virtualenv
 * golang
 * git
-* mosh
+* bat
+* exa
 
-# TODO: misc
+# TODO: general
+* set fzf to use rg as the search command
+* bring shell up to zsh
+* git subrepo push
+* git workflow
+	* forgit interactive git https://github.com/wfxr/forgit
+	* update git aliases
+* consider moving fully to exa/kak/fzf. making use of moreutils.
+* git-fzf search is broken?, try combining with 'git grep' or ripgrep
+
+# TODO: linux graphics pipeline
+* copy mac keybindings to bring over to linux
 * fix dmenu launch replacement, needs some history
-* create some sort of requirements format for required packages.
-    - fzf mosh git
-* include .bash_profile to initialize graphical interface
+* include bash profile to initialize graphical interface
 * nail down graphics pipline for x and wayland
     - make switch configurable through ricer
     - X
         * i3
         * feh
         * dunst
-        * conky_maia
+        * conky maia
     - wayland
         * sway
         * swaybg
         * mako
         * system monitor?
 * notifications? http://blog.z3bra.org/2014/04/pop-it-up.html
-
-# TODO: Theming
-
+* oomox for theming gtk icons?
 * https://wiki.installgentoo.com/index.php/GNU/Linux_ricing
+* https://old.reddit.com/r/wallpaperdump/
 
-future:
+# TODO: Cygwin
+* add brew to pm
+
+## potential additions / things to look at
+* https://old.reddit.com/r/dotfiles/
+* http://dotfiles.github.io/
+* https://old.reddit.com/r/startpages/
+* include whitefox layout
+* unified backup utility, use restic?
+* alan's bash history
 * firefox
     - userChrome.css
     - https://www.userchrome.org/how-create-userchrome-css.html
     - https://userstyles.org/styles/98305/solarized-dark-everywhere
     - https://old.reddit.com/r/FirefoxCSS/
 * track xdg-settings
-* oomox for theming gtk icons?
-* https://old.reddit.com/r/wallpaperdump/
-
-## potential additions / things to look at
-* some sort of detach/reattach program
-    * http://www.brain-dump.org/projects/abduco/
-    * not tmux
-    * dtach
-* criu 
-    - checkpoint and restore processes over reboot 
-    - https://access.redhat.com/articles/2455211
-    - could be used for remote sessions
-
-* https://old.reddit.com/r/dotfiles/
-* http://dotfiles.github.io/
-
-* https://old.reddit.com/r/startpages/
-
-* include whitefox layout
-
-* https://www.divio.com/blog/documentation/
-* unified backup utility, use restic?
+* mosh
+* https://github.com/andreyorst/fzf.kak
+* path extractor https://github.com/edi9999/path-extractor
+* entr for inotifywatch like file change watching
+* gron for grepping json

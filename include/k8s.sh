@@ -1,7 +1,7 @@
 silent which kubectl || return 0
 
+# source completions
 . <(kubectl completion bash)
-
 silent which eksctl && . <(eksctl completion bash)
 silent which helm && . <(helm completion bash)
 
@@ -9,7 +9,7 @@ k8s_prompt()
 { 
     CONTEXT=$(kubectl config current-context 2> /dev/null);
     if [ $? -eq 0 ]; then
-        echo "$(namespace)@$(kubectl config current-context)";
+        echo "$(kubectl config current-context) $(namespace)";
     else
         echo "";
     fi

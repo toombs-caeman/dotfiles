@@ -44,6 +44,9 @@ Most managers can:
 * list installed packages
 * syncronize with some remote state
 
+# TODO
+* create some sort of requirements format for batch installation.
+* create a way to handle package names being different across package managers
 # FAQ
 
 ### want support for additional managers?
