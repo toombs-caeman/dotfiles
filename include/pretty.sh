@@ -10,7 +10,7 @@ color () {
     # usage: color [bold | vivid] [fg COLOR] [bg COLOR]
     # colors are black red green yellow blue purple cyan white
     if [[ "$#" -eq 0 ]]; then
-        printf "\e[0m"
+        printf "\[\e[0m\]"
         return 0
     fi
     local bold vivid fg bg
@@ -37,7 +37,7 @@ color () {
     }
     fg=$(color_code $1)
     bg=$(color_code $2)
-    printf "\e[%s;%s;%sm" $bold $[30 + $vivid + $fg] $[40 + $vivid + $bg]
+    printf "\[\e[%s;%s;%sm\]" $bold $[30 + $vivid + $fg] $[40 + $vivid + $bg]
 }
 
 # sh doesn't support all of the following features well, so just go with the default and exit
@@ -59,7 +59,7 @@ PS1=""
 case ${TERM} in
     xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
     	# Change the window title of X terminals
-    	PS1+='$(echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007")' ;;
+    	PS1+='\[$(echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007")\]' ;;
     *) echo "not configured for terminal '$TERM'" ;;
 esac
 
