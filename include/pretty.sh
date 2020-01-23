@@ -69,7 +69,7 @@ ps1_next blue "%s⎈%s" k8s_prompt # k8s context TODO get alans per session one
 ps1_next blue " [%s]" "echo $debian_chroot" # chroot envs
 ps1_next green " ⎇ %s" "git rev-parse --abbrev-ref HEAD" # git branch
 ps1_next 'vivid red' "*" "git status --short" # is repo clean
-ps1_next 'bold cyan' " %s " "echo \${PWD#\$(dirname \$(git root || echo $HOME))/}" # git aware pwd
+ps1_next 'bold cyan' " %s " "echo \${PWD#\$(dirname \$(git root || [[ \$PWD != \$HOME* ]] || echo \$HOME) 2>/dev/null)/}" # git aware pwd
 ps1_next red "%d " "echo \${err/0/}" # errcode of the previous command
 ps1_next "" "%s" "[[ \"\$USER\" == \"root\" ]] && echo '#' || echo '$'" # always end with $ in the default color
 
