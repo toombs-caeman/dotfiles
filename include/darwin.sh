@@ -1,3 +1,5 @@
 # only run if the system is mac/OSX
-[[ $(uname -a) == *"Darwin"* ]] || return 0
-
+darwin() {
+	[[ $(uname -a) == *"Darwin"* ]]
+}
+darwin || return 0
