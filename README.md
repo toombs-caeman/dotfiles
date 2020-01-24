@@ -1,21 +1,26 @@
 This repository is intended as a one stop shop for maintaining a consistent configuration across several machines.
 
-Sub-projects are included using [git-subrepo](https://github.com/ingydotnet/git-subrepo).
 This allows a fully functional copy of the repo with only `git clone`, while still keeping project histories cleanly separate.
+
+# Principles
+* context should be:
+	* on a per shell basis
+	* dislayed clearly in the prompt
+	* unchanging, unless explicitly set in that session
+* context includes
+	* history - separate global and shell searching
+	* prompt
+	* shortcuts
+	* path/declarations
+* include subprojects using [git-subrepo](https://github.com/ingydotnet/git-subrepo).
 
 # Installation
 
 direct installation is not recommended. Instead use this as a pattern for constructing you're own dotfiles.
-
-If you are interested in using this repo directly, it's probably better to make your own fork. Also beware that running ricer may overwrite important config files on your system.
-
-``` bash
-git clone https://github.com/toombs-caeman/dotfiles ~/.remote_config
-echo . ~/.remote_config/rc >> ~/.bashrc
-```
-
-you may want to then edit the default context in contexts/
-or the prompt in include/pretty.sh
+If you fork this repo for your own use, you will want to change:
+* contexts/default/
+* themes.yml
+* the prompt in pretty.sh
 
 # Dependencies
 
@@ -67,6 +72,7 @@ tools will be configured if they are available:
 
 # TODO: Cygwin
 * add brew to pm
+* track xdg-settings, somehow unify xdg-open and mac's open -a
 
 ## potential additions / things to look at
 * https://old.reddit.com/r/dotfiles/
@@ -74,13 +80,11 @@ tools will be configured if they are available:
 * https://old.reddit.com/r/startpages/
 * include whitefox layout
 * unified backup utility, use restic?
-* alan's bash history
 * firefox
     - userChrome.css
     - https://www.userchrome.org/how-create-userchrome-css.html
     - https://userstyles.org/styles/98305/solarized-dark-everywhere
     - https://old.reddit.com/r/FirefoxCSS/
-* track xdg-settings
 * mosh
 * https://github.com/andreyorst/fzf.kak
 * path extractor https://github.com/edi9999/path-extractor
