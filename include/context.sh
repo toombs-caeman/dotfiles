@@ -28,6 +28,10 @@ _ctx_complete() {
 }
 complete -F _ctx_complete ctx
 
+notes() {
+    vi $rc/notes.md
+}
+
 # make cloning a breeze
 my() {
     [[ ! -d $gitdir/$1 ]] && [[ ! -z "$1" ]] && git -C $gitdir clone $gitremote/$1.git

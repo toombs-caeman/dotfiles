@@ -40,7 +40,7 @@ lineinfile () {
 
 include() {
     if [[ -d "$1" ]]; then
-	for file in $1/*$2; do
+	for file in $1/*${2:-.sh}; do
             . $file
 	done
     fi
@@ -68,7 +68,7 @@ fkill () {
 
 
 # set context 
-export rc=$(dirname $BASH_SOURCE)
+export rc=$(realpath $(dirname $BASH_SOURCE))
 include $rc/contexts/default .sh
 
 # include paths and shell files
