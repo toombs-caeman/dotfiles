@@ -9,8 +9,18 @@ export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1
 color () {
     # usage: color [bold | vivid] [fg COLOR] [bg COLOR]
     # colors are black red green yellow blue purple cyan white
+    # TODO make this a variable escape, defaulting to 1
+    # 	esc then counts the number of backslashes
+    # 	this would allow its use in nested sed, printf situations
+
+    local esc=0
+    if [[ "$1" == "noesc" ]]; then
+        esc=1
+        shift
+    fi
+
     if [[ "$#" -eq 0 ]]; then
-        printf "\[\e[0m\]"
+        [[ $esc == 0 ]] && printf "\[\e[0m\]" || printf "\e[0m"
         return 0
     fi
     local bold vivid fg bg
@@ -37,7 +47,8 @@ color () {
     }
     fg=$(color_code $1)
     bg=$(color_code $2)
-    printf "\[\e[%s;%s;%sm\]" $bold $[30 + $vivid + $fg] $[40 + $vivid + $bg]
+    [[ $esc == 0 ]] && printf "\[\e[%s;%s;%sm\]" $bold $[30 + $vivid + $fg] $[40 + $vivid + $bg] \
+     || printf "\e[%s;%s;%sm" $bold $[30 + $vivid + $fg] $[40 + $vivid + $bg]
 }
 
 # sh doesn't support all of the following features well, so just go with the default and exit
@@ -67,9 +78,18 @@ ps1_next 'bold white red' "%s" "[[ \"\$USER\" != \"$USER\" ]] && echo \$USER" # 
 ps1_next "" "%s " "echo \${ctx_name/default/}" # display the current dirs context
 ps1_next blue "%s⎈%s" k8s_prompt # k8s context TODO get alans per session one
 ps1_next blue " [%s]" "echo $debian_chroot" # chroot envs
-ps1_next green " ⎇ %s" "git rev-parse --abbrev-ref HEAD" # git branch
-ps1_next 'vivid red' "*" "git status --short" # is repo clean
-ps1_next 'bold cyan' " %s " "echo \${PWD#\$(dirname \$(git root || [[ \$PWD != \$HOME* ]] || echo \$HOME) 2>/dev/null)/}" # git aware pwd
+
+# git status
+ps1_next green " ⎇ %s%s" '
+    git status 2>/dev/null | sed -n "
+    s/^On branch \(.*\)/\1/p;
+    s/^Your branch is ahead.*by \(.*\) commit.*/\\\\\[$(color noesc blue)\\\\\]↑\1/p;
+    s/^Your branch is behin.*by \(.*\) commit.*/\\\\\[$(color noesc blue)\\\\\]↓\1/p;
+    /^Changes /{s/.*/\\\\\[$(color noesc vivid red)\\\\\]*/p;q;}
+    " | tr -d "\n"'
+# print the path fromthe closest of (git root or / or $HOME)
+ps1_next 'bold cyan' " %s " "echo \${PWD#\$(dirname \$(git root || [[ \$PWD != \$HOME* ]] || echo \$HOME) 2>/dev/null)/}"
+
 ps1_next red "%d " "echo \${err/0/}" # errcode of the previous command
 ps1_next "" "%s" "[[ \"\$USER\" == \"root\" ]] && echo '#' || echo '$'" # always end with $ in the default color
 

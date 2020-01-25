@@ -30,11 +30,11 @@ lineinfile () {
 
 include() {
     if [[ -d "$1" ]]; then
-	for file in $1/*$2; do
+	for file in $1/*${2:-.sh}; do
             . $file
 	done
     fi
-    [[ -f "$1" ]] && . $1
+    [[ -f "$1$2" ]] && . $1$2
     return 0
 }
 
@@ -56,8 +56,8 @@ path () {
 }
 
 # set context 
-export rc=$(dirname $BASH_SOURCE)
-include $rc/contexts/default
+export rc=$(realpath $(dirname $BASH_SOURCE))
+include $rc/contexts/default .sh
 
 # include paths and shell files
 newpath $(find $rc/bin/ -maxdepth 1 -type d)

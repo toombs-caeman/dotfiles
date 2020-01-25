@@ -1,7 +1,7 @@
 # set the context
 ctx() {
-    if [[ $# -eq 1 ]] && [[ -f $rc/contexts/$1 ]]; then
-        include $rc/contexts/$1
+    if [[ $# -eq 1 ]]; then
+        include $rc/contexts/$1 .sh
         ctx_name=$1
     fi
 
@@ -16,6 +16,10 @@ _ctx_complete() {
     COMPREPLY=($(compgen -W "$(ls $rc/contexts)" "${COMP_WORDS[1]}"))
 }
 complete -F _ctx_complete ctx
+
+notes() {
+    vi $rc/notes.md
+}
 
 # make cloning a breeze
 my() {
