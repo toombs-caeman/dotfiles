@@ -74,24 +74,22 @@ case ${TERM} in
     *) echo "not configured for terminal '$TERM'" ;;
 esac
 
-ps1_next 'bold white red' "%s" "[[ \"\$USER\" != \"$USER\" ]] && echo \$USER" # if the user has changed since setting the prompt (probably sudo su)
-ps1_next "" "%s " "echo \${ctx_name/default/}" # display the current dirs context
-ps1_next blue "%s⎈%s" k8s_prompt # k8s context TODO get alans per session one
-ps1_next blue " [%s]" "echo $debian_chroot" # chroot envs
+ps1_next 'bold white red' "%s " "[[ \"\$USER\" != \"$USER\" ]] && echo \$USER" # if the user has changed since setting the prompt (probably sudo su)
+ps1_next "" "%s " "echo \${SHL_CONTEXT/default}" # display the current context
+ps1_next blue "%s⎈%s " k8s_prompt # k8s context TODO get alans per session one
+ps1_next blue "[%s] " "echo $debian_chroot" # chroot envs
 
 # git status
-ps1_next green " ⎇ %s%s" '
+ps1_next green "⎇ %s%s%s " '
     git status 2>/dev/null | sed -n "
     s/^On branch \(.*\)/\1/p;
     s/^Your branch is ahead.*by \(.*\) commit.*/\\\\\[$(color noesc blue)\\\\\]↑\1/p;
     s/^Your branch is behin.*by \(.*\) commit.*/\\\\\[$(color noesc blue)\\\\\]↓\1/p;
     /^Changes /{s/.*/\\\\\[$(color noesc vivid red)\\\\\]*/p;q;}
     " | tr -d "\n"'
-# print the path fromthe closest of (git root or / or $HOME)
-ps1_next 'bold cyan' " %s " "echo \${PWD#\$(dirname \$(git root || [[ \$PWD != \$HOME* ]] || echo \$HOME) 2>/dev/null)/}"
+# print the path from the closest of (git root or / or $HOME)
+ps1_next 'bold cyan' "%s " "echo \${PWD#\$(dirname \$(git root || [[ \$PWD != \$HOME* ]] || echo \$HOME) 2>/dev/null)/}"
 
 ps1_next red "%d " "echo \${err/0/}" # errcode of the previous command
 ps1_next "" "%s" "[[ \"\$USER\" == \"root\" ]] && echo '#' || echo '$'" # always end with $ in the default color
 
-# preserve the error code while doing the magic and write the history
-export PROMPT_COMMAND="export err=\$?; history -w"

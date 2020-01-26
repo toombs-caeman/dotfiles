@@ -2,6 +2,26 @@
 
 # a 'stdlib'
 
+# the following section contains the building blocks for all of the following scripts
+# mostly these are utility functions and nice wrappers which need to exist before
+# including anything else
+missingno() {
+    # list commands that are missing from a list that are expected for full functionality
+    # don't try to install them here, but maybe integrate with pm
+    echo TODO
+}
+
+path () {
+    #show path in a nice format
+    echo $PATH | tr ":" "\012"
+}
+
+fkill () {
+    # interactively kill a process
+    local to_kill=$(ps aux|fzf |awk '{print $2}')
+    [[ -z "$to_kill" ]] || kill $1 $to_kill
+}
+
 # resolve the absolute name of a directory
 abs_dir()
 {
@@ -70,5 +90,3 @@ inline() {
     declare -f $1 | sed '1,2d;$d'
 }
 
-# check for mac
-export -f alias_options help delegate lineinfile abs_dir

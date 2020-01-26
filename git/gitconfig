@@ -1,0 +1,8 @@
+[user]
+name = Caeman Toombs
+
+[alias]
+	co = checkout
+	root = !pwd
+	tree = log --graph --all --oneline --color
+
