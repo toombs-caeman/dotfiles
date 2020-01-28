@@ -75,7 +75,7 @@ case ${TERM} in
 esac
 
 ps1_next 'bold white red' "%s " "[[ \"\$USER\" != \"$USER\" ]] && echo \$USER" # if the user has changed since setting the prompt (probably sudo su)
-ps1_next "" "%s " "echo \${SHL_CONTEXT/default}" # display the current context
+ps1_next "" "%s " "echo \${ROLE/default}" # display the current context
 ps1_next blue "%s⎈%s " k8s_prompt # k8s context TODO get alans per session one
 ps1_next blue "[%s] " "echo $debian_chroot" # chroot envs
 

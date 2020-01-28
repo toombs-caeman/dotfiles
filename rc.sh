@@ -8,29 +8,29 @@ case $- in
 esac
 
 # set context 
-export SHL_CONTEXT=${SHL_CONTEXT:-default}
-SHL_CONTEXT_NEXT=
+export ROLE=${ROLE:-default}
+ROLE_NEXT=
 export rc=$(realpath $(dirname $BASH_SOURCE))
 
-ctx() {
+role() {
     # start a subshell with an additional rc that *almost* duplicates the default context completely
     # the only things not passed are unexported variables
     # this isolates changes made in context from the default shell, yet alllows the common configuration
     # to apply generally
 
     # with no arguments or if we're already in the right context, print the context and return
-    if [[ $# -eq 0 ]] || [[ "$1" == "$SHL_CONTEXT" ]]; then
-        echo $SHL_CONTEXT
+    if [[ $# -eq 0 ]] || [[ "$1" == "$ROLE" ]]; then
+        echo $ROLE
         return 0
     fi
 
     # if we're in default, start the context subshell.
     # capture the exit code to indicate if we should enter another context
-    if [[ "$SHL_CONTEXT" == "default" ]]; then
+    if [[ "$ROLE" == "default" ]]; then
         # duplicate shell options, functions, completions, and aliases explicitly
         # then include the context specific init.sh
         # the enironment is already passed by default and .bashrc is not run
-        SHL_CONTEXT=$1 bash --rcfile <(
+        ROLE=$1 bash --rcfile <(
         	shopt -p
         	declare -f
         	complete
@@ -48,8 +48,8 @@ ctx() {
         err=$(($? - 60))
         readarray -t a <<<$(ls $rc/contexts)
         # negative values will index from the back, but indexing off the end will expand to a null string
-        # this is actually desired, since it probably means the exit code wasn't set by ctx()
-        [[ $err -ge 0 ]] && SHL_CONTEXT_NEXT=${a[$err]} || SHL_CONTEXT_NEXT=
+        # this is actually desired, since it probably means the exit code wasn't set by role()
+        [[ $err -ge 0 ]] && ROLE_NEXT=${a[$err]} || ROLE_NEXT=
         return 0
     fi
     # since we're not in the right context
@@ -61,10 +61,10 @@ ctx() {
     echo context $1 not found
     return 1
 }
-_ctx_complete() {
+_role_complete() {
     COMPREPLY=($(compgen -W "$(ls $rc/contexts)" "${COMP_WORDS[1]}"))
 }
-complete -F _ctx_complete ctx
+complete -F _role_complete role
 
 silent () {
     # execute silently
@@ -103,9 +103,9 @@ include $rc/git
 # preserve the error code
 # enter the subshell if necessary and reset the flat
 # then write the history
-export PROMPT_COMMAND="err=\$?; [[ ! -z \"\$SHL_CONTEXT_NEXT\" ]] && ctx \$SHL_CONTEXT_NEXT; history -w"
+export PROMPT_COMMAND="err=\$?; [[ ! -z \"\$ROLE_NEXT\" ]] && role \$ROLE_NEXT; history -w"
 
 # include the context rc if we're not in default
 # this is not generally run since this file isn't sourced when starting the context
 # but if we source it manually, also run the context init
-[[ "$SHL_CONTEXT" != "default" ]] && . $rc/contexts/$SHL_CONTEXT/init.sh || true
+[[ "$ROLE" != "default" ]] && . $rc/contexts/$ROLE/init.sh || true
