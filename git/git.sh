@@ -1,6 +1,7 @@
 include $rc/git-subrepo/.rc
 
 # TODO convert git-extensions to git aliases
+# TODO make my() follow the golang convention, and try to grab the go first/integrate
 
 # link the gitconfig out to home
 [[ -f ~/.gitconfig ]] || ln -s $rc/git/gitconfig ~/.gitconfig
@@ -53,10 +54,10 @@ my() {
     case $protocol in
         http)  ;& # disallow http by dropping through to https
         https)
-            full_path=https://$remote/$user/$repo
+            full_path=https://$remote/${user:-$gtree_user}/$repo
             ;;
         ssh)
-            full_path=ssh://git@$remote:$user/$repo.git
+            full_path=ssh://git@$remote:${user:-$gtree_user}/$repo.git
             ;;
         *)
             echo unrecognized protocol $protocol
@@ -76,6 +77,16 @@ _my_complete() {
     COMPREPLY=($(compgen -W "$(cd $gtree_dir;for r in */*; do echo $r;echo ${r#*/}; done)" "${COMP_WORDS[1]}"))
 }
 complete -F _my_complete my
+
+gco() {
+    selection=$(git branch -a --format='%(refname)' \
+    	| sed 's,refs/heads/,,;s,refs/remotes/[^/]*/,,' \
+    	| sort | uniq \
+    	| fzf --layout=reverse --height=20) || return
+    git diff --quiet || git stash
+    git checkout $selection
+}
+
 
 alias git='git -c user.email=$gitemail'
 alias g=git

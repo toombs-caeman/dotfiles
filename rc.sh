@@ -11,6 +11,15 @@ esac
 export ROLE=${ROLE:-default}
 ROLE_NEXT=
 export rc=$(realpath $(dirname $BASH_SOURCE))
+__context() {
+    shopt -p
+    declare -f
+    complete
+    alias
+    set -o | sed '/on$/{s/^/set -o /;};/off$/{s/^/set +o /;};s/[ofn]*$//'
+    bind -X | sed "s/^\"\(.*\)\": \"\(.*\)\"/bind -x '\"\1\":\2'/"
+}
+
 
 role() {
     # start a subshell with an additional rc that *almost* duplicates the default context completely
@@ -30,13 +39,8 @@ role() {
         # duplicate shell options, functions, completions, and aliases explicitly
         # then include the context specific init.sh
         # the enironment is already passed by default and .bashrc is not run
-        ROLE=$1 bash --rcfile <(
-        	shopt -p
-        	declare -f
-        	complete
-        	alias
-        	cat $rc/contexts/$1/init.sh 2>/dev/null
-        	) -i
+        ROLE=$1 bash --init-file <(__context; cat $rc/contexts/$1/init.sh 2>/dev/null) -i
+
 
         # capture the exit code from bash.
         # We'll arbitrarily use 60 as an exit code denoting that we should go to context[0] next
@@ -72,18 +76,38 @@ silent () {
     "$@" &>/dev/null
 }
 
+
 failover() {
     # gracefully degrade if the desired application isn't installed
     which $@ 2>/dev/null | head -n1
 }
 
+
+slink() {
+    # read a list of [TARGET] [FILE] pairs
+    # create symlinks to those places store the existing file if it exists
+    # option to restore those files and remove the symlinks
+    :
+}
+
 include() {
-    # include files, or entire directories
-    [[ -f "$1$2" ]] && . $1$2
+    # include files
+    if [[ -f "$1$2" ]]; then
+    	# include the file, then redeclare each function with its source file
+        source $1$2
+        local new_functions="$(cat $1$2 | sed -n 's/^\([[:alnum:]_-]*\) *() *{ *$/\1/p')"
+        for func in $new_functions; do
+            [[ ! -z "$func" ]] && source <(declare -f $func | sed "s,^{ \$,\{ : 'from file: $1$2';,")
+        done
+        return
+    fi
+
+    # include every file in a directory, but don't include recursively
     if [[ -d "$1" ]]; then
     	# by default include .sh files only
 	for file in $1/*${2:-.sh}; do
-            . $file
+    	   # recurse
+    	   include $file
 	done
     fi
 }

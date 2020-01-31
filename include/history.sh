@@ -12,8 +12,8 @@ touch $HISTFILE
 h() {
     # historical search with fzf
     # capture the command and print it if something was selected
-    local cmd="$(cat $HISTDIR/* | sort | uniq | fzf)" && echo ${cmd:--n}
+    local cmd="$(cat $HISTDIR/* | sort | uniq | fzf --height=20 --layout=reverse --prompt='history> ')" && echo ${cmd:--n}
     eval "$cmd"
 }
 # bind h over the default reverse-search-history
-bind -x '"\C-r":h'
+bind -x '"\C-h":h'
