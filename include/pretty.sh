@@ -63,33 +63,52 @@ ps1_next() {
     export PS1+="$(color $1)\$(r=\"\$(${@:3} 2>/dev/null)\"; [[ -z \"\$r\" ]] || printf \"$2\" \$r)"
 }
 
-# start with a clean prompt
-PS1=""
+zprintf() {
+    local results="$(cat -)"
+    [[ ! -z "$results" ]] && printf "$1" $results
+}
+export -f zprintf color
 
-#   otherwise default to 256 and complain
+collapse_ps1() {
+    case $# in
+        0) # finalize
+            export PS1="\$($PS1)$(color; [[ \$USER == root ]] && echo \# || echo \$)"
+            ;;
+        1)
+            PS1+="echo -n $1;"
+            ;;
+        2)
+            PS1+="echo -n $1| zprintf \"$2\";"
+            ;;
+    esac
+}
+
+ctx_root() {
+    local root="$(git root 2> /dev/null || echo $HOME)"
+    [[ "$PWD" == "$root"* ]] && echo $(basename $root)${PWD/$root/} || echo $PWD
+}
+
+PS1=""
+# print USER if it's changed since set PS1 was set (probably sudo su)
+collapse_ps1 "\${USER/$USER/}" "$(color bold white red)%s "
+collapse_ps1 "\${ROLE/default/}" "$(color)%s "
+collapse_ps1 "; k8s_prompt" "$(color blue)%s⎈%s "
+collapse_ps1 "\$debian_chroot" "$(color blue)[%s] "# chroot envs
+collapse_ps1 "; git status 2>/dev/null | sed -n \"
+    s/^On branch \(.*\)/\1/p;/^Changes /{s/.*/✬/p;q;}
+    \"" "$(color green)⎇ %s$(color vivid red)%s"
+collapse_ps1 "; git status 2>/dev/null | sed -n '
+    s/^Your branch is ahead.*by \(.*\) commit.*/↑\1/p;
+    s/^Your branch is behin.*by \(.*\) commit.*/↓\1/p;
+'" "$(color blue)%s"
+
+collapse_ps1 "; ctx_root" "$(color)%s "
+collapse_ps1 "\${err/0/}" "$(color red)%d" # errcode of the previous command
+collapse_ps1 # finalize
+
 case ${TERM} in
     xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
     	# Change the window title of X terminals
     	PS1+='\[$(echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007")\]' ;;
     *) echo "not configured for terminal '$TERM'" ;;
 esac
-
-ps1_next 'bold white red' "%s " "[[ \"\$USER\" != \"$USER\" ]] && echo \$USER" # if the user has changed since setting the prompt (probably sudo su)
-ps1_next "" "%s " "echo \${ROLE/default}" # display the current context
-ps1_next blue "%s⎈%s " k8s_prompt # k8s context TODO get alans per session one
-ps1_next blue "[%s] " "echo $debian_chroot" # chroot envs
-
-# git status
-ps1_next green "⎇ %s%s%s " '
-    git status 2>/dev/null | sed -n "
-    s/^On branch \(.*\)/\1/p;
-    s/^Your branch is ahead.*by \(.*\) commit.*/\\\\\[$(color noesc blue)\\\\\]↑\1/p;
-    s/^Your branch is behin.*by \(.*\) commit.*/\\\\\[$(color noesc blue)\\\\\]↓\1/p;
-    /^Changes /{s/.*/\\\\\[$(color noesc vivid red)\\\\\]*/p;q;}
-    " | tr -d "\n"'
-# print the path from the closest of (git root or / or $HOME)
-ps1_next 'bold cyan' "%s " "echo \${PWD#\$(dirname \$(git root || [[ \$PWD != \$HOME* ]] || echo \$HOME) 2>/dev/null)/}"
-
-ps1_next red "%d " "echo \${err/0/}" # errcode of the previous command
-ps1_next "" "%s" "[[ \"\$USER\" == \"root\" ]] && echo '#' || echo '$'" # always end with $ in the default color
-
