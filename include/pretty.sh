@@ -67,25 +67,43 @@ zprintf() {
     local results="$(cat -)"
     [[ ! -z "$results" ]] && printf "$1" $results
 }
-export -f zprintf color
 
 collapse_ps1() {
     case $# in
         0) # finalize
-            export PS1="\$($PS1)$(color; [[ \$USER == root ]] && echo \# || echo \$)"
+            export PS1="\$($PS1 printf $(color); [[ \$USER == root ]] && echo '#' || echo \$)"
             ;;
         1)
-            PS1+="echo -n $1;"
+            PS1+="echo -n $1 2>/dev/null; "
             ;;
         2)
-            PS1+="echo -n $1| zprintf \"$2\";"
+            # inline zprintf
+            PS1+="r=\$(echo -n $1 2>/dev/null); [[ ! -z \"\$r\" ]] && printf \"$2\" \$r; "
             ;;
     esac
 }
 
 ctx_root() {
-    local root="$(git root 2> /dev/null || echo $HOME)"
-    [[ "$PWD" == "$root"* ]] && echo $(basename $root)${PWD/$root/} || echo $PWD
+    sed "s,^$(git rev-parse --show-toplevel 2>/dev/null),,;s,^$HOME,${HOME/*\//}," <<< "$PWD"
+}
+
+git_short_status() {
+    if status="$(git status 2>/dev/null)"; then
+    	local repo="$(git rev-parse --show-toplevel 2>/dev/null)"
+    	local branch="$(sed -n '
+    		s/^On branch \(.*\)/\1/p;
+    		s/^HEAD detached at \(.*\)/\1/p;
+    		' <<<"$status")"
+    	local changes="$(sed -n '/^Changes /{s/.*/✬/p;q;};' <<<"$status")"
+    	local remote="$(sed -n '
+    		s/^Your branch is ahead.*by \(.*\) commit.*/↑\1/p;
+    		s/^Your branch is behin.*by \(.*\) commit.*/↓\1/p;
+    		s/^Your branch is up to date.*/​/p;
+    		' <<<"$status")"
+    	# recursively handle submodules
+    	(cd $repo/.. ; git_short_status ​)
+    	echo  "${repo/*\//}" "${changes:-​}" "$branch" "${remote:-L} "
+    fi
 }
 
 PS1=""
@@ -93,17 +111,12 @@ PS1=""
 collapse_ps1 "\${USER/$USER/}" "$(color bold white red)%s "
 collapse_ps1 "\${ROLE/default/}" "$(color)%s "
 collapse_ps1 "; k8s_prompt" "$(color blue)%s⎈%s "
-collapse_ps1 "\$debian_chroot" "$(color blue)[%s] "# chroot envs
-collapse_ps1 "; git status 2>/dev/null | sed -n \"
-    s/^On branch \(.*\)/\1/p;/^Changes /{s/.*/✬/p;q;}
-    \"" "$(color green)⎇ %s$(color vivid red)%s"
-collapse_ps1 "; git status 2>/dev/null | sed -n '
-    s/^Your branch is ahead.*by \(.*\) commit.*/↑\1/p;
-    s/^Your branch is behin.*by \(.*\) commit.*/↓\1/p;
-'" "$(color blue)%s"
-
-collapse_ps1 "; ctx_root" "$(color)%s "
-collapse_ps1 "\${err/0/}" "$(color red)%d" # errcode of the previous command
+# chroot envs
+collapse_ps1 "\$debian_chroot" "$(color blue)[%s] "
+collapse_ps1 '; git_short_status' "$(color)%s($(color vivid red)%s$(color green)%s$(color blue)%s$(color)):"
+collapse_ps1 '; ctx_root' "$(color)%s "
+# errcode of the previous command, as set in PROMPT_COMMAND
+collapse_ps1 "\${err/0/}" "$(color red)%d " 
 collapse_ps1 # finalize
 
 case ${TERM} in

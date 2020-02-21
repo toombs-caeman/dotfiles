@@ -82,7 +82,7 @@ gco() {
     selection=$(git branch -a --format='%(refname)' \
     	| sed 's,refs/heads/,,;s,refs/remotes/[^/]*/,,' \
     	| sort | uniq \
-    	| fzf --layout=reverse --height=20) || return
+    	| fzf --layout=reverse --height=20 --query="$@") || return
     git diff --quiet || git stash
     git checkout $selection
 }

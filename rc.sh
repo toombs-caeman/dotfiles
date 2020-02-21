@@ -119,6 +119,20 @@ newpath() {
     done
 }
 
+fzf_test() {
+    # decorate and undecorate
+    # the decorator must return exactly one line per item
+    # example: f() { ls -ld $(cat -); }
+    # this decorator allows you to select on the long form output of ls
+    # but this function still only outputs the short name
+    local tempfile=$(mktemp)
+    local i=$(cat - | tee $tempfile | ${1:-cat} | nl -s ': ' | fzf --with-nth=2..)
+    sed -n "${i/:*/}p" $tempfile
+    rm $tempfile
+
+}
+
+
 # include paths and shell files
 newpath $(find $rc/bin/ -maxdepth 1 -type d)
 include $rc/include
