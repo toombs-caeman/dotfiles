@@ -46,9 +46,10 @@ tools will be configured if they are available:
 * git workflow
 	* forgit interactive git https://github.com/wfxr/forgit
 	* update git aliases
-* consider moving fully to exa/kak/fzf. making use of moreutils.
+* consider moving fully to exa/kak/fzf/delta. making use of moreutils.
 * git-fzf search is broken?, try combining with 'git grep' or ripgrep
 * https://routley.io/posts/bespoke-software-rss-aggregator/
+* git-delta https://github.com/dandavison/delta
 
 # TODO: linux graphics pipeline
 * copy mac keybindings to bring over to linux
