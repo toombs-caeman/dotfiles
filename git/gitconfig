@@ -1,5 +1,6 @@
 [user]
-name = Caeman Toombs
+	name = Caeman Toombs
+	email = toombs.caeman@gmail.com
 
 [alias]
 	co = checkout

@@ -48,6 +48,7 @@ tools will be configured if they are available:
 	* update git aliases
 * consider moving fully to exa/kak/fzf. making use of moreutils.
 * git-fzf search is broken?, try combining with 'git grep' or ripgrep
+* https://routley.io/posts/bespoke-software-rss-aggregator/
 
 # TODO: linux graphics pipeline
 * copy mac keybindings to bring over to linux
