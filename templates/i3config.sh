@@ -38,6 +38,10 @@ bindsym $mod+t exec --no-startup-id pkill compton
 bindsym $mod+Ctrl+t exec --no-startup-id compton -b
 bindsym $mod+Shift+d --release exec "killall dunst; exec notify-send 'restart dunst'"
 
+# copy/paste
+bindsym $mod+c --release exec --no-startup-id copypasta copy
+bindsym $mod+v --release exec --no-startup-id copypasta paste
+
 # screenshots
 bindsym Print exec --no-startup-id i3-scrot
 bindsym $mod+Print --release exec --no-startup-id i3-scrot -w
