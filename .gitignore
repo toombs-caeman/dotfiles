@@ -1,8 +1,10 @@
 *__pycache__/
 *.pyc
 *.log
+*.swp
 .netrwhist
 .bash_history
+.idea/
 contexts/
 viminfo
 undodir/

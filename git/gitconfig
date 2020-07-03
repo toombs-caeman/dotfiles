@@ -15,8 +15,3 @@ name = Caeman Toombs
 	file = "!f=$PWD/$(fzf) && echo $f"
 	search = "!echo $PWD/$(rg "$*" | fzf | cut -f1 -d":" ) #"
 
-[core]
-    pager = delta --plus-color="#012800" --minus-color="#340001" --theme='Monokai Extended'
-
-[interactive]
-    diffFilter = delta --color-only

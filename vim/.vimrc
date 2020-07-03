@@ -14,12 +14,10 @@ if &compatible
 endif
 
 
+
 "Settings" {{{
 
 " Colors
-if has('termguicolors')
-    set termguicolors
-endif
 syntax enable
 colorscheme theme " this theme is dynamically generated, but defaults to solarized dark
 try
@@ -33,7 +31,7 @@ set shiftwidth=4
 set softtabstop=4
 set expandtab   " tabs are spaces. annoying when editing python
 set bs=2        " allow backspace after insert mode
-set clipboard+=unnamedplus " TODO supposed to allow system clipboard
+
 if has('mouse') " enable mouse support
   set mouse=n
 endif
@@ -71,37 +69,37 @@ nnoremap k gk
 
 " tab movement
 " use alt-<num> to move splits in any mode
-tnoremap <A-1> <C-\><C-N>1gt
-inoremap <A-1> <C-\><C-N>1gt
-nnoremap <A-1> 1gt
+tnoremap <leader><1> <C-\><C-N>1gt
+inoremap <leader><1> <C-\><C-N>1gt
+nnoremap <leader><1> 1gt
 
-tnoremap <A-2> <C-\><C-N>2gt
-inoremap <A-2> <C-\><C-N>2gt
-nnoremap <A-2> 2gt
+tnoremap <leader><2> <C-\><C-N>2gt
+inoremap <leader><2> <C-\><C-N>2gt
+nnoremap <leader><2> 2gt
 
-tnoremap <A-3> <C-\><C-N>3gt
-inoremap <A-3> <C-\><C-N>3gt
-nnoremap <A-3> 3gt
+tnoremap <leader><3> <C-\><C-N>3gt
+inoremap <leader><3> <C-\><C-N>3gt
+nnoremap <leader><3> 3gt
 
-tnoremap <A-4> <C-\><C-N>4gt
-inoremap <A-4> <C-\><C-N>4gt
-nnoremap <A-4> 4gt
+tnoremap <leader><4> <C-\><C-N>4gt
+inoremap <leader><4> <C-\><C-N>4gt
+nnoremap <leader><4> 4gt
 
-tnoremap <A-5> <C-\><C-N>5gt
-inoremap <A-5> <C-\><C-N>5gt
-nnoremap <A-5> 5gt
+tnoremap <leader><5> <C-\><C-N>5gt
+inoremap <leader><5> <C-\><C-N>5gt
+nnoremap <leader><5> 5gt
 
-tnoremap <A-6> <C-\><C-N>6gt
-inoremap <A-6> <C-\><C-N>6gt
-nnoremap <A-6> 6gt
+tnoremap <leader><6> <C-\><C-N>6gt
+inoremap <leader><6> <C-\><C-N>6gt
+nnoremap <leader><6> 6gt
 
-tnoremap <A-7> <C-\><C-N>7gt
-inoremap <A-7> <C-\><C-N>7gt
-nnoremap <A-7> 7gt
+tnoremap <leader><7> <C-\><C-N>7gt
+inoremap <leader><7> <C-\><C-N>7gt
+nnoremap <leader><7> 7gt
 
-tnoremap <A-8> <C-\><C-N>8gt
-inoremap <A-8> <C-\><C-N>8gt
-nnoremap <A-8> 8gt
+tnoremap <leader><8> <C-\><C-N>8gt
+inoremap <leader><8> <C-\><C-N>8gt
+nnoremap <leader><8> 8gt
 
 " close fold
 nnoremap <leader>f zc
@@ -109,37 +107,35 @@ nnoremap <leader>f zc
 " highlight last inserted text
 nnoremap gv `[v`]
 
-" use ESC to exit the terminal
-" this does mask 'set -o vi' but we don't care
-tnoremap <Esc> <C-\><C-n>
 
-" use alt to navigate splits in any mode
-tnoremap <A-h> <C-\><C-N><C-w>h
-tnoremap <A-j> <C-\><C-N><C-w>j
-tnoremap <A-k> <C-\><C-N><C-w>k
-tnoremap <A-l> <C-\><C-N><C-w>l
-inoremap <A-h> <C-\><C-N><C-w>h
-inoremap <A-j> <C-\><C-N><C-w>j
-inoremap <A-k> <C-\><C-N><C-w>k
-inoremap <A-l> <C-\><C-N><C-w>l
-nnoremap <A-h> <C-w>h
-nnoremap <A-j> <C-w>j
-nnoremap <A-k> <C-w>k
-nnoremap <A-l> <C-w>l
+" use leader to navigate splits in any mode
+tnoremap <leader>h <C-w>h
+tnoremap <leader>j <C-w>j
+tnoremap <leader>k <C-w>k
+tnoremap <leader>l <C-w>l
+inoremap <leader>h <C-\><C-N><C-w>h
+inoremap <leader>j <C-\><C-N><C-w>j
+inoremap <leader>k <C-\><C-N><C-w>k
+inoremap <leader>l <C-\><C-N><C-w>l
+nnoremap <leader>h <C-w>h
+nnoremap <leader>j <C-w>j
+nnoremap <leader>k <C-w>k
+nnoremap <leader>l <C-w>l
 
-" use shift-alt to move splits in any mode
-tnoremap <A-H> <C-\><C-N><C-w>H
-tnoremap <A-J> <C-\><C-N><C-w>J
-tnoremap <A-K> <C-\><C-N><C-w>K
-tnoremap <A-L> <C-\><C-N><C-w>L
-inoremap <A-H> <C-\><C-N><C-w>H
-inoremap <A-J> <C-\><C-N><C-w>J
-inoremap <A-K> <C-\><C-N><C-w>K
-inoremap <A-L> <C-\><C-N><C-w>L
-nnoremap <A-H> <C-w>H
-nnoremap <A-J> <C-w>J
-nnoremap <A-K> <C-w>K
-nnoremap <A-L> <C-w>L
+" use shift-leader to move splits in any mode
+tnoremap <leader>H <C-w>H
+tnoremap <leader>J <C-w>J
+tnoremap <leader>K <C-w>K
+tnoremap <leader>L <C-w>L
+inoremap <leader>H <C-\><C-N><C-w>H
+inoremap <leader>J <C-\><C-N><C-w>J
+inoremap <leader>K <C-\><C-N><C-w>K
+inoremap <leader>L <C-\><C-N><C-w>L
+nnoremap <leader>H <C-w>H
+nnoremap <leader>J <C-w>J
+nnoremap <leader>K <C-w>K
+nnoremap <leader>L <C-w>L
+
 
 " break bad habits
 inoremap <Up>    <NOP>
@@ -229,8 +225,6 @@ let g:netrw_liststyle=4
 let g:netrw_altv=1
 
 "NETRW" }}}
-"" move the cursor anywhere
-" set virtualedit=all
 function! TwiddleCase(str)
   if a:str ==# toupper(a:str)
     let result = tolower(a:str)
@@ -243,3 +237,30 @@ function! TwiddleCase(str)
 endfunction
 vnoremap ~ y:call setreg('', TwiddleCase(@"), getregtype(''))<CR>gv""Pgv
 set hidden
+
+" system clipboard
+vmap <leader>y "+y
+nmap <leader>p "+p
+
+" TERM {{{
+set shell=bash
+if has('termguicolors')
+    set termguicolors
+endif
+tnoremap <Esc><Esc> <C-\><C-n>
+autocmd BufEnter if &buftype=="terminal" | normal i | endif
+function! InvertShell()
+    let $PROMPT_COMMAND=$PROMPT_COMMAND . '; tapi cwd'
+    term
+    bd 1
+endfunction
+" move vim to the terminal's cwd
+" called by PROMPT_COMMAND
+function! Tapi_cwd(bufnum, arglist)
+    execute 'cd' fnameescape(a:arglist[0])
+endfunction
+" AIRLINE
+let g:airline#extensions#term#enabled = 0
+let g:airline#extensions#termline#enabled = 1
+
+" }}}

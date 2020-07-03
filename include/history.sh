@@ -1,12 +1,9 @@
-export HISTDIR=$rc/history
-[[ ! -d $HISTDIR ]] && mkdir $HISTDIR
-
+export HISTDIR="$rc/history"
+mkdir -p "$HISTDIR"
 shopt -s histappend
-# don't put duplicate lines in the history. See bash(1) for more options
-export HISTCONTROL=ignoredups
+export HISTCONTROL=ignoreboth
 # save a separate file for each session
 silent ls $HISTDIR/${HISTFILE//*\/} || export HISTFILE="$HISTDIR/history.$(date +%Y%m%d.%H%M%S).$$"
-# touch file so it exists, and context switchs won't reset the histfile
 touch $HISTFILE
 
 h() {
