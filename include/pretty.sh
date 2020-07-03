@@ -6,6 +6,53 @@ alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
 
+colortest(){
+# Show available terminal colours.
+# Heavily modified version of the TLDP script here:
+# http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
+  # Print standard colors.
+  local bolds=( 0 1 )
+  local fgs=( 3{0..7} )
+  local bgs=( 4{0..8} )
+  # Print column headers.
+  printf "%-4s  " '' ${bgs[@]}
+  echo
+  # Print rows.
+  for bold in ${bolds[@]}; do
+    for fg in ${fgs[@]}; do
+      # Print row header
+      printf "%s;%s  " $bold $fg
+      # Print cells.
+      for bg in ${bgs[@]}; do
+        # Print cell.
+        printf "\e[%s;%s;%sm%s\e[0m  " $bold $fg $bg "text"
+      done
+      echo
+    done
+  done
+  
+  # Print vivid colors.
+  local bolds=( 0 ) # Bold vivid is the same as bold normal.
+  local fgs=( 9{0..7} )
+  local bgs=( 10{0..8} )
+  # Print column headers.
+  printf "%-4s  " '' ${bgs[@]}
+  echo
+  # Print rows.
+  for bold in 0; do
+    for fg in ${fgs[@]}; do
+      # Print row header
+      printf "%s;%s  " $bold $fg
+      # Print cells.
+      for bg in ${bgs[@]}; do
+        # Print cell.
+        printf "\e[%s;%s;%sm%s\e[0m  " $bold $fg $bg "text"
+      done
+      echo
+    done
+  done
+}
+
 color () {
     # usage: color [bold | vivid] [fg COLOR] [bg COLOR]
     # colors are black red green yellow blue purple cyan white
