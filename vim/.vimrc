@@ -248,19 +248,13 @@ if has('termguicolors')
     set termguicolors
 endif
 tnoremap <Esc><Esc> <C-\><C-n>
-autocmd BufEnter if &buftype=="terminal" | normal i | endif
 function! InvertShell()
-    let $PROMPT_COMMAND=$PROMPT_COMMAND . '; tapi cwd'
     term
     bd 1
 endfunction
-" move vim to the terminal's cwd
-" called by PROMPT_COMMAND
-function! Tapi_cwd(bufnum, arglist)
+
+function! Tapi_cd(bufnum, arglist)
     execute 'cd' fnameescape(a:arglist[0])
 endfunction
-" AIRLINE
-let g:airline#extensions#term#enabled = 0
-let g:airline#extensions#termline#enabled = 1
 
 " }}}

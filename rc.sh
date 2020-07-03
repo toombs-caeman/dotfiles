@@ -25,14 +25,13 @@ shopt -s autocd
 # interface with vim functions
 tapi() { 
     local cmd="$1"; shift
-    local args="\"$PWD\""
+    local args=""
     local IFS='","'
-    [[ "$1" ]] && args="$args,\"${*:1}\""
+    [[ "$1" ]] && args="\"${*:1}\""
     printf "\033]51;[\"call\", \"Tapi_$cmd\", [$args]]\007";
 }
 vi() { printf "\033]51;[\"drop\", \"$(realpath $1)\"]\007"; }
-export PROMPT_COMMAND='history -w'
-
+export PROMPT_COMMAND='history -w; tapi cd $PWD'
 
 
 # execute silently
