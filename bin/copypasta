@@ -1,0 +1,13 @@
+#!/bin/sh
+# support consistent copy and paste
+# https://machinesareforpeople.com/posts/consistent-copy-and-paste-in-linux-with-i3wm
+win=$(xprop -id $(xdotool getactivewindow) | grep 'WM_CLASS(STRING)' | cut -d'"' -f2)
+
+case $1 in
+	"copy") k=c ;;
+	"paste") k=v ;;
+esac
+case $win in
+    "Alacritty") xdotool key --clearmodifiers ctrl+shift+$k ;;
+    *) xdotool key --clearmodifiers ctrl+$k ;;
+esac

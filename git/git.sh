@@ -1,6 +1,5 @@
 include $rc/git-subrepo/.rc
 
-# TODO convert git-extensions to git aliases
 # TODO make my() follow the golang convention, and try to grab the go first/integrate
 
 # link the gitconfig out to home

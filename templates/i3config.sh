@@ -10,16 +10,9 @@ set $mod Mod4
 # workspace_layout tabbed <stacking|tabbed>
 
 # Configure border style <normal|1pixel|pixel xx|none|pixel>
-new_window pixel 1
+new_window pixel 2
 new_float normal
-
-# Hide borders
 hide_edge_borders none
-
-# change borders
-bindsym $mod+u border none
-bindsym $mod+y border pixel 1
-bindsym $mod+n border normal
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -31,44 +24,32 @@ floating_modifier $mod
 # start a terminal
 bindsym $mod+Return exec alacritty
 
-# kill focused window
+# kill focused /selected window
 bindsym $mod+Shift+q kill
+bindsym $mod+Alt+q --release exec --no-startup-id xkill
 
 # start program launcher
-bindsym $mod+d exec --no-startup-id dmenu_recency -nb '#{{color[0]}}' -nf '#{{color[7]}}' -sb '#{{color[8]}}' -sf '#{{color[15]}}'
-#bindsym $mod+d exec alacritty -t 'launcher' --command bash -c 'compgen -c | sort -u | fzf | xargs -r swaymsg -t command exec'
-#for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 100 ppt, move position 0 px 0 px
+bindsym $mod+space exec "alacritty -t 'launcher' --command bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse)'"
+for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 100 ppt, move position 0 px 0 px
 
-# launch categorized menu
-bindsym $mod+z exec --no-startup-id morc_menu
-
-################################################################################################
-## sound-section - DO NOT EDIT if you wish to automatically upgrade Alsa -> Pulseaudio later! ##
-################################################################################################
-
-exec --no-startup-id volumeicon
-bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
-#exec --no-startup-id pulseaudio
-#exec --no-startup-id pa-applet
-#bindsym $mod+Ctrl+m exec pavucontrol
-
-################################################################################################
-
-# Screen brightness controls
-# bindsym XF86MonBrightnessUp exec "xbacklight -inc 10; notify-send 'brightness up'"
-# bindsym XF86MonBrightnessDown exec "xbacklight -dec 10; notify-send 'brightness down'"
 
 # Start Applications
 bindsym $mod+t exec --no-startup-id pkill compton
 bindsym $mod+Ctrl+t exec --no-startup-id compton -b
 bindsym $mod+Shift+d --release exec "killall dunst; exec notify-send 'restart dunst'"
+
+# copy/paste
+bindsym $mod+c --release exec --no-startup-id copypasta copy
+bindsym $mod+v --release exec --no-startup-id copypasta paste
+
+# screenshots
 bindsym Print exec --no-startup-id i3-scrot
 bindsym $mod+Print --release exec --no-startup-id i3-scrot -w
 bindsym $mod+Shift+Print --release exec --no-startup-id i3-scrot -s
-bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
 
 focus_follows_mouse no
 
+# movement
 {% set mmaps = [('h','j','k','l'), ('Left','Down','Up','Right')]-%}
 {% set mops = (('','focus'),('Shift+','move')) -%}
 {% for op in mops %}{% for map in mmaps %}
@@ -97,34 +78,16 @@ bindsym $mod+e layout toggle split
 bindsym $mod+Shift+space floating toggle
 
 # change focus between tiling / floating windows
-bindsym $mod+space focus mode_toggle
-
-# toggle sticky
-bindsym $mod+Shift+s sticky toggle
+#bindsym $mod+space focus mode_toggle
 
 # focus the parent container
 bindsym $mod+a focus parent
-
-# move the currently focused window to the scratchpad
-bindsym $mod+Shift+minus move scratchpad
-
-# Show the next scratchpad window or hide the focused scratchpad window.
-# If there are multiple scratchpad windows, this command cycles through them.
-bindsym $mod+minus scratchpad show
-
-#navigate workspaces next / previous
-bindsym $mod+Ctrl+Right workspace next
-bindsym $mod+Ctrl+Left workspace prev
 
 {% for n in range(1, 9) %}
 bindsym $mod+{{n}} workspace {{n}}{# switch to workspace #}
 bindsym $mod+Ctrl+{{n}} move container to workspace {{n}}{# Move focused container to workspace #}
 bindsym $mod+Shift+{{n}} move container to workspace {{n}}; workspace {{n}}{# Move to workspace with focused container #}
 {% endfor %}
-
-# Open applications on specific workspaces
-# assign [class="Thunderbird"] $ws1
-# assign [class="Pcmanfm"] $ws3
 
 # Open specific applications in floating mode
 {% set floaters = ('alsamixer', 'Clipgrab','Simple-scan', 'GParted','Pavucontrol') %}
@@ -173,10 +136,10 @@ mode "resize" {
         # Pressing right will grow the window’s width.
         # Pressing up will shrink the window’s height.
         # Pressing down will grow the window’s height.
-        bindsym j resize shrink width 5 px or 5 ppt
-        bindsym k resize grow height 5 px or 5 ppt
-        bindsym l resize shrink height 5 px or 5 ppt
-        bindsym semicolon resize grow width 5 px or 5 ppt
+        bindsym h resize shrink width 5 px or 5 ppt
+        bindsym j resize grow height 5 px or 5 ppt
+        bindsym k resize shrink height 5 px or 5 ppt
+        bindsym l resize grow width 5 px or 5 ppt
 
         # same bindings, but for the arrow keys
         bindsym Left resize shrink width 10 px or 10 ppt
@@ -202,7 +165,6 @@ exec --no-startup-id xfce4-power-manager
 exec --no-startup-id pamac-tray
 exec --no-startup-id clipit
 # exec --no-startup-id blueman-applet
-# exec_always --no-startup-id sbxkb
 exec --no-startup-id start_conky_maia
 # exec --no-startup-id start_conky_green
 exec --no-startup-id xautolock -time 10 -locker blurlock
@@ -270,7 +232,7 @@ bindsym $mod+m bar mode toggle
 #############################
 ### settings for i3-gaps: ###
 #############################
-
+{% if 0 %}
 # Set inner/outer gaps
 gaps inner 14
 gaps outer -2
@@ -312,4 +274,5 @@ mode "$mode_gaps_{{side}}" {
 }
 {% endfor %}
 
-exec --no-startup-id sh -c ricer ~/.remote_config/themes.yml
+{% endif %}
+exec --no-startup-id sh -c ricer ~/my/toombs-caeman/dotfiles/themes.yml

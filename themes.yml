@@ -1,5 +1,5 @@
-background_dir: ~/Pictures/Backgrounds
-template_dir: ~/.remote_config/templates/
+background_dir: ~/Pictures/Wallpapers
+template_dir: templates/
 
 templates:
   Xresources.template:
@@ -12,4 +12,3 @@ templates:
     callback: i3-msg restart
   alacritty.yml: 
     dest: ~/.alacritty.yml
-  theme.vim: ~/.remote_config/bin/nvim/vim/colors/ricer.vim

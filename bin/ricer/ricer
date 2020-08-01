@@ -26,6 +26,14 @@ canonical = [
    (values[4], values[4], values[4]), # White
 ]
 
+warning ='DO NOT EDIT!! created with ricer template:%s'
+# as a fallback, use the solarized dark theme
+fallback = [ '073642', 'dc322f', '859900', 'b58900',
+             '268bd2', 'd33682', '2aa198', 'eee8d5',
+             '002b36', 'cb4b16', '586e75', '657b83',
+             '839496', '6c71c4', '93a1a1', 'fdf6e3' ]
+
+
 def isolate_colors(filename, ncolors):
     img = Image.open(filename)
     if img.mode != 'RGB':
@@ -94,15 +102,11 @@ def get_xcolors(colors, substitution_distance=20):
                 # No substitute found, just use the best match.
                 results.append(vals[0])
 
+    # take a weighted average of the obtained and canonical values
+    # this greatly improves contrast with monochrome backgrounds.
+    weight = 5
+    return [ tuple(map(lambda a, b: int(((weight - 1)*a + b)/weight), r, c)) for r, c in zip(results, canonical)]
     return results
-
-
-warning ='DO NOT EDIT!! created with ricer template:%s'
-# as a fallback, use the solarized dark theme
-fallback = [ '073642', 'dc322f', '859900', 'b58900',
-             '268bd2', 'd33682', '2aa198', 'eee8d5',
-             '002b36', 'cb4b16', '586e75', '657b83',
-             '839496', '6c71c4', '93a1a1', 'fdf6e3' ]
 
 
 def normalize_paths(m):
