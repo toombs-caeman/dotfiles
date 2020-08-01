@@ -104,12 +104,6 @@ if [[ "$SHELL" == *"/sh" ]]; then
     return 0
 fi
 
-ps1_next() {
-    # append an command onto the prompt
-    # ps1_next COLOR FORMAT COMMAND...
-    export PS1+="$(color $1)\$(r=\"\$(${@:3} 2>/dev/null)\"; [[ -z \"\$r\" ]] || printf \"$2\" \$r)"
-}
-
 zprintf() {
     local results="$(cat -)"
     [[ ! -z "$results" ]] && printf "$1" $results
@@ -145,11 +139,13 @@ git_short_status() {
     	local remote="$(sed -n '
     		s/^Your branch is ahead.*by \(.*\) commit.*/↑\1/p;
     		s/^Your branch is behin.*by \(.*\) commit.*/↓\1/p;
-    		s/^Your branch is up to date.*/​/p;
+    		s/^Your branch is up to date.*/0/p;
     		' <<<"$status")"
     	# recursively handle submodules
-    	(cd $repo/.. ; git_short_status ​)
-    	echo  "${repo/*\//}" "${changes:-​}" "$branch" "${remote:-L} "
+    	(cd "$repo/.." || return ; git_short_status)
+    	# printout
+      printf "$(color noesc)%s($(color noesc vivid red)%s$(color noesc green)%s$(color noesc blue)%s$(color noesc)):" \
+        "${repo/*\//}" "${changes:- }" "$branch" "${remote:-L}"
     fi
 }
 
@@ -160,7 +156,7 @@ collapse_ps1 "\${ROLE/default/}" "$(color)%s "
 collapse_ps1 "; k8s_prompt" "$(color blue)%s⎈%s "
 # chroot envs
 collapse_ps1 "\$debian_chroot" "$(color blue)[%s] "
-collapse_ps1 '; git_short_status' "$(color)%s($(color vivid red)%s$(color green)%s$(color blue)%s$(color)):"
+collapse_ps1 '; git_short_status'
 collapse_ps1 '; ctx_root' "$(color)%s "
 # errcode of the previous command, as set in PROMPT_COMMAND
 collapse_ps1 "\${err/0/}" "$(color red)%d " 

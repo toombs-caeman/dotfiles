@@ -88,7 +88,6 @@ gco() {
 }
 
 
-alias git='git -c user.email=$gitemail'
 alias g=git
 __git_complete g __git_main
 alias gg='cd $(g root|| echo $HOME)'

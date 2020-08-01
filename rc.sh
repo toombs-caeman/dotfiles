@@ -13,7 +13,7 @@ export rc="$(realpath ${BASH_SOURCE%/*})"
 export EDITOR="vim -u $rc/vim/.vimrc"
 export VISUAL=$EDITOR
 if [[ -z "$VIMRUNTIME" ]] && vim --version 2>/dev/null | grep '+terminal' >/dev/null; then
-    $EDITOR -c "call InvertShell()"
+    $EDITOR -c "term" -c "bd 1"
     exit
 fi
 

@@ -6,7 +6,7 @@ let mapleader=";"
 let s:portable = expand('<sfile>:p:h')
 
 " Isolate the runtime to the current directory
-let &runtimepath = s:portable
+let &runtimepath = s:portable . ',/usr/local/opt/fzf'
 let &packpath = s:portable
 
 if &compatible
@@ -68,38 +68,9 @@ nnoremap j gj
 nnoremap k gk
 
 " tab movement
-" use alt-<num> to move splits in any mode
-tnoremap <leader><1> <C-\><C-N>1gt
-inoremap <leader><1> <C-\><C-N>1gt
-nnoremap <leader><1> 1gt
+nnoremap t gt
+nnoremap T gT
 
-tnoremap <leader><2> <C-\><C-N>2gt
-inoremap <leader><2> <C-\><C-N>2gt
-nnoremap <leader><2> 2gt
-
-tnoremap <leader><3> <C-\><C-N>3gt
-inoremap <leader><3> <C-\><C-N>3gt
-nnoremap <leader><3> 3gt
-
-tnoremap <leader><4> <C-\><C-N>4gt
-inoremap <leader><4> <C-\><C-N>4gt
-nnoremap <leader><4> 4gt
-
-tnoremap <leader><5> <C-\><C-N>5gt
-inoremap <leader><5> <C-\><C-N>5gt
-nnoremap <leader><5> 5gt
-
-tnoremap <leader><6> <C-\><C-N>6gt
-inoremap <leader><6> <C-\><C-N>6gt
-nnoremap <leader><6> 6gt
-
-tnoremap <leader><7> <C-\><C-N>7gt
-inoremap <leader><7> <C-\><C-N>7gt
-nnoremap <leader><7> 7gt
-
-tnoremap <leader><8> <C-\><C-N>8gt
-inoremap <leader><8> <C-\><C-N>8gt
-nnoremap <leader><8> 8gt
 
 " close fold
 nnoremap <leader>f zc
@@ -153,6 +124,7 @@ nnoremap <Right> <NOP>
 
 " }}}
 "History" {{{
+nmap U <C-r>
 " persistent undo
 let undodir=printf("%s/undodir/", s:portable)
 exe "set undodir=".undodir
@@ -248,13 +220,12 @@ if has('termguicolors')
     set termguicolors
 endif
 tnoremap <Esc><Esc> <C-\><C-n>
-function! InvertShell()
-    term
-    bd 1
-endfunction
 
 function! Tapi_cd(bufnum, arglist)
     execute 'cd' fnameescape(a:arglist[0])
+    let t:wd = fnameescape(a:arglist[0])
 endfunction
+" tab local working directory
+au TabEnter * if exists("t:wd") | exe "cd" t:wd | endif
 
 " }}}
