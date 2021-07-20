@@ -11,7 +11,7 @@ export rc="$(realpath ${BASH_SOURCE%/*})"
 
 #editor inversion
 export EDITOR="vim -u $rc/vim/.vimrc"
-export VISUAL=$EDITOR
+export VISUAL="$EDITOR"
 if [[ -z "$VIMRUNTIME" ]] && vim --version 2>/dev/null | grep '+terminal' >/dev/null; then
     $EDITOR -c "term" -c "bd 1"
     exit
@@ -30,7 +30,8 @@ tapi() {
     [[ "$1" ]] && args="\"${*:1}\""
     printf "\033]51;[\"call\", \"Tapi_$cmd\", [$args]]\007";
 }
-vi() { printf "\033]51;[\"drop\", \"$(realpath $1)\"]\007"; }
+#vi() { printf "\033]51;[\"drop\", \"$(realpath $1)\"]\007"; }
+alias vi="$EDITOR"
 export PROMPT_COMMAND='history -w; tapi cd $PWD'
 
 
