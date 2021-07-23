@@ -3,20 +3,39 @@ This repository is intended as a one stop shop for maintaining a consistent conf
 This allows a fully functional copy of the repo with only `git clone`, while still keeping project histories cleanly separate.
 
 # Principles
-* context should be:
-	* on a per shell basis
-	* dislayed clearly in the prompt
-	* unchanging, unless explicitly set in that session
+* less is more
+* robust is simple
+* bound the problem
+    * define a 'core' set of tooling which must exist (with consistent implementations)
+        - warn/bail if things don't look good
+        - eg: bash version, vim version, python version
+    * define a 'check' set which may have different options available in different implementations
+        - gracefully degrade
+        - gnu options aren't always available
 * context includes
 	* history - separate global and shell searching
+    * core commands
 	* prompt
-	* shortcuts
-	* path/declarations
-* include subprojects using [git-subrepo](https://github.com/ingydotnet/git-subrepo).
+	* shortcuts/keybindings
+        * copy/paste is the big one
+    * color/fonts
+
+# TODO
+* separate blog into baffle, barkdown, and blog
+* get ricer off of python, reuse baffle
+    * save the interesting color charting, but rely on solarized https://ethanschoonover.com/solarized/
+* create an interface for darwin/nix.sh to achieve parity
+    * notifications/bells
+    * xdg_open
+* use name of 'most advanced' option for alias when degradation is expected
+    * bat -> cat
+    * rg -> grep
+
+
 
 # Installation
 
-direct installation is not recommended. Instead use this as a pattern for constructing you're own dotfiles.
+direct installation is not recommended. Instead, use this as a pattern for constructing your own dotfiles.
 If you fork this repo for your own use, you will want to change:
 * contexts/default/
 * themes.yml
@@ -36,7 +55,6 @@ tools will be configured if they are available:
 * git
 * bat
 * ripgrep
-* exa
 * fzf
 
 # TODO: general
