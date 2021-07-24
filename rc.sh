@@ -131,8 +131,8 @@ _location() {
     remote="$(git remote | head -n1)" # lets hope that they only have one remote, probably 'origin'
     branch="$(git branch --show-current || git rev-parse --short HEAD)"
     status_="$(git status --porcelain)"
-    left="$( git rev-list --left-only  --count $remote/$branch...$branch)"
-    right="$(git rev-list --right-only --count $remote/$branch...$branch)"
+    left="$( git rev-list --left-only  --count remotes/$remote/$branch...$branch)"
+    right="$(git rev-list --right-only --count remotes/$remote/$branch...$branch)"
     # start output
     printf "$tpush$(tput sgr0)$tpop%s(" "${PWD##*/}"
     if [ -n "$status_" ]; then echo "$status_" | grep -qv '^??'  && red '*' || printf '*'; fi
