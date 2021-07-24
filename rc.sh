@@ -5,25 +5,38 @@
 ## do nothing if not in an interactive shell
 case $- in *i*) ;; *) return;; esac
 
-# rather than relying on $SHELL or other unreliable nonsense
-# lets see which builtins exist
-is_zsh()  { (builtin setopt) 2>/dev/null >&2; }
-is_bash() { (builtin shopt) 2>/dev/null >&2; }
-is_sh() { ! (is_zsh || is_bash); }
+# $SHELL is super unreliable because it usually doesn't get reset by subshells
+# this bit gets the actual shell that's running right now so we can rely on it.
+SHELL="$(ps -p $$ -o command | cut -d' ' -f 1 | tail -n1)"
+# don't let virtualenv do weird stuff
+VIRTUAL_ENV_DISABLE_PROMPT=yes
 
-# setopt()   { if is_zsh; then   setopt "$@"; else shopt -s "$@"; fi; }
-# unsetopt() { if is_zsh; then unsetopt "$@"; else shopt -u "$@"; fi; }
-
-if is_zsh; then
-    setopt prompt_subst zle autocd 
+case ${SHELL##*/} in
+  zsh)
+    RC="${(%):-%N}" # this file
+    setopt prompt_subst zle autocd
     setopt appendhistory hist_expire_dups_first hist_ignore_dups
     # bash will hard exit when idle for $TMOUT seconds but
     # this TRAPALRM() will make zsh redraw the prompt every $TMOUT seconds
     TMOUT=2; TRAPALRM() { zle reset-prompt; }
-fi
-if is_bash; then
+    ;;
+  bash)
+    RC="$BASH_SOURCE"
     shopt -s expand_aliases checkwinsize autocd
-fi
+    ;;
+  sh)
+    # TODO how to get RC here? maybe [ ${SHELL##*/} != ${0##*/} ] && RC="$0"
+    # but we should probably just bail before including if we can't really locate $RC
+    ;;
+  *) printf 'WARNING: unrecognized shell "%s"\n' "$SHELL" >&2 ;;
+esac
+# dirname equivalent (for this case)
+RC="${RC%/*}"
+# TODO source completions
+#command -v kubectl >/dev/null && . <(kubectl completion ${SHELL##*/})
+#command -v eksctl >/dev/null && . <(eksctl completion ${SHELL##*/})
+#command -v helm >/dev/null && . <(helm completion ${SHELL##*/})
+
 
 # enable vi-style line editing
 # though it doesn't do anything in sh if it's not compiled with libedit support
@@ -68,7 +81,7 @@ define() {
 
     # shortcut going back to the previous directory
     # sh: cannot parse this even if it doesn't actually run. eval gets around it
-    is_sh || eval -- '-() { cd -; }'
+    [ "${SHELL##*/}" = sh ] || eval -- '-() { cd -; }'
 
 }; define && unset define
 
@@ -84,7 +97,7 @@ prompt() {
         EXIT=${?##0} 
         # set tpush and tpop which are used for size escaping of non-printable characters in the prompt
         tpush='\001' tpop='\002'
-        if is_zsh; then 
+        if [ "${SHELL##*/}" = zsh ]; then
             # zsh uses different size escapes
             tpush='%%{' tpop='%%}'; 
             # expands to bolded [time]
@@ -93,7 +106,10 @@ prompt() {
             # equivalent above, but it doesn't stay fresh, so dim it
             printf "$tpush$(tput dim)$tpop[$(date +%T)]$tpush$(tput sgr0)$tpop "
         fi
-
+        # virtual env
+        if [ -n "$VIRTUAL_ENV" ]; then green "(${VIRTUAL_ENV##*/})"; fi
+        # kubernetes context and namespace
+        blue "($(k8s_ctx_ns | tr ' ' '⎈'))"
         location
         # TODO history -w
         red "${EXIT:+ $EXIT}"
@@ -143,6 +159,8 @@ _location() {
     printf '):'
 }
 
+# get the kubernetes context and namespace
+k8s_ctx_ns() { kubectl config get-contexts | grep '^\*' | tr -s ' ' | cut -d' ' -f 2,5; }
 
 # create aliases replacing things with nicer versions
 # but fall back on the command itself if nothing else is available
@@ -163,16 +181,16 @@ coalesce less bat
 
 # pretty print or append to $PATH. make sure not to lose the path
 path() {
-    if (( $# )); then for path in "$@"; do export PATH="$PATH:$path"; done
-    else echo $PATH | tr ":" "\n"; fi
+    # zsh: $path is an alias for $PATH, so don't use it as a variable
+    if (( $# )); then for p in "$@"; do export PATH="$PATH:$p"; done
+    else printf '%s\n' "$PATH" | tr ":" "\n"; fi
 }
 
 ## fuzzy
 fkill () {
     # interactively kill a process
-    # todo awk -> cut
-    local to_kill=$(ps aux|fzf |awk '{print $2}')
-    [[ -z "$to_kill" ]] || kill $1 $to_kill
+    local to_kill="$(ps aux | fzf | tr -s ' ' | cut -d' ' -f 2)"
+    [[ -n "$to_kill" ]] && kill "${1:--TERM}" "$to_kill"
 }
 
 # TODO hook to warn if dependencies are missing in a script
@@ -183,17 +201,15 @@ requires() {
     fi
 }
 
-# TODO get path relative to this file
-# bash can use BASH_SOURCE
-# use that to include the include/ scripts
-# find include/ -type f -name '*.sh' -exec . '{}' \;
-# and to add the absolute path of bin/ to 
-# path "$(cd bin/ 2>/dev/null && pwd)" >/dev/null
-
+# source everything from $RC/include
+while IFS= read -r f; do
+  # TODO include is disabled
+  : # . "$f"
+done < <(find "$RC/include" -type f -name '*.sh')
+# and add $RC/bin to $PATH
+path "$RC/bin"
 
 # TODO completions
-# TODO kubernetes prompt
-# TODO virtualenv prompt
 # TODO index .git/ in ~/ then do fzf project switching
     # find ~ -type d -name '.git' | { IFS= read -r d; echo "${d%.git}"; } > ~/.gitdex
 # TODO test suite, also run a check to look for missing core programs
@@ -202,6 +218,7 @@ requires() {
 
 # TODO questions
 # can we use bind for keybindings?
+#   bash:bind vs zsh:bindkey
 # can history be by project or by everything?
 # can tab-complete open fzf?
 
