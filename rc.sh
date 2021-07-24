@@ -11,8 +11,12 @@ is_zsh()  { (builtin setopt) 2>/dev/null >&2; }
 is_bash() { (builtin shopt) 2>/dev/null >&2; }
 is_sh() { ! (is_zsh || is_bash); }
 
+# setopt()   { if is_zsh; then   setopt "$@"; else shopt -s "$@"; fi; }
+# unsetopt() { if is_zsh; then unsetopt "$@"; else shopt -u "$@"; fi; }
+
 if is_zsh; then
-    setopt PROMPT_SUBST ZLE
+    setopt prompt_subst zle autocd 
+    setopt appendhistory hist_expire_dups_first hist_ignore_dups
     # bash will hard exit when idle for $TMOUT seconds but
     # this TRAPALRM() will make zsh redraw the prompt every $TMOUT seconds
     TMOUT=2; TRAPALRM() { zle reset-prompt; }
@@ -21,10 +25,17 @@ if is_bash; then
     shopt -s expand_aliases checkwinsize autocd
 fi
 
-# enable vi-style line editing, though it doesn't do anything in sh
+# enable vi-style line editing
+# though it doesn't do anything in sh if it's not compiled with libedit support
 set -o vi
 
-define_colors() {
+# This section is wrapped in a function which is called and then immediately deleted
+# so that we can scope local variables (but not in a subshell)
+define() {
+    ## colors
+    # generate functions like red_blue that print things in foreground_background colors
+    # $tpush and $tpop are set in prompt() in order to correctly escape prompt widths.
+    # This gets wonky if $tpush or $tpop are set elsewhere
     local black=0 red=1 green=2 yellow=3 blue=4 magenta=5 cyan=6 white=7
     # zsh: array definitions conflict, just copy it here
     for f in black red green yellow blue magenta cyan white; do
@@ -44,7 +55,22 @@ define_colors() {
                   ${f}_${b}_() { _ \"\$tpush$(tput bold; tput setaf $fc; tput setab $bc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; }"
         done
     done
-}; time define_colors && unset define_colors
+
+    ## navigation/movement
+    # generate aliases like '...'='cd ../..'
+    local cmd='..' val='..'
+    for _ in 1 2 3 4 5; do
+    #   eval "$cmd() { cd $val; }"
+      alias $cmd="cd $val"
+      cmd="$cmd."
+      val="$val/.."
+    done
+
+    # shortcut going back to the previous directory
+    # sh: cannot parse this even if it doesn't actually run. eval gets around it
+    is_sh || eval -- '-() { cd -; }'
+
+}; define && unset define
 
 
 # precmd() is a special zsh value equivalent to bash's PROMPT_COMMAND
@@ -53,11 +79,20 @@ define_colors() {
 
 prompt() {
     {
+        local EXIT tpush tpop
         # capture the exit code of the last command
-        # also set tpush and tpop which are used for size escaping of non-printable characters in the prompt
-        local EXIT=${?##0} tpush='\001' tpop='\002'
-        # zsh uses different size escapes
-        if is_zsh; then tpush='%%{' tpop='%%}'; fi
+        EXIT=${?##0} 
+        # set tpush and tpop which are used for size escaping of non-printable characters in the prompt
+        tpush='\001' tpop='\002'
+        if is_zsh; then 
+            # zsh uses different size escapes
+            tpush='%%{' tpop='%%}'; 
+            # expands to bolded [time]
+            print -P '%{%B%}[%*]%{%b%} '
+        else
+            # equivalent above, but it doesn't stay fresh, so dim it
+            printf "$tpush$(tput dim)$tpop[$(date +%T)]$tpush$(tput sgr0)$tpop "
+        fi
 
         location
         # TODO history -w
@@ -66,9 +101,8 @@ prompt() {
 }
 # zsh uses $PROMPT as an alias for $PS1 where bash doesn't.
 # setting PS1, then PROMPT allows us to set them properly for both
-# this will fail however if zsh opens a bash subshell
-export    PS1='$(prompt)\$ '
-export PROMPT='$(prompt)%# '
+PS1='$(prompt)\$ '
+PROMPT='$(prompt)%# '
 
 location() {
     # Output a string like `toplevel(*master↓2↑1):sub(9ab9999):/dir/path` if in a git repository.
@@ -115,15 +149,17 @@ _location() {
 # but fall back on the command itself if nothing else is available
 # `command -v` is more consistent than `which`
 # `command -v` sometimes give a full path (not zsh) but we don't really care
+# TODO what happens if none are valid?
 co() { command -v "$@" | tail -n1; }
+export EDITOR="$(co vi vim)"
+export PAGER="less"
+export VISUAL=$EDITOR
 # TODO needs a way to pass options to only a specific command in the list
 coalesce() { alias "$1=$(co "$@")"; }
 coalesce ls exa
 coalesce vi vim
-export EDITOR="$(co vi vim)"
 coalesce cat batcat bat
-export PAGER="$(co less batcat bat)"
-export VISUAL=$EDITOR
+coalesce less bat
 # TODO coalesce fzf to some `select` based function
 
 # pretty print or append to $PATH. make sure not to lose the path
@@ -140,18 +176,13 @@ fkill () {
     [[ -z "$to_kill" ]] || kill $1 $to_kill
 }
 
-define_nav() {
-    local cmd='..' val='..'
-    for _ in 1 2 3 4 5; do
-    #   eval "$cmd() { cd $val; }"
-      alias $cmd="cd $val"
-      cmd="$cmd."
-      val="$val/.."
-    done
-    # sh: cannot parse the function even if it doesn't actually run. eval gets around it
-    is_sh || eval -- '-() { cd $OLDPWD; }'
-}; define_nav && unset define_nav
-
+# TODO hook to warn if dependencies are missing in a script
+requires() {
+    if ! command -v "$@" >/dev/null; then
+        { printf 'requires:'; for c in $@; do command -v "$c" >/dev/null || printf ' %s' "$c"; done; printf '\n'; } >&2
+        false
+    fi
+}
 
 # TODO get path relative to this file
 # bash can use BASH_SOURCE
@@ -169,18 +200,19 @@ define_nav() {
 # TODO test suite, also run a check to look for missing core programs
  
 
-# TODO language
-# create a small language, but let every verb act on any noun
-# verbs: goto, fuzzy jump, fuzzy file search, fuzzy text search, open
-# nouns: directory(down), directory(up), project/git, history, file?, virtualenv, k8s resources, k8s config, libraries
-# verb: CRUD, create, read, update, delete, confirm/cancel, search/select, push, pull
-# confirm and search aren't really verbs, but implicit parts of all others
-#   if there is nothing to confirm then it shouldn't ask
-#   if there is only one thing to select it shouldn't ask
 
 # TODO questions
 # can we use bind for keybindings?
 # can history be by project or by everything?
 # can tab-complete open fzf?
 
-# TODO add hook for linking self to ~/.bashrc and ~/.zshrc via ricer
+# TODO terminal-level config, with ricer, .Xresources no doubt
+# TODO add check_install() for linking self to ~/.bashrc and ~/.zshrc via ricer and giving warnings
+# TODO separate aliases into 'chrome' section. Truly drop in replacements should be functions instead.
+
+# TODO ssh/kubectl migrate, copy this file as remote rc
+# coalesce ssh mosh
+
+## history
+HISTSIZE=100000000
+HISTFILE=~/.sh_history

@@ -6,53 +6,6 @@ alias egrep='egrep --colour=auto'
 alias fgrep='fgrep --colour=auto'
 export YAOURT_COLORS="nb=1:pkg=1:ver=1;32:lver=1;45:installed=1;42:grp=1;34:od=1;41;5:votes=1;44:dsc=0:other=1;35"
 
-colortest(){
-# Show available terminal colours.
-# Heavily modified version of the TLDP script here:
-# http://tldp.org/HOWTO/Bash-Prompt-HOWTO/x329.html
-  # Print standard colors.
-  local bolds=( 0 1 )
-  local fgs=( 3{0..7} )
-  local bgs=( 4{0..8} )
-  # Print column headers.
-  printf "%-4s  " '' ${bgs[@]}
-  echo
-  # Print rows.
-  for bold in ${bolds[@]}; do
-    for fg in ${fgs[@]}; do
-      # Print row header
-      printf "%s;%s  " $bold $fg
-      # Print cells.
-      for bg in ${bgs[@]}; do
-        # Print cell.
-        printf "\e[%s;%s;%sm%s\e[0m  " $bold $fg $bg "text"
-      done
-      echo
-    done
-  done
-  
-  # Print vivid colors.
-  local bolds=( 0 ) # Bold vivid is the same as bold normal.
-  local fgs=( 9{0..7} )
-  local bgs=( 10{0..8} )
-  # Print column headers.
-  printf "%-4s  " '' ${bgs[@]}
-  echo
-  # Print rows.
-  for bold in 0; do
-    for fg in ${fgs[@]}; do
-      # Print row header
-      printf "%s;%s  " $bold $fg
-      # Print cells.
-      for bg in ${bgs[@]}; do
-        # Print cell.
-        printf "\e[%s;%s;%sm%s\e[0m  " $bold $fg $bg "text"
-      done
-      echo
-    done
-  done
-}
-
 color () {
     # usage: color [bold | vivid] [fg COLOR] [bg COLOR]
     # colors are black red green yellow blue purple cyan white
@@ -104,6 +57,12 @@ if [[ "$SHELL" == *"/sh" ]]; then
     return 0
 fi
 
+ps1_next() {
+    # append an command onto the prompt
+    # ps1_next COLOR FORMAT COMMAND...
+    export PS1+="$(color $1)\$(r=\"\$(${@:3} 2>/dev/null)\"; [[ -z \"\$r\" ]] || printf \"$2\" \$r)"
+}
+
 zprintf() {
     local results="$(cat -)"
     [[ ! -z "$results" ]] && printf "$1" $results
@@ -139,13 +98,11 @@ git_short_status() {
     	local remote="$(sed -n '
     		s/^Your branch is ahead.*by \(.*\) commit.*/↑\1/p;
     		s/^Your branch is behin.*by \(.*\) commit.*/↓\1/p;
-    		s/^Your branch is up to date.*/0/p;
+    		s/^Your branch is up to date.*/​/p;
     		' <<<"$status")"
     	# recursively handle submodules
-    	(cd "$repo/.." || return ; git_short_status)
-    	# printout
-      printf "$(color noesc)%s($(color noesc vivid red)%s$(color noesc green)%s$(color noesc blue)%s$(color noesc)):" \
-        "${repo/*\//}" "${changes:- }" "$branch" "${remote:-L}"
+    	(cd $repo/.. ; git_short_status ​)
+    	echo  "${repo/*\//}" "${changes:-​}" "$branch" "${remote:-L} "
     fi
 }
 
@@ -156,7 +113,7 @@ collapse_ps1 "\${ROLE/default/}" "$(color)%s "
 collapse_ps1 "; k8s_prompt" "$(color blue)%s⎈%s "
 # chroot envs
 collapse_ps1 "\$debian_chroot" "$(color blue)[%s] "
-collapse_ps1 '; git_short_status'
+collapse_ps1 '; git_short_status' "$(color)%s($(color vivid red)%s$(color green)%s$(color blue)%s$(color)):"
 collapse_ps1 '; ctx_root' "$(color)%s "
 # errcode of the previous command, as set in PROMPT_COMMAND
 collapse_ps1 "\${err/0/}" "$(color red)%d " 

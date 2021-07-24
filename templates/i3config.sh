@@ -22,14 +22,14 @@ font xft:URWGothic-Book 11
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec alacritty
+bindsym $mod+Return exec xterm
 
 # kill focused /selected window
 bindsym $mod+Shift+q kill
 bindsym $mod+Alt+q --release exec --no-startup-id xkill
 
 # start program launcher
-bindsym $mod+space exec "alacritty -t 'launcher' --command bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse)'"
+bindsym $mod+space exec "xterm -T 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse)'"
 for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 100 ppt, move position 0 px 0 px
 
 
@@ -58,8 +58,8 @@ focus_follows_mouse no
 
 # workspace back and forth (with/without active container)
 workspace_auto_back_and_forth yes
-bindsym $mod+b workspace back_and_forth
-bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
+#bindsym $mod+b workspace back_and_forth
+#bindsym $mod+Shift+b move container to workspace back_and_forth; workspace back_and_forth
 
 # split orientation
 # bindsym $mod+h split h;exec notify-send 'tile horizontally'
@@ -70,9 +70,9 @@ bindsym $mod+q split toggle
 bindsym $mod+f fullscreen toggle
 
 # change container layout (stacked, tabbed, toggle split)
-bindsym $mod+s layout stacking
-bindsym $mod+w layout tabbed
-bindsym $mod+e layout toggle split
+#bindsym $mod+s layout stacking
+#bindsym $mod+w layout tabbed
+#bindsym $mod+e layout toggle split
 
 # toggle tiling / floating
 bindsym $mod+Shift+space floating toggle
@@ -89,6 +89,9 @@ bindsym $mod+Ctrl+{{n}} move container to workspace {{n}}{# Move focused contain
 bindsym $mod+Shift+{{n}} move container to workspace {{n}}; workspace {{n}}{# Move to workspace with focused container #}
 {% endfor %}
 
+# bind volume keys to change master volume
+bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset -c 1 'Master' 3%+
+bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset -c 1 'Master' 3%-
 # Open specific applications in floating mode
 {% set floaters = ('alsamixer', 'Clipgrab','Simple-scan', 'GParted','Pavucontrol') %}
 {% set sticky = ('Nitrogen', 'Lxappearance') %}
@@ -163,13 +166,15 @@ exec_always --no-startup-id feh --bg-fill {{background}} --no-fehbg --image-bg '
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
 exec --no-startup-id pamac-tray
-exec --no-startup-id clipit
 # exec --no-startup-id blueman-applet
 exec --no-startup-id start_conky_maia
 # exec --no-startup-id start_conky_green
 exec --no-startup-id xautolock -time 10 -locker blurlock
 exec_always --no-startup-id ff-theme-util
 exec_always --no-startup-id fix_xcursor
+
+exec --no-startup-id i3-msg 'exec /usr/bin/firefox'
+#exec --no-startup-id i3-msg 'exec /usr/games/steam'
 
 # Color palette used for the terminal ( ~/.Xresources file )
 # Colors are gathered based on the documentation:
@@ -193,7 +198,7 @@ set_from_resource $term_color{{n}}     color{{n}}
 bar {
 	i3bar_command i3bar
 	status_command i3status
-	position bottom
+	position top
 
 ## please set your primary output first. Example: 'xrandr --output eDP1 --primary'
 #	tray_output primary

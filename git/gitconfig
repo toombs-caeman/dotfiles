@@ -16,3 +16,5 @@
 	file = "!f=$PWD/$(fzf) && echo $f"
 	search = "!echo $PWD/$(rg "$*" | fzf | cut -f1 -d":" ) #"
 
+[credential]
+	helper = store
