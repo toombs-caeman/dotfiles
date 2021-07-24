@@ -97,7 +97,7 @@ prompt() {
         location
         # TODO history -w
         red "${EXIT:+ $EXIT}"
-    } 2>/dev/null | tr -d "\n\000"
+    }  | tr -d "\n\000"
 }
 # zsh uses $PROMPT as an alias for $PS1 where bash doesn't.
 # setting PS1, then PROMPT allows us to set them properly for both
@@ -113,7 +113,6 @@ location() {
     # but it is red if there are modifications or additions.
     # If not in a git repository just print the current working directory.
     local d="$(git rev-parse --show-toplevel 2>/dev/null)"
-    # printf '\[test\]'
     if [ -n "$d" ]; then
         printf '%s%s/\n' "$(_location 2>/dev/null | tr -d '\n')" "${PWD#"$d"}"
     else
@@ -132,14 +131,14 @@ _location() {
     remote="$(git remote | head -n1)" # lets hope that they only have one remote, probably 'origin'
     branch="$(git branch --show-current || git rev-parse --short HEAD)"
     status_="$(git status --porcelain)"
-    left="$( git rev-list --left  --count $remote/$branch...$branch)"
-    right="$(git rev-list --right --count $remote/$branch...$branch)"
+    left="$( git rev-list --left-only  --count $remote/$branch...$branch)"
+    right="$(git rev-list --right-only --count $remote/$branch...$branch)"
     # start output
     printf "$tpush$(tput sgr0)$tpop%s(" "${PWD##*/}"
     if [ -n "$status_" ]; then echo "$status_" | grep -qv '^??'  && red '*' || printf '*'; fi
     green "$branch"
-    (( left  )) && blue '↓%s' "$left"  # branch is behind by left
-    (( right )) && blue '↑%s' "$right" # branch is ahead  by right
+    (( left  )) && blue "↓$left"  # branch is behind by left
+    (( right )) && blue "↑$right" # branch is ahead  by right
     git rev-parse $remote/$branch >/dev/null || blue 'L' # branch has no remote branch
     printf '):'
 }
