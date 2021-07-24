@@ -98,7 +98,11 @@ git_short_status() {
     	local remote="$(sed -n '
     		s/^Your branch is ahead.*by \(.*\) commit.*/↑\1/p;
     		s/^Your branch is behin.*by \(.*\) commit.*/↓\1/p;
+<<<<<<< HEAD
     		s/^Your branch is up to date.*/​/p;
+=======
+    		s/^Your branch is up to date.*/ /p;
+>>>>>>> aaa876a9946db79104563a7abadace45a0537657
     		' <<<"$status")"
     	# recursively handle submodules
     	(cd $repo/.. ; git_short_status ​)
