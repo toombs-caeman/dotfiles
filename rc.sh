@@ -5,24 +5,60 @@
 ## do nothing if not in an interactive shell
 case $- in *i*) ;; *) return;; esac
 
+# TODO query setup in an agnostic way
+# return 0 if all specified options apply
+# match options for OS, shell, terminal
+config() { :; }
+
+## ALIAS
+# create aliases replacing things with nicer versions
+# but fall back on the command itself if nothing else is available
+# `command -v` is more consistent than `which`
+# `command -v` sometimes give a full path (not zsh) but we don't really care
+# TODO what happens if none are valid?
+co() { command -v "$@" | tail -n1; }
+export EDITOR="$(co vi vim)"
+export PAGER="less"
+export LESS="FXr"
+export VISUAL=$EDITOR
+# TODO needs a way to pass options to only a specific command in the list
+coalesce() { alias "$1=$(co "$@")"; }
+coalesce ls exa
+coalesce vi vim
+coalesce cat batcat bat
+coalesce less bat
+# TODO coalesce fzf to some `select` based function
+
+## SHELL
+# expected: zsh bash sh
+# TODO can we use bind for keybindings? bash:bind vs zsh:bindkey
 # $SHELL is super unreliable because it usually doesn't get reset by subshells
 # this bit gets the actual shell that's running right now so we can rely on it.
-SHELL="$(ps -p $$ -o command | cut -d' ' -f 1 | tail -n1)"
-# don't let virtualenv do weird stuff
-VIRTUAL_ENV_DISABLE_PROMPT=yes
-
+export SHELL="$(ps -p $$ -o command | cut -d' ' -f 1 | tail -n1)"
 case ${SHELL##*/} in
   zsh)
     RC="${(%):-%N}" # this file
     setopt prompt_subst zle autocd
     setopt appendhistory hist_expire_dups_first hist_ignore_dups
-    # bash will hard exit when idle for $TMOUT seconds but
-    # this TRAPALRM() will make zsh redraw the prompt every $TMOUT seconds
+    # re/enable drawing the prompt every $TMOUT seconds
     TMOUT=2; TRAPALRM() { zle reset-prompt; }
     ;;
   bash)
     RC="$BASH_SOURCE"
     shopt -s expand_aliases checkwinsize autocd
+    if ! shopt -oq posix; then
+      if [ -f /usr/share/bash-completion/bash_completion ]; then
+        . /usr/share/bash-completion/bash_completion
+      elif [ -f /etc/bash_completion ]; then
+        . /etc/bash_completion
+      fi
+    fi
+    _complete_invoke() {
+        local candidates
+        candidates=`invoke --complete -- ${COMP_WORDS[*]}`
+        COMPREPLY=( $(compgen -W "${candidates}" -- $2) )
+    }
+    complete -F _complete_invoke -o default invoke inv
     ;;
   sh)
     # TODO how to get RC here? maybe [ ${SHELL##*/} != ${0##*/} ] && RC="$0"
@@ -31,21 +67,22 @@ case ${SHELL##*/} in
   *) printf 'WARNING: unrecognized shell "%s"\n' "$SHELL" >&2 ;;
 esac
 # dirname equivalent (for this case)
-RC="${RC%/*}"
-# TODO source completions
-#command -v kubectl >/dev/null && . <(kubectl completion ${SHELL##*/})
-#command -v eksctl >/dev/null && . <(eksctl completion ${SHELL##*/})
-#command -v helm >/dev/null && . <(helm completion ${SHELL##*/})
-
-
+export RC="${RC%/*}"
 # enable vi-style line editing
 # though it doesn't do anything in sh if it's not compiled with libedit support
 set -o vi
 
+## COMPLETION
+# TODO source completions
+command -v kubectl >/dev/null && . <(kubectl completion ${SHELL##*/})            2>/dev/null
+command -v eksctl  >/dev/null && . <(eksctl completion ${SHELL##*/})             2>/dev/null
+command -v helm    >/dev/null && . <(helm completion ${SHELL##*/})               2>/dev/null
+command -v inv     >/dev/null && . <(inv --print-completion-script=${SHELL##*/}) 2>/dev/null
+
 # This section is wrapped in a function which is called and then immediately deleted
 # so that we can scope local variables (but not in a subshell)
 define() {
-    ## colors
+    ## COLORS
     # generate functions like red_blue that print things in foreground_background colors
     # $tpush and $tpop are set in prompt() in order to correctly escape prompt widths.
     # This gets wonky if $tpush or $tpop are set elsewhere
@@ -69,7 +106,7 @@ define() {
         done
     done
 
-    ## navigation/movement
+    ## MOVEMENT
     # generate aliases like '...'='cd ../..'
     local cmd='..' val='..'
     for _ in 1 2 3 4 5; do
@@ -78,50 +115,79 @@ define() {
       cmd="$cmd."
       val="$val/.."
     done
-
     # shortcut going back to the previous directory
     # sh: cannot parse this even if it doesn't actually run. eval gets around it
     [ "${SHELL##*/}" = sh ] || eval -- '-() { cd -; }'
-
 }; define && unset define
 
+## OS
+# expected: OSX Ubuntu
+# TODO build up OS level functions
+# beep notify volume
+# https://support.mozilla.org/en-US/kb/control-audio-or-video-playback-your-keyboard?as=u&utm_source=inproduct
+# https://superuser.com/questions/1531362/control-the-video-behavior-in-another-window-using-the-keyboard
+case "$(uname -a)" in
+  *Darwin*)
+    beep() { osascript -e 'beep 3'; }
+    notify() { osascript -e "display notification \"${1:-"Done"}\""; }
+    ;;
+  *nix*)
+    beep() { :; }
+    notify() { :; }
+    ;;
+esac
 
+## TERM
+# expected: iTerm xterm
+# TODO term-level config
+# window-dressing(title), copy-paste, scrollback, window-size
+# this might mostly be on ricer
+case ${TERM} in
+    xterm*|rxvt*|Eterm*|aterm|kterm|gnome*|interix|konsole*)
+    	# Change the window title of X terminals
+#    	PS1+='\[$(echo -ne "\033]0;${USER}@${HOSTNAME%%.*}:${PWD/#$HOME/\~}\007")\]' ;;
+    ;;
+    *) echo "not configured for terminal '$TERM'" ;;
+esac
+
+## PROMPT
+# don't let virtualenv do weird stuff
+VIRTUAL_ENV_DISABLE_PROMPT=yes
 # precmd() is a special zsh value equivalent to bash's PROMPT_COMMAND
-# export PROMPT_COMMAND=precmd
-# precmd() { :; }
-
+# export PROMPT_COMMAND=precmd; precmd() { :; }
+# zsh uses $PROMPT as an alias for $PS1 where bash doesn't.
+# setting PS1, then PROMPT allows us to set them properly for both
+PS1='$(prompt)\$ '
+PROMPT='$(prompt)%# '
 prompt() {
     {
-        local EXIT tpush tpop
         # capture the exit code of the last command
-        EXIT=${?##0} 
+        # need to assign it before using local, since that resets $?
+        local EXIT=${?##0} tpush tpop
         # set tpush and tpop which are used for size escaping of non-printable characters in the prompt
         tpush='\001' tpop='\002'
         if [ "${SHELL##*/}" = zsh ]; then
             # zsh uses different size escapes
             tpush='%%{' tpop='%%}'; 
             # expands to bolded [time]
-            print -P '%{%B%}[%*]%{%b%} '
+            print -P '%{%B%}[%{%*%}]%{%b%} '
         else
-            # equivalent above, but it doesn't stay fresh, so dim it
+            # equivalent to time above, but it doesn't stay fresh, so dim it
             printf "$tpush$(tput dim)$tpop[$(date +%T)]$tpush$(tput sgr0)$tpop "
         fi
         # virtual env
-        if [ -n "$VIRTUAL_ENV" ]; then green "(${VIRTUAL_ENV##*/})"; fi
+        [ -n "$VIRTUAL_ENV" ] && green "(${VIRTUAL_ENV##*/})"
         # kubernetes context and namespace
-        blue "($(k8s_ctx_ns | tr ' ' '⎈'))"
+        command -v kubectl >/dev/null && blue "($(k8s_ctx_ns | tr ' ' '⎈'))"
         location
         # TODO history -w
-        red "${EXIT:+ $EXIT}"
+        [ -n "$EXIT" ] && red " $EXIT"
     }  | tr -d "\n\000"
 }
-# zsh uses $PROMPT as an alias for $PS1 where bash doesn't.
-# setting PS1, then PROMPT allows us to set them properly for both
-PS1='$(prompt)\$ '
-PROMPT='$(prompt)%# '
-
+# get the kubernetes context and namespace
+k8s_ctx_ns() { kubectl config get-contexts | grep '^\*' | tr -s ' ' | cut -d' ' -f 2,5; }
+# Output a string like `gitrepo(*master↓2↑1):/dir/path` if in a git repository.
 location() {
-    # Output a string like `toplevel(*master↓2↑1):sub(9ab9999):/dir/path` if in a git repository.
     # this means you are in directory '/dir/path' relative to a git repository in 'sub' which
     # is checked out to commit '9ab9999'. 'sub' is nested inside a git repo at 'toplevel' which
     # is checked out to master which is two commits behind origin/master and one ahead.
@@ -159,25 +225,15 @@ _location() {
     printf '):'
 }
 
-# get the kubernetes context and namespace
-k8s_ctx_ns() { kubectl config get-contexts | grep '^\*' | tr -s ' ' | cut -d' ' -f 2,5; }
 
-# create aliases replacing things with nicer versions
-# but fall back on the command itself if nothing else is available
-# `command -v` is more consistent than `which`
-# `command -v` sometimes give a full path (not zsh) but we don't really care
-# TODO what happens if none are valid?
-co() { command -v "$@" | tail -n1; }
-export EDITOR="$(co vi vim)"
-export PAGER="less"
-export VISUAL=$EDITOR
-# TODO needs a way to pass options to only a specific command in the list
-coalesce() { alias "$1=$(co "$@")"; }
-coalesce ls exa
-coalesce vi vim
-coalesce cat batcat bat
-coalesce less bat
-# TODO coalesce fzf to some `select` based function
+alias wget='wget -c'
+alias mkdir='mkdir -p'
+alias cp="cp -i"
+alias du='du -hs'
+alias df='df -h'
+alias la='ls -A'
+alias ll='ls -l'
+alias sl='ls'
 
 # pretty print or append to $PATH. make sure not to lose the path
 path() {
@@ -186,21 +242,31 @@ path() {
     else printf '%s\n' "$PATH" | tr ":" "\n"; fi
 }
 
-## fuzzy
+## FUZZ FZ
+# can tab-complete open fzf?
 fkill () {
     # interactively kill a process
     local to_kill="$(ps aux | fzf | tr -s ' ' | cut -d' ' -f 2)"
     [[ -n "$to_kill" ]] && kill "${1:--TERM}" "$to_kill"
 }
 
-# TODO hook to warn if dependencies are missing in a script
-requires() {
-    if ! command -v "$@" >/dev/null; then
-        { printf 'requires:'; for c in $@; do command -v "$c" >/dev/null || printf ' %s' "$c"; done; printf '\n'; } >&2
-        false
-    fi
-}
+# TODO index .git/ in ~/ then do fzf project switching
+    # find ~ -type d -name '.git' | { IFS= read -r d; echo "${d%.git}"; } > ~/.gitdex
 
+# TODO test suite, also run a check to look for missing core programs
+# TODO add check_install() for linking self to ~/.bashrc and ~/.zshrc via ricer and giving warnings
+
+## SSH
+# TODO ssh/kubectl migrate, copy this file as remote rc
+# TODO coalesce ssh mosh
+
+## HISTORY
+# TODO history is one of the COLD contexts. fzf has --history=
+# can history be by project or by everything?
+HISTSIZE=100000000
+HISTFILE=~/.sh_history
+
+## INCLUDE
 # source everything from $RC/include
 while IFS= read -r f; do
   # TODO include is disabled
@@ -209,26 +275,3 @@ done < <(find "$RC/include" -type f -name '*.sh')
 # and add $RC/bin to $PATH
 path "$RC/bin"
 
-# TODO completions
-# TODO index .git/ in ~/ then do fzf project switching
-    # find ~ -type d -name '.git' | { IFS= read -r d; echo "${d%.git}"; } > ~/.gitdex
-# TODO test suite, also run a check to look for missing core programs
- 
-
-
-# TODO questions
-# can we use bind for keybindings?
-#   bash:bind vs zsh:bindkey
-# can history be by project or by everything?
-# can tab-complete open fzf?
-
-# TODO terminal-level config, with ricer, .Xresources no doubt
-# TODO add check_install() for linking self to ~/.bashrc and ~/.zshrc via ricer and giving warnings
-# TODO separate aliases into 'chrome' section. Truly drop in replacements should be functions instead.
-
-# TODO ssh/kubectl migrate, copy this file as remote rc
-# coalesce ssh mosh
-
-## history
-HISTSIZE=100000000
-HISTFILE=~/.sh_history

@@ -5,7 +5,7 @@ templates:
   Xresources.template:
     when: which xrdb >/dev/null
     dest: ~/.Xresources
-    callback: xrdb -merge ~/.Xresources
+    callback: xrdb -load ~/.Xresources
   i3config.sh: 
     when: which i3-msg >/dev/null
     dest: ~/.i3/config
