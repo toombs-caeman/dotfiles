@@ -5,30 +5,30 @@
 ## do nothing if not in an interactive shell
 case $- in *i*) ;; *) return;; esac
 
-# query setup in an agnostic way
+# QUERY
 os() { uname -a | cut -d' ' -f1; }
 term() { printf '%s\n' "$TERM"; } # TODO
 shell() { ps -p $$ -o command | cut -d' ' -f 1 | tail -n1; }
 config() {
-  if ! (( $# )); then
+  if (( $# )); then
+    # return 0 if all specified options apply
+    local os term shell
+    for x in "$@"; do
+      case "$x" in
+        mac) os=Darwin;;    nix) os=Linux;;
+        iterm) term=iterm;; xterm) term=xterm;;
+        zsh) shell=zsh ;;   bash) shell=bash ;; sh) shell=sh;;
+        *) return 1 ;;
+      esac
+    done
+    [ "$OS" = "${os:-$OS}" ] || return 1
+    [ "$TERM" = "${term:-$TERM}" ] || return 1
+    [ "${SHELL##*/}" = "${shell:-${SHELL##*/}}" ] || return 1
+  else
     export OS="$(os)"
     export TERM="$(term)"
     export SHELL="$(shell)"
-    return
   fi
-  # return 0 if all specified options apply
-  local os term shell
-  for x in "$@"; do
-    case "$x" in
-      mac) os=Darwin;;    nix) os=Linux;;
-      iterm) term=iterm;; xterm) term=xterm;;
-      zsh) shell=zsh ;;   bash) shell=bash ;; sh) shell=sh;;
-      *) return 1 ;;
-    esac
-  done
-  [ "$OS" = "$os" ] || return 1
-  [ "$TERM" = "$term" ] || return 1
-  [ "$SHELL" = "$shell" ] || return 1
 }; config
 
 path() {

@@ -27,13 +27,11 @@ define() {
     done
 }; define && unset define
 
-live_prompt() {
+if config zsh; then
   # enable drawing the prompt every $TMOUT seconds
-  # disable if `live_prompt 0`
-  TMOUT=$1
-  (( TMOUT )) || return
+  TMOUT=2
   TRAPALRM() { (( TMOUT )) && zle && zle reset-prompt; }
-}
+fi
 
 # zsh uses $PROMPT as an alias for $PS1 where bash doesn't.
 # setting PS1, then PROMPT allows us to set them properly for both
@@ -46,7 +44,7 @@ prompt() {
         local EXIT=${?##0} tpush tpop
         # set tpush and tpop which are used for size escaping of non-printable characters in the prompt
         tpush='\001' tpop='\002'
-        if [ "${SHELL##*/}" = zsh ]; then
+        if config zsh; then
             # zsh uses different size escapes
             tpush='%%{' tpop='%%}';
             # expands to bolded [time]
