@@ -3,35 +3,52 @@ This repository is intended as a one stop shop for maintaining a consistent conf
 This allows a fully functional copy of the repo with only `git clone`, while still keeping project histories cleanly separate.
 
 # Principles
-* less is more
-* robust is simple
-* bound the problem
-    * define a 'core' set of tooling which must exist (with consistent implementations)
-        - warn/bail if things don't look good
-        - eg: bash version, vim version, python version
-    * define a 'check' set which may have different options available in different implementations
-        - gracefully degrade
-        - gnu options aren't always available
-* context includes
-	* history - separate global and shell searching
-    * core commands
-	* prompt
-	* shortcuts/keybindings
-        * copy/paste is the big one
-    * color/fonts
+* simplicity is a feature
+    * simplicity is robustly encapsulated complexity, not a lack of features
+    * know when to stop adding features (still figuring that one out)
+* speed is a feature
+* consistency is a feature
+    * portability is consistency across platforms
+    * stability (provided by maintainability) is consistency through time
+    * robustness is consistency of behavior
+        * behavior is everything from available commands to keybindings to terminal/OS integration
+    * be explicit about the One True Way™ and try to stick to it.
+* provide rich context
+    * careful of visual clutter
+    * don't always indicate expected or default state
+    * don't be misleading
+    * providing search semantics is a great way to make context available
+    * cli context includes
+        * what happened and what's about to happen (history and completion)
+        * who, what, where, when, why (user, command output, directory, timestamp, comments)
 
 # TODO
+* vim
+    * hyrid line numbers
+* zsh: gg complete is broken
+* mono-repo?
+* install / check script for dependencies
+    * pseudo- GNU stow? symlink out and store a copy of the original, then restore if necessary
+* define the One True Way™ and make sure all tools are built on that
+    * data format - [TOML](https://github.com/toml-lang/toml), [YAML](https://yaml.org/), or pseudo-INI
+    * regex - PCRE2? how to best provide this portably in the shell
+    * patterns - extglob is affected by shell options so ???
+    * script language - bash or zsh or both? python sometimes?
+    * text rendering - hack some jinja2 like thing, but use more free-form scripting (like bash)
+* rice
+    * [solarized everywhere](https://ethanschoonover.com/solarized/)
+    * nix graphics
 * separate blog into baffle, barkdown, and blog
-* get ricer off of python, reuse baffle
-    * save the interesting color charting, but rely on solarized https://ethanschoonover.com/solarized/
-* create an interface for darwin/nix.sh to achieve parity
-    * notifications/bells
-    * xdg_open
-* use name of 'most advanced' option for alias when degradation is expected
-    * bat -> cat
-    * rg -> grep
-
-
+* create an interface for darwin/nix to achieve parity
+* bookmark / cache / rss / scraper tool
+    * keep a shallow cache of bookmarked websites in case they disappear
+    * allow annotations
+    * cron to ping sites that regularly update and send a notification
+    * generate a local rss feed from subscriptions and new content
+    * pull new bookmarks from chrome / firefox
+* git workflow
+	* [forgit](https://github.com/wfxr/forgit)?
+* Iterm2 config
 
 # Installation
 
@@ -41,33 +58,7 @@ If you fork this repo for your own use, you will want to change:
 * themes.yml
 * the prompt in pretty.sh
 
-# Dependencies
-
-core components are expected:
-* alacritty or iterm2
-* bash or zsh
-* coreutils
-
-tools will be configured if they are available:
-* kubectl
-* python virtualenv
-* golang
-* git
-* bat
-* ripgrep
-* fzf
-
 # TODO: general
-* set fzf to use rg as the search command
-* bring shell up to zsh
-* git subrepo push
-* git workflow
-	* forgit interactive git https://github.com/wfxr/forgit
-	* update git aliases
-* consider moving fully to exa/kak/fzf/delta. making use of moreutils.
-* git-fzf search is broken?, try combining with 'git grep' or ripgrep
-* https://routley.io/posts/bespoke-software-rss-aggregator/
-* git-delta https://github.com/dandavison/delta
 
 # TODO: linux graphics pipeline
 * copy mac keybindings to bring over to linux
@@ -95,9 +86,24 @@ tools will be configured if they are available:
 * track xdg-settings, somehow unify xdg-open and mac's open -a
 
 ## potential additions / things to look at
-* https://old.reddit.com/r/dotfiles/
-* http://dotfiles.github.io/
-* https://old.reddit.com/r/startpages/
+* data formats
+    * Tablatal / Indental
+    * [moustache](https://mustache.github.io/mustache.5.html) templating
+
+* idea sources
+    * [r/dotfiles](https://old.reddit.com/r/dotfiles/)
+    * [dotfiles.io](http://dotfiles.github.io/)
+    * https://old.reddit.com/r/startpages/
+    
+* use as inspiration, but not directly
+    * [sparklines](https://github.com/holman/spark/blob/master/spark)
+    * [has](https://github.com/kdabir/has/blob/master/has)
+    
+* file watcher
+    * [entr](https://github.com/eradman/entr) 
+    * [list of file watchers](https://anarc.at/blog/2019-11-20-file-monitoring-tools/)
+* https://routley.io/posts/bespoke-software-rss-aggregator/
+* git-delta https://github.com/dandavison/delta
 * include whitefox layout
 * unified backup utility, use restic?
 * firefox
@@ -105,11 +111,14 @@ tools will be configured if they are available:
     - https://www.userchrome.org/how-create-userchrome-css.html
     - https://userstyles.org/styles/98305/solarized-dark-everywhere
     - https://old.reddit.com/r/FirefoxCSS/
-* mosh
-* https://github.com/andreyorst/fzf.kak
+* ssh/mosh
 * path extractor https://github.com/edi9999/path-extractor
-* entr for inotifywatch like file change watching
-* gron for grepping json
+* [gron](https://github.com/tomnomnom/gron) for grepping json
+* https://github.com/alebcay/awesome-shell
+* fzf completion menu https://reposhub.com/linux/shell-script-development/Aloxaf-fzf-tab.html
+* fzf history menu https://medium.com/@ankurloriya/fzf-command-make-your-history-command-smarter-3294dfd1272f
+* [moreutils vipe](https://joeyh.name/code/moreutils/) 
+* [dasel](https://github.com/TomWright/dasel)
 
 
 # TODO Cobalt
@@ -199,11 +208,6 @@ nouns:
     * Open - connect to host
     * List - list hosts
     * Delete - remove from known hosts
-
-## data
-HISTFILE - shell history
-bookmarks - load and restore to firefox/chrome?
-projects/ - containing projects
 
 ## technical design
 * use a keybinding to start interactively building a plan, when complete, append it to the existing input line. potentially wrapped in "$()"

@@ -90,7 +90,8 @@ _location() {
     (cd .. && _location)
     # collect data.
     remote="$(git remote | head -n1)" # lets hope that they only have one remote, probably 'origin'
-    branch="$(git branch --show-current || git rev-parse --short HEAD)"
+    branch="$(git rev-parse --abbrev-ref HEAD)"
+    branch="${branch:-$(git rev-parse --short HEAD)}"
     status_="$(git status --porcelain)"
     left="$( git rev-list --left-only  --count remotes/$remote/$branch...$branch)"
     right="$(git rev-list --right-only --count remotes/$remote/$branch...$branch)"

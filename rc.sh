@@ -56,14 +56,23 @@ complete() {
 # but fall back on the command itself if nothing else is available
 # `command -v` is more consistent than `which`
 # `command -v` sometimes give a full path (not zsh) but we don't really care
-# TODO what happens if none are valid?
 co() { command -v "$@" | tail -n1; }
+aliasif() {
+  # TODO what happens if none are valid?, don't want to nest aliases
+  # TODO don't count if $2 is an alias
+  if command -v "$2" >/dev/null; then local a="$1"; shift; alias "$a='$*'"; fi
+}
 export EDITOR="$(co vi vim)"
 export PAGER="less"
 export LESS="FXr"
 export VISUAL=$EDITOR
 alias vi=vim
-# TODO
+# TODO new commands
+# alias grep=rg
+# alias ls=exa
+# alias find=fd # https://github.com/sharkdp/fd
+# alias cat=bat
+# fzf
 #coalesce cat batcat bat
 alias wget='wget -c'
 alias mkdir='mkdir -p'
@@ -82,6 +91,8 @@ alias sl='ls'
 case ${SHELL##*/} in
   zsh)
     RC="${(%):-%N}" # this file
+    autoload -Uz compinit
+    compinit
     setopt prompt_subst zle autocd
     setopt appendhistory hist_expire_dups_first hist_ignore_dups
     ;;

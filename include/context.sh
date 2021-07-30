@@ -1,5 +1,6 @@
 # list non-nested git repositories in ~
-projects() { find ~/* -type d -name '.git' -prune 2>/dev/null -exec dirname '{}' \; ; }
+projects() { find ~/my/* -maxdepth 5 -type d -name '.git' -prune 2>/dev/null | sed 's,^\(.*\)/.git,\1,' ; }
+#projects2() { find ~/my/* -type d -name '.git' -prune 2>/dev/null | rg -o '(.*)/' --replace '$1' ; }
 gg() {
   # goto project (if arg given), git root or home
   local d="${1:-$(git rev-parse --show-toplevel 2>/dev/null || echo ~)}"
