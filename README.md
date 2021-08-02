@@ -23,22 +23,23 @@ This allows a fully functional copy of the repo with only `git clone`, while sti
         * who, what, where, when, why (user, command output, directory, timestamp, comments)
 
 # TODO
-* vim
-    * hyrid line numbers
+* OS/keybinding level integration
+    * notifications clipboard volume launcher closer
 * zsh: gg complete is broken
 * mono-repo?
 * install / check script for dependencies
     * pseudo- GNU stow? symlink out and store a copy of the original, then restore if necessary
 * define the One True Way™ and make sure all tools are built on that
     * data format - [TOML](https://github.com/toml-lang/toml), [YAML](https://yaml.org/), or pseudo-INI
-    * regex - PCRE2? how to best provide this portably in the shell
-    * patterns - extglob is affected by shell options so ???
-    * script language - bash or zsh or both? python sometimes?
-    * text rendering - hack some jinja2 like thing, but use more free-form scripting (like bash)
-* rice
-    * [solarized everywhere](https://ethanschoonover.com/solarized/)
-    * nix graphics
+    * external tools
+        * git bat(batcat) exa rg kak zsh fzf dasel sqlite3 find chevron python
+    * bookie - merge and manage bookmarks and cached content
+    * ricer - configuration
+        * [solarized everywhere](https://ethanschoonover.com/solarized/)
+        * nix graphics
 * separate blog into baffle, barkdown, and blog
+    * consider [lowdown](https://kristaps.bsd.lv/lowdown/)
+    * consider moustache
 * create an interface for darwin/nix to achieve parity
 * bookmark / cache / rss / scraper tool
     * keep a shallow cache of bookmarked websites in case they disappear
@@ -51,7 +52,6 @@ This allows a fully functional copy of the repo with only `git clone`, while sti
 * Iterm2 config
 
 # Installation
-
 direct installation is not recommended. Instead, use this as a pattern for constructing your own dotfiles.
 If you fork this repo for your own use, you will want to change:
 * contexts/default/

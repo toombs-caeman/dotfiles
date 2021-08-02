@@ -27,7 +27,7 @@ def show(name, data):
 df = (
     # these merge on the common 'name' column
     pd.read_csv(
-        'data/person.csv',
+        'person.csv',
         skipinitialspace=True,
         comment='#',
         dtype=str,
@@ -37,7 +37,6 @@ df = (
     .astype({is_male:float, birth:float})
     .sort_values(birth, ignore_index=True)
     .astype({is_male:bool})
-
 )
 df[birth] = df[birth].fillna(-1).astype(int)
 
@@ -59,7 +58,7 @@ show('duplicate births', df[df[birth].isin(bc[bc[name] > 1].index)])
 
 show('years with large gaps preceding', df[df[birth].diff() > 100][birth])
 
-# exit()
+exit()
 import random
 while True:
     tag = [name, action, object]

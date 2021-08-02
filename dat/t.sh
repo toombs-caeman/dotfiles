@@ -1,129 +1,175 @@
+args() {
+  while (( $# )); do
+    echo "arg=($1)"
+    case "$1" in
+      -join) # read from a new file, copy stdin too if not a terminal
+        ;;
+      -ifs) # set input IFS, to join tsv or csv files
+        ;;
+      -sql) # join from a database
+        ;;
+      -*=*) # column='regex' filter by column value
+        ;;
+      -head) # head
+        ;;
+      -tail) # tail
+        ;;
+      -sort) ;;
+      -uniq)
+        ;;
+    esac
+    shift
+  done
+}
+idx() {
+  # usage: idx val "${array[@]}"
+  # echos the the index of a value in an array or returns 1
+  local value="$1"; shift; local i=$#
+  while (( $# )); do [ "$1" = "$value" ] && printf '%s\n' "$((i-$#))" && return 0 || shift; done
+  return 1
+}
+fmt() {
+  # extend printf to better handle arrays by having separate patterns for field, line and IFS
+  # fmt -s S -l 'L%sL\n' -f 'F%sF' -- a b c
+  # 'LFaFSFbFSFcFL\n'
+  local arg args=() fargs=() f="%s" s=" " l="%s\n"
+  while (( $# )); do
+    case "$1" in
+      -l) shift; l="$1" ;;
+      -s) shift; s="$1" ;;
+      -f) shift; f="$1" ;;
+      --) shift; args+=("$@"); break ;;
+      *) args+=("$1") ;;
+    esac
+    shift
+  done
+  # return 1 if there aren't any arguments instead of printing an empty line
+  # this can be used to do `fmt "$@" | echo default`
+  [ ${#args[@]} = 0] && return 1
+  if [ "$f" = '%s' ]; then
+    fargs=("${args[@]}")
+  else
+    for arg in "${args[@]}"; do fargs+=("$(printf "$f" "$arg")"); done
+  fi
+  local IFS="$s"
+  printf "$l" "${fargs[*]}"
+}
 
 t() {
   local op="$1"; shift 2>/dev/null
-  local ofmt=_t_fmt_sep row_count=0
-  # pretty print to a terminal
-  [ -t 1 ] || [ -z "$op" ] && ofmt=_t_fmt_fixed
-  local head offset width ifmt
+  if [ -t 1 ] || [ -z "$op" ]; then
+    # if the output is a terminal or no command is specified
+    # then display in column format
+    _t "$op" "$@" | column -t -s "$SEP"
+  else
+    _t "$op" "$@"
+  fi
+}
+SEP="$(printf '\001')" # use non-printing character not expected in input
+# use any character not expected to be in input
+# print an array using $SEP as the separator
+_t_fmt_sep() { local IFS="$SEP"; printf '%s\n' "$*"; }
+_t_fmt_sep() { fmt -s "$SEP" -- "$@"; }
+_t_parse_ref() {
+  while (( $# )); do
+    idx "$1" "${head[@]}" || printf '%s\n' "$1"
+    shift
+  done
+}
+# TODO pre: from_sql from_tab from_csv from_tsv join insert
+# TODO inline: match unique columns
+# TODO final: pretty_print sort
+_t() {
+  local head width offset ifmt
   # remove empty lines and comments
-  sed '/^$/d; /^ *#/d' | {
+  sed "/^$/d; /^ *#/d" | {
     case "$op" in
       # todo grep by field
-      grep) _head; _body | grep "$@" ;;
-      sort) _head; _body | sort -t"$SEP" ${*:+-k} "$@" ;;
+      sql|from_sql)
+        local db="$1"; shift
+        sqlite3 "$db" -separator "$SEP" -header <<<"$@"
+        ;;
+      # `t filter 2 '.*\.sh'` -> return rows where column 2 match regex `.*\.sh`
+
+      f|filter)
+      # todo allow multiple column_name='regex' type parameters
+      while (( $# )); do
+        case "$1" in
+          *=*) regex+=("$(sed 's,=\(.*\)$,\n ~ /\1/' <<<"$1")") ;;
+          *) fields+=("$1") ;;
+        esac
+      done
+      regex=($(_t_parse_ref "${regex[@]}"))
+      fields=($(_t_parse_ref "${fields[@]}"))
+      unique=()
+      { _head; _body; } | awk -F "$SEP" "
+        NR==1 || ( $(fmt -l '%s' -s ' && ' -- "$(_t_parse_ref "${regex[@]}")" || printf '1') && $(fmt -l '!_[%s]++' -f '$%s' -- "${uniq[@]}" || printf '1')) {print $(fmt -l '%s' -f '$%s' ${fields[@]})}
+"
+       ;;
+#      grep) _head; _body | grep "$@" ;;
+      s|sort) _head; _body | sort -t"$SEP" ${*:+-k} "$@" ;;
+      v|val|values) # don't print head, otherwise do the same as `columns`
+        {_head >/dev/null;   _body; } | awk -F "$SEP" "{print $(printf '$%s ' $(_t_parse_ref "$@"))}" ;;
+      c|col|columns) {_head; _body; } | awk -F "$SEP" "{print $(printf '$%s ' $(_t_parse_ref "$@"))}" ;;
+      r|row|rows) _head; _body | awk -F "$SEP" "$(printf 'NR==%s;' "$@")}" ;;
       head) _head; _body | head -n "$@" ;;
       tail) _head; _body | tail -n "$@" ;;
-      v|val|values) # don't print head
-        _head >/dev/null
-        if [ -n "$*" ]; then _body | cut -f "$@" -d"$SEP"; else _body; fi
-        ;;
-      c|col|cols) { _head; _body; } | cut -f "$@" -d"$SEP" ;;
-      r|row|rows) _head; while _read_row; do case " $* " in *" $row_count "*) _write_row;; esac; done ;;
-      resize) ;; # TODO change width
-      reorder)
-        # todo reorder rows (cut doesn't)
-        _head >/dev/null
-        local new_row=() new_header=()
-        for i in "$@"; do
-          new_header+=("${head[$1]}")
-        done
-        $ofmt "${new_header[@]}"
-        while _read_row; do
-          for i in "$@"; do
-            new_row+=("${row[$1]}")
-          done
-        done
-        ;;
-      *)
-        # extra decoration if it's a terminal
-        if [ -t 1 ]; then
-          echo extra
-          _head >/dev/null
-          $ofmt "${head[@]}" | sed 's/[^ ]/=/g'
-          _body
-          $ofmt "[$row_count x ${#head[@]}]"
-        else
-          echo extra
-          _head
-          _body
-        fi
-        ;;
+      # https://stackoverflow.com/questions/1915636/is-there-a-way-to-uniq-by-column
+      uniq) _head; _body | awk -F"$SEP" '!_[$1]++' ;;
+      *) cat - ;; # default just pass through
     esac
   }
 }
+awk "
+$(fmt -l '%s' -s ' && ' -f '$%s ~ /%s/' -- "${regex[@]}" || printf '1') && $(fmt -l '!_[%s]++' -f '$%s' -- "${uniq[@]}" || printf '1') {print $(fmt -l '%s' -f '$%s' ${fields[@]})}
+"
 
-# use any character not expected to be in input
-SEP="$(printf '\001')"
-# print an array using $SEP as the separator
-_t_fmt_sep() { local IFS="$SEP"; printf '%s\n' "$*"; }
-# print a fixed ${width[@]} array. let the last field run long
-_t_fmt_fixed() {
-  local f=-1 args=("$@")
-#  echo "#${args[*]}#"
-  if (( ${#args[@]} > 1)); then
-    for f in $(seq 0 $(( ${#args[@]} - 1)) ); do
-      printf "%-${width[$f]}.${width[$f]}s" "${args[$f]}"
-    done
-  fi
-  printf "%s\n" "${args[$((f+1))]}"
-}
-_head() { _read_head; _write_head; }
-_body() { while _read_row; do _write_row; done; }
-_write_head() { $ofmt "${head[@]}"; $ofmt "${width[@]}"; }
-_write_row() { $ofmt "${row[@]}"; }
-_read_head() {
-  head=() offset=() width=() ifmt=
+_head() {
+  head=() width=() offset=() ifmt=
   local f
   IFS= read -r head
   case "$head" in
     *"$SEP"*)
       ifmt=_t_fmt_sep
       IFS="$SEP" read -ra head < <(printf '%s\n' "$head")
-      IFS="$SEP" read -ra width
       ;;
     *)
       ifmt=_t_fmt_fixed
-      # head needs to be resplit because it's a fixed-width format, not sep
-      # shellcheck disable=SC2001
+      # head needs to be re-split, but sed introduces an extra separator at the start, so drop that right after
       IFS="$SEP" read -ra head < <(sed "s/\([^ ]* *\)/$SEP\1/g" <<<"$head")
-      # drop the extra element introduced by sed above
       head=("${head[@]:1}")
-      # count width of head and trim it
+      # count width of each field and then trim the whitespace
+      local o=0
       for f in "${head[@]}"; do
         head+=("${f%% *}")
         width+=("${#f}")
+        offset+=("$o")
+        o=$(( o + ${#f} ))
       done
-      # trim head back, since we appended earlier
+      # drop the part of head that includes spaces, since we just appended earlier
       head=("${head[@]:${#width[@]}}")
       ;;
   esac
-  # pre-calculate offset
-  local w o=0
-  for w in "${width[@]}"; do
-    offset+=("$o")
-    o=$(( o + w ))
-  done
-#  echo "#${head[*]}#"
-#  echo "#${width[*]}#"
-#  echo "#${offset[*]}#"
+  _t_fmt_sep "${head[@]}";
 }
-_read_row() {
-  # read a $row and increment $row_count, or return !0
-  row=()
-  local ret line f v
+_body() {
   case "$ifmt" in
-    _t_fmt_sep) IFS="$SEP" read -ra row; ret=$? ;;
-    _t_fmt_fixed)
-      IFS= read -r line; ret=$?
-      for f in $(seq 0 $(( ${#head[@]} - 2)) ); do
-          v="${line:${offset[$f]}:${width[$f]}}"; row+=("${v%% }")
+    _t_fmt_sep) cat -;; # already formatted correctly
+    _t_fmt_fixed) # parse using a fixed column width
+      local line f v
+      while IFS= read -r line; do
+        row=()
+        for f in $(seq 0 $(( ${#head[@]} - 2)) ); do
+            v="${line:${offset[$f]}:${width[$f]}}"
+            row+=("${v%% }")
+        done
+        # read last field separately to let it be arbitrarily long
+        v="${line:${offset[$((f+1))]}}"
+        row+=("${v%% }")
+        _t_fmt_sep "${row[@]}"
       done
-      # read last field separately to let it be arbitrarily long
-      v="${line:${offset[$((f+1))]}}"; row+=("${v%% }")
       ;;
   esac
-  (( ret )) || row_count=$((row_count + 1))
-  return $ret
 }
 
 
@@ -136,7 +182,6 @@ t < test.tbl
 log normal print
 t grep '' < test.tbl | cat -
 
-exit
 log first row
 t head 1 < test.tbl
 

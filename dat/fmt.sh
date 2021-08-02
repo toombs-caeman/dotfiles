@@ -1,233 +1,148 @@
-# separate TAB into 3
-# TAB is human readable. It is the data at rest
-# bTAB is 'binary' in that spaces are trimmed to SEP
-# DATA is the shell format, which should be compatible between TAB and NOS
-
-# TODO row api: edit/access from memory
-# TODO 'in memory' vs 'streaming' api. edit vs query
-# TODO distinguish (t tload), which can start and end a pipe from others
-# TODO factor out indirection evals into generalized get/set for values
-#   `V table 0 field value`
-
-# API: t tload tcol trows
+readarray() {
+  if config zsh; then
+    read -A "$@"
+  else
+    read -a "$@"
+  fi
+}
+idx() {
+  # usage: idx val "${array[@]}"
+  # print the the index of a value in an array or returns 1
+  local value="$1"; shift; local i=$#
+  while (( $# )); do [ "$1" = "$value" ] && printf '%s\n' "$((i-$#))" && return 0 || shift; done
+  return 1
+}
+fmt() {
+  # printf with separate formats for for field, line and IFS
+  local arg args=() line='' l='%s\n' s=' ' f='%s'
+  while (( $# )); do
+    case "$1" in
+      -l) shift; l="$1" ;;
+      -s) shift; s="$1" ;;
+      -f) shift; f="$1" ;;
+      --) shift; args+=("$@"); break ;;
+      *) args+=("$1") ;;
+    esac
+    shift
+  done
+  # return 1 if there aren't any arguments instead of printing an empty line
+  # this can be used to do `fmt "$@" || printf default`
+  ((${#args[@]})) || return 1
+  line="$(printf "$f" "${args[@]:0:1}")"
+  for arg in "${args[@]:1}"; do line="$line$(printf "$s$f" "$arg")"; done
+  printf "$l" "$line"
+}
 
 t() {
-  # TODO make sure _func variables are local to here
-  # select which table to use (if input is var)
-  local prefix="${1:-T}"
-  local ifmt ofmt; _t
-  local header fields offsets widths; _header
-  local row_count=0
-  # copy input to output
-  # make sure to run raw input through the preprocessor
-  while _read_row; do _write_row; done < <(_preprocessor)
- }
-
-tload() {
-  # select which table to use (if input is var)
-  local prefix="${1:-T}"
-  local ifmt ofmt; _t
-  local header fields offsets widths; _read_header
-  # adjust output format to eval if we're writing into a terminal
-  # or pretty print if we're writing to a file
-  if [ -t 1 ] && ! [ -t 0 ]; then
-    ofmt=var
-    _write_header
-    eval "$(
-      _preprocessor |
-      while _read_row; do _write_row; done |
-      sed "
-      # make sure shell definitions are valid
-      # remove whitespace around equals
-      s/^\([^= ]*\) *= */\1=/
-      # dont alter arrays
-      /=(/n
-      # escape quotes in value
-      s/\"/\\\"/g
-      # re-quote
-      s/=\(.*\)$/=\"\1\"/
-    ")"
-  else
-    ofmt=tab
-    while _read_row; do _write_row; done < <(_preprocessor)
-  fi
-  local row_count=0
- }
-
-tcols() {
-  # select a subset of columns
-  # TODO allow column reference by name or number
-  # https://stackoverflow.com/questions/15028567/get-the-index-of-a-value-in-a-bash-array
-  local IFS=','
-  cut -d"$SEP" -f "$*";
-}
-trows() {
-  # select a number of rows by number. use posix ranges (like: {1..5})
-  # TODO test
-  local ifmt ofmt; _t
-  case "$ifmt" in
-    var) local prefix="$1"; shift ;;
-  esac
-  local header fields offsets widths; _header
-  while _read_row; do
-    case " $* " in *" $row_count "*) _write_row;; esac
-  done < <(_preprocessor)
- }
-tfilter() {
-  # TODO tfilter col=val
-  local prefix="${1:-T}"
-  local ifmt ofmt; _t
-  local header fields offsets widths; _header
-  local row_count=0
-  # copy input to output
-  # make sure to run raw input through the preprocessor
-  while _read_row; do _write_row; done < <(_preprocessor) | grep "$@"
-}
-# UTIL
-
-# use non-printable character that won't be in input as separator
-readonly SEP="$(printf '\001')"
-# print an array in btab
-bprint() { local IFS="$SEP"; printf '%s\n' "$*"; }
-
-# PRE
-
-_t() {
-  # determine and output formats (ifmt and ofmt) based on where stdin and stdout are connected
-  # these are set to one of tab, btab, or var
-  ifmt= ofmt=
-  if [ -t 0 ]; then ifmt=var; else ifmt=tab;  fi  # read from shell variables if there's no input on stdin
-  if [ -t 1 ]; then ofmt=tab; else ofmt=btab; fi  # pretty print if going to a terminal
-}
-# determine input and output formats suitable between shell and disk
-_tload() {
-  ifmt= ofmt=
-  # if reading from term, use var format, else pipe format
-  # we can't actually determine yet if ifmt=tab or ifmt=btab, but _read_header will sort us if we assume tab
-  if [ -t 0 ]; then ifmt=var; else ifmt=pipe; fi              # read from shell variables if there's no input on stdin
-  # pipe -> term : var
-  # otherwise : tab
-  if [ -t 1 ] && ! [ -t 0 ]; then ofmt=var; else ofmt=tab; fi # if we're writing to a terminal
- }
-
-# read header from input, loading variables and copy to output.
-_header() { _read_header; _write_header; }
-# read header from input
-_read_header() {
-  header=() fields=() offsets=() widths=()
-  case "$ifmt" in
-    # eval is portable (but unsafe) indirection
-    var)  IFS= read -r header < <(eval "echo \"\$${prefix}_header\"") ;;
-    *) IFS= read -r header ;;
-  esac
-  case "${header}" in
-    *"$SEP"*)
-      ifmt=btab
-      IFS="$SEP" read -ra header < <(echo "${header}")
-      ;;
-    *)
-      # header needs to be resplit because it's a TAB format, not bTAB
-      IFS="$SEP" read -ra header < <(echo "${header}" | sed "s/\([^ ]* *\)/\1$SEP/g")
-      # drop the last item (which is now empty)
-      header=( "${header[@]:0:${#header[@]}}" )
-      ;;
-  esac
-  local offset=0
-  for field in "${header[@]}"; do
-    widths+=("${#field}")
-    offsets+=("$offset")
-    offset=$(( offset + ${#field} ))
+  # TODO parse args
+  local files=() sort=() uniq=() limit=0 regex=() output_fields=()
+  while (( $# )); do
+    arg_rhs="$(sed "s/^[^=]*=//" <<<"$1")"
+    case "$1" in
+      -j=*|-join=*) files+=("$arg_rhs") ;;
+      -s=*|-sort=*) sort+=("$arg_rhs") ;;
+      -u=*|-uniq=*) uniq+=("$arg_rhs") ;;
+      -l=*|-limit=*) limit="$arg_rhs" ;;
+      *=*) regex+=("$(sed 's/=.*$//' <<<"$1") ~ /$arg_rhs/") ;;
+      *) output_fields+=("$1") ;;
+    esac
+    shift
   done
-  # use word splitting to strip space from headers
-  fields=( ${header[*]} )
-  # let the last field be large
-  widths[$((${#header[@]} - 1))]=9999
+  [ -t 0 ] || files=('/dev/stdin' "${files[@]}")
+  {
+    sep="$(printf '\001')" isep="$sep" first=1
+    for file in "${files[@]}"; do
+      exec 3<> "$file" # open descriptor for file
+      IFS= read -r head <&3
+      case "$head" in
+        *"$sep"*) isep="$sep" ;;
+        *$'\t'*) isep="$(printf '\t')" ;;
+        *,*) isep=, ;;
+        *) isep=fixed ;;
+      esac
+      case "$isep" in
+        fixed)
+          # head needs to be re-split, but sed introduces an extra separator at the start, so drop that right after
+          IFS="$sep" readarray -r head < <(sed "s/\([^ ]* *\)/$sep\1/g" <<<"$head")
+          head=("${head[@]:1}")
+          # count width of each field and then trim the whitespace
+          local o=0
+          for f in "${head[@]}"; do
+            head+=("${f%% *}")
+            width+=("${#f}")
+            offset+=("$o")
+            o=$(( o + ${#f} ))
+          done
+          # drop the part of head that includes spaces, since we just appended earlier
+          head=("${head[@]:${#width[@]}}")
+          ;;
+        *)
+          IFS="$isep" readarray -r head <<<"$head"
+          ;;
+      esac
+      if (( first )); then
+        fmt -s "$sep" -- "${head[@]}"
+        first=0
+      fi
+      case "$isep" in
+        fixed)
+          awk -v FIELDWIDTHS="${width[*]}" "BEGIN { OFS=\"$sep\" }; !/^ *(#.*)$/ { gsub(/ *$/,\"\"); print; }" <&3
+#          while IFS= read -r line; do
+#            [ -z "${line/*#*}" ] && continue
+#            row=()
+#            local f
+#            for f in $(seq 0 $(( ${#head[@]} - 2)) ); do
+#                v="${line:${offset[$f]}:${width[$f]}}"
+#                row+=("${v%% }")
+#            done
+#            # get last field separately to let it be arbitrarily long
+#            v="${line:${offset[$((f+1))]}}"
+#            row+=("${v%% }")
+#            IFS="$sep" fmt -- "${row[@]}"
+#          done <&3
+          ;;
+        *) tr "$isep" "$sep" <&3 ;;
+      esac
+      exec 3>&- # close file
+    done
+  } | {
+  # apply regex filters, unique constraints and output fields
+  awk -F "$sep" "NR==1 || ($(fmt -s ' && ' -l '%s' -- "${regex[@]}" || printf '%s' '1') && $(
+            fmt -l '!_[%s]++' -f '$%s' -- "${uniq[@]}" || printf '%s' '1'
+            )) {print $(fmt -l '%s' -f '$%s' ${output_fields[@]})}"
+  } | {
+    if (( ${#sort[@]} )); then
+      IFS= read -r head; printf '%s\n' "$head"
+      sort -t"$sep" "$(fmt -l '-k %s' "${sort[@]}")"
+    else cat -; fi
+  } | {
+    if ((limit)); then head -n $((limit + 1)); else cat -; fi
+  } | {
+    # if the output is a terminal or no command is specified
+    # then display in column format
+    if [ -t 1 ] || [ -z "$op" ]; then column -t -s "$sep"; else cat -; fi
+  }
 }
 
-# clean input from disk
-# remove empty lines and comments
-# TODO allow escaped (#) as a value
-_preprocessor() { sed '/^$/d; /^ *#/d'; }
-
-_read_row() {
-  # read a $row, or return !0
-  row=() row_count
-  local ret
-  case "$ifmt" in
-    btab) IFS="$SEP" read -ra row; ret=$? ;;
-    tab)
-      # read one row in TAB format
-      local line
-      IFS= read -r line; ret=$?
-      for f in $(seq 0 $(( ${#header[@]} - 1)) ); do
-          # sed removes whitespace at end of field
-          row+=("$(echo "${line:${offsets[$f]}:${widths[$f]}}" | sed 's/ *$//';)")
-      done
-      ;;
-    var)
-      local value
-      ret=1
-      for f in $(seq 0 $(( ${#header} - 1)) ); do
-        # portable (but unsafe) indirection
-        eval "value=\"\$${prefix}_${row_count}_${fields[$f]}\""
-        row+=("$value")
-        # if we find a value for even a single column then the row is considered ok
-        [ -n "$value" ] && ret=0
-      done
-      ;;
-  esac
-  (( ret )) || row_count=$((row_count + 1))
-  return $ret
+t_test() {
+  # TODO parse args
+  local files=() sort=() uniq=() limit=0 regex=() output_fields=()
+  local sep="$(printf '\001')" isep="$sep"
+  while (( $# )); do
+    arg_rhs="$(sed "s/^[^=]*=//" <<<"$1")"
+    case "$1" in
+      -j=*|-join=*) files+=("$arg_rhs") ;;
+      -s=*|-sort=*) sort+=("$arg_rhs") ;;
+      -u=*|-uniq=*) uniq+=("$arg_rhs") ;;
+      -l=*|-limit=*) limit="$arg_rhs" ;;
+      *=*) regex+=("\$$(sed 's/=.*$//' <<<"$1") ~ /$arg_rhs/") ;;
+      *) output_fields+=("$1") ;;
+    esac
+    shift
+  done
+  [ -t 0 ] || files=('/dev/stdin' "${files[@]}")
+  printf '%s ' awk -F "$sep" "$(
+    fmt -s ' && ' -l '%s' -- "${regex[@]}" || printf '%s' '1') && $(
+            fmt -l '!_[%s]++' -f '$%s' -- "${uniq[@]}" || printf '%s' '1'
+            ) {print $(fmt -l '%s' -f '$%s' ${output_fields[@]})}"
 }
-
-# POST
-_write_header() {
-  case "$ofmt" in
-    tab) printf '%s\n' "${header[*]}"; ;;
-    # include extra SEP at the end to mark it as btab
-    btab) bprint "${header[@]}" '';;
-    var) IFS='' printf '%s_header=%s\n' "$prefix" "${header[*]}";;
-  esac
-}
-_write_row() {
-  case "$ofmt" in
-    btab) bprint "${row[@]}" ;;
-    tab)
-      local f
-      for f in $(seq 0 $(( ${#header[@]} - 2)) ); do
-        printf "%-${widths[$f]}.${widths[$f]}s" "${row[$f]}"
-      done
-      # print the last field separately, since it can be arbitrarily long. also do newline
-      printf "%s\n" "${row[$((f+1))]}"
-      ;;
-    var)
-      for f in $(seq 0 $(( ${#header[@]} - 1)) ); do
-        printf '%s_%s_%s=%s\n' "$prefix" "$row_count" "${fields[$f]}" "${row[$f]}"
-      done
-      ;;
-  esac
-}
-T_test() {
-  echo '# ****** test *******'
-#  echo "# bTAB=$bTAB"
-#  echo "# row_count=$row_count"
-  log "${header[@]}"
-#  echo "# header=${fields[*]}"
-#  echo "# widths=${widths[*]}"
-  echo "# i=$ifmt o=$ofmt"
-  echo '# **** end test *****'
-}
-echo "** var **"
-T_rw '' < test.tbl
-echo "** TAB **"
-T_rw '' < test.tbl | cat -
-echo "** bTAB | cut **"
-T '' < test.tbl | cut -d"$SEP" -f 2,4 #| tr "$SEP" "|"
-
-echo "** bTAB | cut | TAB **"
-T '' < test.tbl | cut -d"$SEP" -f 2,4 | T
-
-echo "** bTAB | cut | sh **"
-T '' < test.tbl | cut -d"$SEP" -f 2,4 | T_rw
-
-#T_test
