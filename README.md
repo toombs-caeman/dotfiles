@@ -34,6 +34,7 @@ This allows a fully functional copy of the repo with only `git clone`, while sti
     * external tools
         * git bat(batcat) exa rg kak zsh fzf dasel sqlite3 find chevron python
     * bookie - merge and manage bookmarks and cached content
+        * maybe just use [buku](https://github.com/jarun/buku)
     * ricer - configuration
         * [solarized everywhere](https://ethanschoonover.com/solarized/)
         * nix graphics

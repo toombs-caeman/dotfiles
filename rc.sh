@@ -38,7 +38,7 @@ path() {
     else printf '%s\n' "$PATH" | tr ":" "\n"; fi
 }
 
-complete() {
+suggest() {
   # $1: completion function
   # $2: function to complete
   if [ "${SHELL##*/}" = zsh ]; then

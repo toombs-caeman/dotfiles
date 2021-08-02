@@ -8,12 +8,12 @@ gg() {
   cd "$d"
 }
 _gg() { projects | grep -o '[^/]*$'; }
-complete _gg gg
+suggest _gg gg
 
 # virtual environments
 venv() { if [ -n "$1" ]; then . ~/my/venv/$1/bin/activate; else [ -n "$VIRTUAL_ENV" ] && deactivate; fi; }
 _venv() { ls ~/my/venv/; }
-complete _venv venv
+suggest _venv venv
 
 ## HISTORY
 # TODO history is one of the COLD contexts. fzf has --history=
