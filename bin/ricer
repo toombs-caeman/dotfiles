@@ -104,7 +104,7 @@ def get_xcolors(colors, substitution_distance=20):
 
     # take a weighted average of the obtained and canonical values
     # this greatly improves contrast with monochrome backgrounds.
-    weight = 5
+    weight = 10
     return [ tuple(map(lambda a, b: int(((weight - 1)*a + b)/weight), r, c)) for r, c in zip(results, canonical)]
     return results
 
