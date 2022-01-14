@@ -121,10 +121,10 @@ set -o vi
 
 ## COMPLETION
 # TODO source completions
-command -v kubectl >/dev/null && . <(kubectl completion ${SHELL##*/})            2>/dev/null
-command -v eksctl  >/dev/null && . <(eksctl completion ${SHELL##*/})             2>/dev/null
-command -v helm    >/dev/null && . <(helm completion ${SHELL##*/})               2>/dev/null
-command -v inv     >/dev/null && . <(inv --print-completion-script=${SHELL##*/}) 2>/dev/null
+. <(kubectl completion ${SHELL##*/}            2>/dev/null) 2>/dev/null
+. <(eksctl completion ${SHELL##*/}             2>/dev/null) 2>/dev/null
+. <(helm completion ${SHELL##*/}               2>/dev/null) 2>/dev/null
+. <(inv --print-completion-script=${SHELL##*/} 2>/dev/null) 2>/dev/null
 
 
 ## OS

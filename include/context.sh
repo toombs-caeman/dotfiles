@@ -10,7 +10,17 @@ gg() {
 _gg() { projects | grep -o '[^/]*$'; }
 suggest _gg gg
 
+gco() {
+    selection=$(git branch -a --format='%(refname)' \
+        | sed 's,refs/heads/,,;s,refs/remotes/[^/]*/,,' \
+        | sort | uniq \
+        | fzf --layout=reverse --height=20 --query="$@") || return
+    git diff --quiet || git stash
+    git checkout $selection
+}
+
 # virtual environments
+# TODO add create venv `python -m venv ~/my/venv/$1`
 venv() { if [ -n "$1" ]; then . ~/my/venv/$1/bin/activate; else [ -n "$VIRTUAL_ENV" ] && deactivate; fi; }
 _venv() { ls ~/my/venv/; }
 suggest _venv venv
