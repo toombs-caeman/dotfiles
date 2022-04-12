@@ -5,7 +5,7 @@
 ## do nothing if not in an interactive shell
 case $- in *i*) ;; *) return;; esac
 
-perf() { # echo the time in milliseconds
+perf() { # echo the elapsed time in seconds (millisecond precision)
   local ts=$(date +%s%N)
   if (( $# )); then
     "$@"
@@ -19,7 +19,6 @@ perf() { # echo the time in milliseconds
     fi
   fi
 }
-perf
 
 declare -A log; log=([info]=0 [warning]=1 [error]=2 [lvl]=info);
 # TODO BASH_SOURCE[0] === zsh ${(%):-%N}
@@ -70,7 +69,6 @@ suggest() {
     builtin complete -F "_${2}_bash" "$2"
   fi
 }
-perf; perf
 ## HISTORY
 # can history be by project or by everything?
 HISTSIZE=100000000
@@ -144,7 +142,6 @@ command -v eksctl  >/dev/null && . <(eksctl completion ${SHELL##*/})
 command -v helm    >/dev/null && . <(helm completion ${SHELL##*/})
 command -v inv     >/dev/null && . <(inv --print-completion-script=${SHELL##*/})
 
-perf; perf
 # list non-nested git repositories in ~
 projects() { find ~/my/* -maxdepth 5 -type d -name '.git' -prune 2>/dev/null | sed 's,^\(.*\)/.git,\1,' ; }
 gg() {
@@ -175,7 +172,6 @@ _() { ## MOVEMENT
     unset -f _
 }; _
 
-perf; perf
 ## OS
 # TODO build up OS level functions
 # beep notify volume xdg_open wifimenu
@@ -213,33 +209,32 @@ path "$RC/bin"
 # don't let virtualenv do weird stuff
 VIRTUAL_ENV_DISABLE_PROMPT=yes
 
-perf; perf
 _() { ## COLORS
-    # generate functions like red_blue that print things in foreground_background colors
-    # $tpush and $tpop are set in prompt() in order to correctly escape prompt widths.
     # This gets wonky if $tpush or $tpop are set elsewhere
-    local black=0 red=1 green=2 yellow=3 blue=4 magenta=5 cyan=6 white=7
+    local exe='' colors=(black red green yellow blue magenta cyan white)
     # zsh: array definitions conflict, just copy it here
-    for f in black red green yellow blue magenta cyan white; do
-        # zsh: `${!f}` is incompatible so use "\$$f"
-        eval "fc=\$$f;"
+    local fc bc bold="$(tput bold)" sgr="$(tput sgr0)"
+    local af=("$(tput setaf 0)" "$(tput setaf 1)" "$(tput setaf 2)" "$(tput setaf 3)" "$(tput setaf 4)" "$(tput setaf 5)" "$(tput setaf 6)" "$(tput setaf 7)")
+    local ab=("$(tput setab 0)" "$(tput setab 1)" "$(tput setab 2)" "$(tput setab 3)" "$(tput setab 4)" "$(tput setab 5)" "$(tput setab 6)" "$(tput setab 7)")
+    for fc in $(seq 0 7); do
+        local affc="${af[$fc]}" abfc="${ab[$fc]}" f="${colors[$fc]}"
         # foreground OR background
-        eval "
-               $f   () { printf \"\$tpush$(           tput setaf $fc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; };
-              _$f   () { printf \"\$tpush$(           tput setab $fc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; };
-               ${f}_() { printf \"\$tpush$(tput bold; tput setaf $fc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; };
-              _${f}_() { printf \"\$tpush$(tput bold; tput setab $fc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; }"
-        for b in black red green yellow blue magenta cyan white; do
+        exe="$exe
+               $f   () { printf \"\$tpush$affc\$tpop%s\$tpush$sgr\$tpop\n\" \"\$*\"; };
+              _$f   () { printf \"\$tpush$abfc\$tpop%s\$tpush$sgr\$tpop\n\" \"\$*\"; };
+               ${f}_() { printf \"\$tpush$bold$affc\$tpop%s\$tpush$sgr\$tpop\n\" \"\$*\"; };
+              _${f}_() { printf \"\$tpush$bold$abfc\$tpop%s\$tpush$sgr\$tpop\n\" \"\$*\"; };"
+        for bc in $(seq 0 7); do
             # foreground AND background
-            eval "bc=\$$b;"
-            eval "
-              ${f}_$b   () { printf \"\$tpush$(           tput setaf $fc; tput setab $bc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; };
-              ${f}_${b}_() { printf \"\$tpush$(tput bold; tput setaf $fc; tput setab $bc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; }"
+           local abbc="${ab[$bc]}" b="${colors[$bc]}"
+            exe="$exe
+              ${f}_$b   () { printf \"\$tpush$affc$abbc\$tpop%s\$tpush$sgr\$tpop\n\" \"\$*\"; };
+              ${f}_${b}_() { printf \"\$tpush$bold$affc$abbc\$tpop%s\$tpush$sgr\$tpop\n\" \"\$*\"; };"
         done
     done
+    eval "$exe"
     unset -f _
 }; _
-perf; perf
 
 if config zsh; then
   # enable drawing the prompt every $TMOUT seconds
@@ -382,4 +377,3 @@ M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); }
 ff() {
   firefox -new-tab "duckduckgo.com/?q=$(python3 -c 'print(__import__("urllib.parse").parse.quote(input()))' <<< "$*")"
 }
-perf
