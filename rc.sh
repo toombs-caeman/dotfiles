@@ -5,14 +5,34 @@
 ## do nothing if not in an interactive shell
 case $- in *i*) ;; *) return;; esac
 
-# QUERY
+perf() { # echo the time in milliseconds
+  local ts=$(date +%s%N)
+  if (( $# )); then
+    "$@"
+    bc <<< "scale=6;($(date +%s%N)-$ts)/10^9"
+  else
+    if [ -z "$perf" ]; then
+      perf=$ts
+    else
+      bc <<< "scale=6;($ts-$perf)/10^9"
+      perf=
+    fi
+  fi
+}
+perf
+
+declare -A log; log=([info]=0 [warning]=1 [error]=2 [lvl]=info);
+# TODO BASH_SOURCE[0] === zsh ${(%):-%N}
+log() { (( ${log[$1]:-0} >= ${log[${log[lvl]}]} )) && printf "%s\n" "${BASH_SOURCE[0]##*/}:${FUNCNAME[1]}: $*" >&2; }
+
+# QUERY - figure out exactly what system we're on
 os() { uname -a | cut -d' ' -f1; }
 term() { printf '%s\n' "$TERM"; } # TODO
 shell() { ps -p $$ -o command | cut -d' ' -f 1 | tail -n1; }
 config() {
   if (( $# )); then
     # return 0 if all specified options apply
-    local os term shell
+    local os term shell x
     for x in "$@"; do
       case "$x" in
         mac) os=Darwin;;    nix) os=Linux;;
@@ -50,30 +70,27 @@ suggest() {
     builtin complete -F "_${2}_bash" "$2"
   fi
 }
-
+perf; perf
+## HISTORY
+# can history be by project or by everything?
+HISTSIZE=100000000
+HISTFILE=~/.sh_history
 # TODO get rid of all aliases, zsh treats them weirdly
 # create aliases replacing things with nicer versions
 # but fall back on the command itself if nothing else is available
 # `command -v` is more consistent than `which`
 # `command -v` sometimes give a full path (not zsh) but we don't really care
-co() { command -v "$@" | tail -n1; }
-aliasif() {
-  # TODO what happens if none are valid?, don't want to nest aliases
-  # TODO don't count if $2 is an alias
-  if command -v "$2" >/dev/null; then local a="$1"; shift; alias "$a='$*'"; fi
-}
-export EDITOR="$(co vi vim)"
+export EDITOR="$(command -v vi vim | tail -n1)"
 export PAGER="less"
 export LESS="FXr"
 export VISUAL=$EDITOR
-alias vi=vim
-# TODO new commands
+alias vi="$EDITOR"
+# TODO new commands with graceful fallbacks?
 # alias grep=rg
 # alias ls=exa
 # alias find=fd # https://github.com/sharkdp/fd
 # alias cat=bat
 # fzf
-#coalesce cat batcat bat
 alias wget='wget -c'
 alias mkdir='mkdir -p'
 alias cp="cp -i"
@@ -82,6 +99,7 @@ alias df='df -h'
 alias la='ls -A'
 alias ll='ls -l'
 alias sl='ls'
+alias ls='ls -F --color=auto'
 
 ## SHELL
 # expected: zsh bash sh
@@ -93,7 +111,8 @@ case ${SHELL##*/} in
     RC="${(%):-%N}" # this file
     autoload -Uz compinit
     compinit
-    setopt prompt_subst zle autocd
+    # bash and zsh index arrays differently if KSH_ARRAYS isn't set
+    setopt prompt_subst zle autocd BASH_REMATCH KSH_ARRAYS
     setopt appendhistory hist_expire_dups_first hist_ignore_dups
     ;;
   bash)
@@ -120,13 +139,43 @@ export RC="${RC%/*}"
 set -o vi
 
 ## COMPLETION
-# TODO source completions
-command -v kubectl >/dev/null && . <(kubectl completion ${SHELL##*/})            2>/dev/null
-command -v eksctl  >/dev/null && . <(eksctl completion ${SHELL##*/})             2>/dev/null
-command -v helm    >/dev/null && . <(helm completion ${SHELL##*/})               2>/dev/null
-command -v inv     >/dev/null && . <(inv --print-completion-script=${SHELL##*/}) 2>/dev/null
+command -v kubectl >/dev/null && . <(kubectl completion ${SHELL##*/}) 
+command -v eksctl  >/dev/null && . <(eksctl completion ${SHELL##*/})
+command -v helm    >/dev/null && . <(helm completion ${SHELL##*/})
+command -v inv     >/dev/null && . <(inv --print-completion-script=${SHELL##*/})
+
+perf; perf
+# list non-nested git repositories in ~
+projects() { find ~/my/* -maxdepth 5 -type d -name '.git' -prune 2>/dev/null | sed 's,^\(.*\)/.git,\1,' ; }
+gg() {
+  # goto project (if arg given), git root or home
+  local d="${1:-$(git rev-parse --show-toplevel 2>/dev/null || echo ~)}"
+  [ -d "$d" ] || d="$(projects | grep "$d$" | head -n1 )"
+  cd "$d"
+}
+_gg() { projects | grep -o '[^/]*$'; }
+suggest _gg gg
+
+# virtual environments
+venv() { if [ -n "$1" ]; then . ~/my/venv/$1/bin/activate; else [ -n "$VIRTUAL_ENV" ] && deactivate; fi; }
+_venv() { ls ~/my/venv/; }
+suggest _venv venv
 
 
+_() { ## MOVEMENT
+    # generate aliases like '...'='cd ../..'
+    local cmd='..' val='..'
+    for _ in 1 2 3 4 5; do
+      cmd="$cmd." val="$val/.."
+      eval "$cmd() { cd $val; }"
+    done
+    # shortcut going back to the previous directory
+    # sh: cannot parse this even if it doesn't actually run. eval gets around it
+    config sh || eval -- '-() { cd -; }'
+    unset -f _
+}; _
+
+perf; perf
 ## OS
 # TODO build up OS level functions
 # beep notify volume xdg_open wifimenu
@@ -135,10 +184,17 @@ command -v inv     >/dev/null && . <(inv --print-completion-script=${SHELL##*/})
 if config mac; then
     beep() { osascript -e 'beep 3'; }
     notify() { osascript -e "display notification \"${1:-"Done"}\""; }
+    speak() { say "$*"; }
 fi
 if config nix; then
-    beep() { :; }
-    notify() { :; }
+    beep() { paplay /usr/share/sounds/Yaru/stereo/bell.oga; }
+    notify() { notify-send "$*"; }
+    speak() {
+      # https://askubuntu.com/questions/53896/natural-sounding-text-to-speech
+      # packages: festival festvox-us-slt-hts
+      festival -b "(voice_cmu_us_slt_arctic_hts)" "(SayText \"$*\")"
+      #spd-say "$*";
+    }
 fi
 
 # TODO term-level config: [iTerm xterm] [window-dressing(title), copy-paste, scrollback, window-size]
@@ -147,9 +203,121 @@ fi
 ## INCLUDE
 # source everything from $RC/include
 # don't use `find -exec` because it creates a subshell
-while IFS= read -r f; do . "$f"; done < <(find "$RC/include" -type f -name '*.sh')
+# while IFS= read -r f; do . "$f"; done < <(find "$RC/include" -type f -name '*.sh')
+
 # and add $RC/bin to $PATH
 path "$RC/bin"
+
+## PROMPT
+
+# don't let virtualenv do weird stuff
+VIRTUAL_ENV_DISABLE_PROMPT=yes
+
+perf; perf
+_() { ## COLORS
+    # generate functions like red_blue that print things in foreground_background colors
+    # $tpush and $tpop are set in prompt() in order to correctly escape prompt widths.
+    # This gets wonky if $tpush or $tpop are set elsewhere
+    local black=0 red=1 green=2 yellow=3 blue=4 magenta=5 cyan=6 white=7
+    # zsh: array definitions conflict, just copy it here
+    for f in black red green yellow blue magenta cyan white; do
+        # zsh: `${!f}` is incompatible so use "\$$f"
+        eval "fc=\$$f;"
+        # foreground OR background
+        eval "
+               $f   () { printf \"\$tpush$(           tput setaf $fc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; };
+              _$f   () { printf \"\$tpush$(           tput setab $fc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; };
+               ${f}_() { printf \"\$tpush$(tput bold; tput setaf $fc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; };
+              _${f}_() { printf \"\$tpush$(tput bold; tput setab $fc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; }"
+        for b in black red green yellow blue magenta cyan white; do
+            # foreground AND background
+            eval "bc=\$$b;"
+            eval "
+              ${f}_$b   () { printf \"\$tpush$(           tput setaf $fc; tput setab $bc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; };
+              ${f}_${b}_() { printf \"\$tpush$(tput bold; tput setaf $fc; tput setab $bc)\$tpop%s\$tpush$(tput sgr0)\$tpop\n\" \"\$*\"; }"
+        done
+    done
+    unset -f _
+}; _
+perf; perf
+
+if config zsh; then
+  # enable drawing the prompt every $TMOUT seconds
+  TMOUT=2
+  TRAPALRM() { (( TMOUT )) && zle && zle reset-prompt; }
+fi
+
+# zsh uses $PROMPT as an alias for $PS1 where bash doesn't.
+# setting PS1, then PROMPT allows us to set them properly for both
+PS1='$(prompt)\$ '
+PROMPT='$(prompt)%# '
+prompt() {
+    {
+        # capture the exit code of the last command
+        # need to assign it before using local, since that resets $?
+        local EXIT=${?##0} tpush tpop
+        # set tpush and tpop which are used for size escaping of non-printable characters in the prompt
+        tpush='\001' tpop='\002'
+        if config zsh; then
+            # zsh uses different size escapes
+            tpush='%%{' tpop='%%}';
+            # expands to bolded [time]
+            print -P '%{%B%}[%{%*%}]%{%b%} '
+        else
+            # equivalent to time above, but it doesn't stay fresh, so dim it
+            printf "$tpush$(tput dim)$tpop[$(date +%T)]$tpush$(tput sgr0)$tpop "
+        fi
+        # virtual env
+        [ -n "$VIRTUAL_ENV" ] && green "(${VIRTUAL_ENV##*/})"
+        # kubernetes context and namespace
+        command -v kubectl >/dev/null && blue "($(k8s_ctx_ns | tr ' ' '⎈'))"
+        location
+        [ -n "$EXIT" ] && red " $EXIT"
+    }  | tr -d "\n\000"
+}
+
+# get the kubernetes context and namespace
+k8s_ctx_ns() { kubectl config get-contexts | grep '^\*' | tr -s ' ' | cut -d' ' -f 2,5; }
+
+location() {
+    # Output a string like `toplevel(*master↓2↑1):sub(9ab9999):/dir/path` if in a git repository.
+    # this means you are in directory '/dir/path' relative to a git repository in 'sub' which
+    # is checked out to commit '9ab9999'. 'sub' is nested inside a git repo at 'toplevel' which
+    # is checked out to master which is two commits behind origin/master and one ahead.
+    # The '*' shows that 'toplevel' is dirty. It's the default color if there are only untracked files
+    # but it is red if there are modifications or additions.
+    # If not in a git repository just print the current working directory.
+    local d="$(git rev-parse --show-toplevel 2>/dev/null)"
+    if [ -n "$d" ]; then
+        printf '%s%s/\n' "$(_location 2>/dev/null | tr -d '\n')" "${PWD#"$d"}"
+    else
+        printf '%s\n' "${PWD//${HOME}/~}"
+    fi
+}
+_location() {
+    # inner recursive part of location()
+    # zsh: $status is a special var so use status_
+    local x remote branch status_ left right
+    # goto top level and return if we're not in a git repo
+    x="$(git rev-parse --show-toplevel)" && cd "$x" || return
+    # check to see if we're nested, process the outer repo first
+    (cd .. && _location)
+    # collect data.
+    remote="$(git remote | head -n1)" # lets hope that they only have one remote, probably 'origin'
+    branch="$(git rev-parse --abbrev-ref HEAD)"
+    branch="${branch:-$(git rev-parse --short HEAD)}"
+    status_="$(git status --porcelain)"
+    left="$( git rev-list --left-only  --count remotes/$remote/$branch...$branch)"
+    right="$(git rev-list --right-only --count remotes/$remote/$branch...$branch)"
+    # start output
+    printf "$tpush$(tput sgr0)$tpop%s(" "${PWD##*/}"
+    if [ -n "$status_" ]; then echo "$status_" | grep -qv '^??'  && red '*' || printf '*'; fi
+    green "$branch"
+    (( left  )) && blue "↓$left"  # branch is behind by left
+    (( right )) && blue "↑$right" # branch is ahead  by right
+    git rev-parse $remote/$branch >/dev/null || blue 'L' # branch has no remote branch
+    printf '):'
+}
 
 
 ## MISC
@@ -188,3 +356,30 @@ ex () {
   fi
 }
 
+fmt() {
+  # printf with separate formats for for line, field and separator
+  local arg args=() line='' l='%s\n' f='%s' s=' '
+  while (( $# )); do
+    case "$1" in
+      -l) shift; l="$1" ;;
+      -f) shift; f="$1" ;;
+      -s) shift; s="$1" ;;
+      --) shift; args+=("$@"); break ;;
+      *) args+=("$1") ;;
+    esac
+    shift
+  done
+  # return 1 if there aren't any arguments instead of printing an empty line
+  # this can be used to do `fmt "$@" || printf default`
+  ((${#args[@]})) || return 1
+  line="$(printf "$f" "${args[@]:0:1}")"
+  for arg in "${args[@]:1}"; do line="$line$(printf "$s$f" "$arg")"; done
+  printf "$l" "$line"
+}
+
+# convenience wrapper for regex matching match
+M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); }
+ff() {
+  firefox -new-tab "duckduckgo.com/?q=$(python3 -c 'print(__import__("urllib.parse").parse.quote(input()))' <<< "$*")"
+}
+perf

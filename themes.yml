@@ -6,9 +6,18 @@ templates:
     when: which xrdb >/dev/null
     dest: ~/.Xresources
     callback: xrdb -load ~/.Xresources
+  i3status.conf: 
+    when: which i3-msg >/dev/null
+    dest: ~/.config/i3status/config
   i3config.sh: 
     when: which i3-msg >/dev/null
     dest: ~/.i3/config
-    callback: i3-msg restart
+    callback: i3-msg restart >/dev/null
   alacritty.yml: 
     dest: ~/.alacritty.yml
+  userChrome.css:
+    when: 'false'
+    dest: ~/.mozilla/firefox/*.default/chrome/userChrome.css
+  userContent.css:
+    when: 'false'
+    dest: ~/.mozilla/firefox/*.default/chrome/userContent.css

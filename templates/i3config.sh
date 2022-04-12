@@ -31,8 +31,9 @@ bindsym $mod+Shift+q kill
 bindsym $mod+Alt+q --release exec --no-startup-id xkill
 
 # start program launcher
-bindsym $mod+space exec "xterm -T 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse)'"
-for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 100 ppt, move position 0 px 0 px
+#bindsym $mod+space exec "xterm -T 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse)'"
+bindsym $mod+space exec "alacritty -t 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse || echo 'true')'"
+for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 25 ppt, move absolute position center
 
 
 # Start Applications
@@ -92,8 +93,8 @@ bindsym $mod+Shift+{{n}} move container to workspace {{n}}; workspace {{n}}{# Mo
 {% endfor %}
 
 # bind volume keys to change master volume
-bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset -c 1 'Master' 3%+
-bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset -c 1 'Master' 3%-
+bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset -c 2 'Master' 3%+
+bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset -c 2 'Master' 3%-
 # Open specific applications in floating mode
 {% set floaters = ('alsamixer', 'Clipgrab','Simple-scan', 'GParted','Pavucontrol') %}
 {% set sticky = ('Nitrogen', 'Lxappearance') %}
@@ -176,7 +177,7 @@ exec_always --no-startup-id ff-theme-util
 exec_always --no-startup-id fix_xcursor
 
 exec --no-startup-id i3-msg 'exec /usr/bin/firefox'
-#exec --no-startup-id i3-msg 'exec /usr/games/steam'
+exec --no-startup-id i3-msg 'exec /usr/games/steam -silent'
 
 # Color palette used for the terminal ( ~/.Xresources file )
 # Colors are gathered based on the documentation:
@@ -242,7 +243,7 @@ bindsym $mod+m bar mode toggle
 {% if 0 %}
 # Set inner/outer gaps
 gaps inner 14
-gaps outer -2
+gaps outer 0
 
 # Additionally, you can issue commands with the following syntax. This is useful to bind keys to changing the gap size.
 # gaps inner|outer current|all set|plus|minus <px>

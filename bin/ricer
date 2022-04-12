@@ -6,6 +6,26 @@ import subprocess
 import os, random, colorsys, math, heapq
 from PIL import Image
 
+"""
+
+this turns out to be a shitty version of [pywal](https://github.com/dylanaraps/pywal)
+In fact, lets steal their data format so we can get a bunch of themes for free.
+
+color themes
+* use [dracula](https://github.com/dracula/firefox) as a source for ricer templates and a reference for how to create a [spec](https://spec.draculatheme.com)
+* [dracula](https://draculatheme.com/)
+* [solarized everywhere](https://ethanschoonover.com/solarized/)
+* [selenized everywhere](https://github.com/jan-warchol/selenized)
+
+firefox
+* need to enable config toolkit.legacyUserProfileCustomizations.stylesheets
+* convert [manifest](https://github.com/dracula/firefox/blob/master/manifest.json) to userChrome
+* userChrome.css - handles firefox element theming
+* userContent.css - can apply theming to pages
+  - https://www.userchrome.org/how-create-userchrome-css.html
+* [user style](https://userstyles.org/styles/98305/solarized-dark-everywhere)
+"""
+
 values = (0,84,150,192,255)
 canonical = [
    (values[0], values[0], values[0]), # Black
