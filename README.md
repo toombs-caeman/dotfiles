@@ -20,18 +20,38 @@ a grab bag of stuff that personalizes my computers
         * what happened and what's about to happen (history and completion)
         * who, what, where, when, why (user, command output, directory, timestamp, comments)
 
-# config
-config namespacing - depending on the configuration of the base machine, load different functions
-
 
 # TODO
+* audio
+  * tui volume control and eq
+* git workflow
+    * [forgit](https://github.com/wfxr/forgit)?
+    * [git-delta](https://github.com/dandavison/delta)
 * kakoune / neovim / vim / ide
   * https://github.com/anhsirk0/kakoune-themes
   * kakoune-surround
   * https://github.com/junegunn/fzf#supported-commands
 * OS/keybinding level integration
     * notifications clipboard volume launcher closer
-    * take notes from regolith linux
+    * copy mac keybindings to bring over to linux
+    * also check out [regolith](https://regolith-linux.org/)
+* fix dmenu launch replacement, needs some history
+* in launcher, figure out if an application is terminal based and optionally run in a terminal https://askubuntu.com/a/1091249
+* unified backup utility, use restic?
+* os level functions
+  * network/wifi manager
+  * notifications
+  * clipboard
+  * audio
+    * volume
+    * eq
+  * launch
+  * arrange windows
+  * close
+  * display stats
+  * backup/restore
+
+# Potential new stuff
 * install / check script for dependencies
     * pseudo- GNU stow? symlink out and store a copy of the original, then restore if necessary
 * define the One True Way™ and make sure all tools are built on that
@@ -55,14 +75,8 @@ config namespacing - depending on the configuration of the base machine, load di
     * cron to ping sites that regularly update and send a notification
     * generate a local rss feed from subscriptions and new content
     * pull new bookmarks from chrome / firefox
-* git workflow
-    * [forgit](https://github.com/wfxr/forgit)?
-    * [git-delta](https://github.com/dandavison/delta)
 * mpd
 * mpv
-* copy mac keybindings to bring over to linux
-  * also check out [regolith](https://regolith-linux.org/)
-* fix dmenu launch replacement, needs some history
 * include bash profile to initialize graphical interface
 * nail down graphics pipline for x and wayland
     - make switch configurable through ricer
@@ -76,12 +90,8 @@ config namespacing - depending on the configuration of the base machine, load di
         * swaybg
         * mako
         * system monitor?
-* notifications? http://blog.z3bra.org/2014/04/pop-it-up.html
-* unified backup utility, use restic?
-* ssh/mosh
-  * 'forwarding' rc.sh over to the remote?
-
-## potential additions / things to look at
+* [notifications](http://blog.z3bra.org/2014/04/pop-it-up.html)
+ 
 * data formats
     * [moustache](https://mustache.github.io/mustache.5.html) templating
 

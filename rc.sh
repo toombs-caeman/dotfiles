@@ -1,5 +1,5 @@
 # a multilingual init file for bash and zsh
-
+#
 #                  /\_/\____,
 #        ,___/\_/\ \  ~     /
 #        \     ~  \ )   XXX
@@ -18,27 +18,20 @@
 # a function, builtin, or command 'foo' is called foo().
 # a scalar variable 'foo' is called $foo.
 # an array variable 'foo' is called $foo[].
-# a flag 'foo' is called --foo
+# a flag 'foo' is called --foo. a flag 'f' is called -f
 # Code is written in `backticks`, but $(subshells) are always preferred in real code
+# foo*() means any function whose name starts with 'foo', including foo()
 
 # DESIGN
-# a function's reason to exist is in proportion that its surface is smaller than its internal complexity
-# a function's usefulness is proportional to  its internal complexity over its surface area
-# a function that need state should use it's own name, since function and variables have separate namespaces
-# avoid --flags whenever possible, a function should do 'one thing'
-# that 'one thing' can be to get/set a value based on `(( $# ))`
-# Detect the underlying system and configure to handle it consistently.
-# Fall back to old standards if tools aren't installed.
 # When necessary, make zsh behave like bash (`emulate ksh`, `setopt BASH_REMATCH`).
-
-# OBSCURE PATTERNS
-# `command -v` >= `which` for finding commands. some versions of which() prints function definitions but not all
-# `$(cd "$1"; echo ${PWD/$HOME})` >= `realpath --relative-base=$HOME "$1"`
-# `printf '%.0s' ...` prints nothing but still consumes an argument
-# $_ is set to the last argument of the last completed command
-# `: "${1//a}"; : "${_##* }"; echo "$_"` perform multiple parameter expansions on $@ without a temporary $var
-# zsh: name of source file `${(%):-%x}`
-
+# if foo() needs to persist state or return multiple values, it should use $foo[].
+# foo() helper functions should start with '_foo'.
+# in this file, functions are defined only and then configured with rc()
+# rc() handles *__*() specially. *__*() names are a list of dependencies then a name, separated by '__'
+# dependency resolution is determined by q(). The type of function is determined by the following cases
+# *__() are setup functions. foo__bar__() is run by rc() if `q foo bar`. __() is always run
+# __*() are completion functions. __foo() prints a list of newline separated completion options for foo()
+# *__*() are considered collapsing functions. rc() copies foo__bar__baz() to baz() if `q foo bar`
 
 ## do nothing if not in an interactive shell
 case $- in *i*) ;; *) return;; esac
@@ -47,12 +40,10 @@ case $- in *i*) ;; *) return;; esac
 # TODO breaks if run as '. ./rc.sh'
 here() { : "${BASH_SOURCE[0]:-${(%):-%x}}"; (( $# )) && echo "${_%/*}/${1#/}" || echo "$_"; }
 
-apt() { [ "$1" = install ] && printf '%s\n' "${@:2}" >> "$(here installed.apt)"; }
+# TODO track apt installs
+#apt() { [ "$1" = install ] && printf '%s\n' "${@:2}" >> "$(here installed.apt)"; }
 
-# CONFIG
-# functions with names containing '__' are considered to be a list of dependencies, ending with a name separated by __
-# dependency resolution is determined by q().
-# as a special case, functions starting with __ are considered completion functions and those ending in __ are for setup
+# TODO warn when a function is only partially defined ( like foo__bash exists but foo__zsh doesn't)
 rc=("$(here)")
 rc() {
   if (( $# )); then
@@ -61,7 +52,7 @@ rc() {
   else
     # set data for q() special cases
     export OS="$(uname -a | cut -d' ' -f1;)"
-    export TERM="$(printf '%s\n' "$TERM";)"
+    export TERM="$(printf '%s\n' "$TERM";)" # TODO consistent way to set $TERM
     export SHELL="$(ps -p $$ -o command | cut -d' ' -f 1 | tail -n1;)"
     local f c
     # run setup functions (ending with __)
@@ -73,19 +64,20 @@ rc() {
     done
     # completions (starting with __)
     # TODO what about config sensitive completions?
+    # TODO _fzf_setup_completion https://github.com/junegunn/fzf#supported-commands autogen for __*()
     for f in $(func ls | sed -n 's/^__//p'); do
-        q bash && complete -C _config "$f"
+        q bash && complete -C _rc "$f"
         q zsh && eval ___$f'() { reply=(${(f)"$(__'$f')"}); }' && compctl -K "___$f" "$f"
     done
     return 0
   fi
 }
-_config() { local IFS=$'\n'; compgen -W "$(__$1)" "$2"; }
+_rc() { local IFS=$'\n'; compgen -W "$(__$1)" "$2"; }
 
 rrc() {
   # send this config file over to remote connection
 #  ssh -tt "$@" "bash --init-file <(base64 -d <<<$(sed 's/^ *//;s/  *#.*$//;s/^#.*$//;/^$/d' "$(here)" | base64 -w0))"
-  # TODO make an initial connection to get remote config
+  # TODO make an initial connection to get remote config and trim files to send over
   # zsh rc: https://unix.stackexchange.com/questions/131716/start-zsh-with-a-custom-zshrc#131735
   local SSH CMD='bash --init-file'
   case "$(command -v mosh ssh | head -n1)" in
@@ -99,15 +91,11 @@ rrc() {
   $SSH "$@" "$CMD <(base64 -d <<<$(sed 's/^ *//;s/  *#.*$//;s/^#.*$//;/^$/d' "${rc[@]}" | base64 -w0))"
 }
 
-
-# q() tells us if the current system matches all the features we're expecting
-# for example: `q zsh nix fzf` returns 0 if the current shell is zsh AND the operating system is linux
-# AND the 'fzf' command was found
-q() {
+q() {  # query the current os, terminal, or shell, or if commands are present in $PATH
   local os term shell q=()
   while (( $# )); do case "$1" in
       # TODO add local/remote special case to handle ssh/mosh/rrc
-      # TODO add 256color special case
+      # TODO add xterm-256color special case
       mac)    os=Darwin ;; nix)   os=Linux  ;;
       iterm)  term=iterm;; xterm) term=xterm;;
       zsh)    shell=zsh ;; bash)  shell=bash;;
@@ -168,13 +156,17 @@ opt() {
   (( nargs )) && fmt 'if (( $# )); then echo positional arguments not allowed; %s; return 1; fi;' "$help"
 }
 
-timer() {
-  # echo the elapsed system time in seconds (millisecond precision)
+timer() { # echo the (average) elapsed system time in seconds (millisecond precision)
+  eval "`opt repeat,r=1`"
   # call as `timer cmd` or as `timer; cmd1; cmd2; timer`
   # `time` is problematic since bash:time zsh:time and /usr/bin/time all have different behavior
-  local ts=$(date +%s%N)
+  local ts=($(date +%s%N))
   if (( $# )); then
-    "$@"; local err=$?; bc <<< "scale=6;($(date +%s%N)-$ts)/10^9" >&2; return $err
+    while (( repeat-- > 0 )); do
+      "$@"
+      ts+=($(date +%s%N))
+    done
+    fmt "scale=6;o=$ts;%s;t/c\n%Ln=%s;x=(n-o)/10^9;t+=x;c+=1; o=n;" "${ts[@]:1}" | bc >&2
   else
     if [ -z "$timer" ]; then timer=$ts; else bc <<< "scale=6;($ts-$timer)/10^9"; timer=; fi
   fi
@@ -183,16 +175,9 @@ timer() {
 # zsh: $path is an alias for $PATH, so don't use it as a variable
 path() { (( $# )) || tr : '\n' <<< "$PATH"; while (( $# )); do export PATH="$PATH:$(cd "$1" && pwd)"; shift; done; }
 
-
-
-# TODO debug|warning|error all defeat the trace setup of log()
-log=warning
 # thanks to https://unix.stackexchange.com/a/453170
 zsh__log() { printf '%s %s\n' "${funcfiletrace[0]%:*}:${funcstack[1]}:${funcfiletrace[0]##*:}" "$*" >&2; }
 bash__log() { printf '%s %s\n' "${BASH_SOURCE[1]}:${FUNCNAME[1]}:${BASH_LINENO[0]}" "$*" >&2; }
-debug() { case "$log" in debug) log "$@" ;; esac; }
-warning() { case "$log" in debug|warning) log warning: "$@" ;; esac; }
-error() { case "$log" in debug|warning|error) log error: "$@" ;; esac; }
 
 gg() {
   # goto project (if arg given), git root or home
@@ -205,18 +190,19 @@ projects() { find ~/my/* -maxdepth 5 -type d -name '.git' -prune 2>/dev/null | s
 venv() { if [ -n "$1" ]; then . ~/my/venv/$1/bin/activate; else [ -n "$VIRTUAL_ENV" ] && deactivate; fi; }
 venv() {
   [ -n "$VIRTUAL_ENV" ] && deactivate;
+  local d=~/my/venv/
   if [ -n "$1" ]; then
-    if [ -d "~/my/venv/$1" ]; then
-      . ~/my/venv/$1/bin/activate
-    else
-      :
+    if [ ! -d "$d$1" ]; then
+      printf '%s' "?? virtualenv $d$@"; read
+      virtualenv $d"$@"
     fi
+      . $d$1/bin/activate
   fi
 }
 __venv() { ls ~/my/venv/; }
 
-minecraft() {
-  eval "$(opt port,p=25565 ip_file,ip,i=$HOME/.minecraft_server.ip)"
+minecraft-server() {
+  eval "`opt port,p=25565 ip_file,ip,i=$HOME/.minecraft_server.ip -d "start a minecraft server"`"
   local old_ip="$(cat "$ip_file")"
   curl https://ipinfo.io/ip 2>/dev/null > "$ip_file"
   if [ "$(cat "$ip_file")" != "$old_ip" ]; then
@@ -225,15 +211,14 @@ minecraft() {
     sudo docker run -p $port:25565 -v "$HOME/.minecraft/saves/$1":/data/world -e EULA=TRUE itzg/minecraft-server
   fi
 }
-__minecraft() { ls ~/.minecraft/saves/; }
+__minecraft-server() { ls ~/.minecraft/saves/; }
 
 zsh__() {
   autoload -Uz compinit
   compinit
   emulate ksh # bash and zsh index arrays differently if KSH_ARRAYS isn't set
-  setopt prompt_subst zle autocd BASH_REMATCH nolocaloptions
-  setopt shwordsplit
-  setopt appendhistory hist_expire_dups_first hist_ignore_dups noextendedhistory
+  setopt promptsubst zle autocd bashrematch nolocaloptions shwordsplit
+  setopt appendhistory histexpiredupsfirst histignoredups noextendedhistory
   PROMPT='$(EXIT="$?" fmt[pp]="%%{"  fmt[qq]="%%}"; prompt)%# '
 }
 bash__() {
@@ -253,8 +238,7 @@ helm__() { . <(helm completion ${SHELL##*/}); }
 inv__() { . <(inv --print-completion-script=${SHELL##*/}); }
 
 
-# convenience wrapper for regex matching match
-M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); }
+M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); } # wrapper for regex matching
 
 # FMT
 # fmt() is printf(), but understands additional directives.
@@ -266,20 +250,20 @@ M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); }
 # The %I directive indicates a literal string on its right, to the end of the pattern. This literal is used as a
 # separator whenever the pattern needs to be repeated in order to consume all the given arguments.
 # Used together `fmt '^%s$%L(%s)%I, ' a b 'c d'` prints '^(a), (b), (c d)$'
+# TODO `fmt -v VAR` pass `-v VAR` to final printf, use __local_vars to avoid collision
 declare -A fmt=() # fmt is a cache of tput values so we don't constantly make subshells when formatting
 fmt() {
   if (( $# )); then
-#    (( fmt )) || fmt # ensure cache is populated
+    (( ${#fmt} )) || fmt
     local f="$1"; shift
-    # replace %T00 directives with cached tput codes (and prompt escapes if set)
+    # replace %TXX directives with cached tput codes (and prompt escapes if set)
     while M "$f" '%T(..)'; do f="${f//${M[0]}/"${fmt[pp]}${fmt[${M[1]}]}${fmt[qq]}"}"; done
     # match pattern for %L and %I directives
-    M "$f" "((.*)%L)?(([^%]*(%[^I])?)*)(%I(.*))?" || return 1
-    : "$(printf "${M[3]}${M[7]}" "$@"; printf 'x')" # sets $_. subshell truncates trailing \n
-    printf "${M[2]:-"%s"}" "${_%"${M[7]}x"}"
+    M "$f" "(((%%|[^%]|%[^LI])*)%L)?((%%|[^%]|%[^I])*)(%I(.*))?" || return 1
+    printf -v f "${M[7]//"%"/%%}${M[4]}" "$@"
+    printf "${M[2]:-"%s"}" "${f#"${M[7]}"}"
   else
-    # populate cache
-#    fmt[0]=1;
+    fmt[0]=1 # populate cache
     local f b cf c=(b r g y u m c w)
     for f in {0..7}; do fmt[${f}-]="$(tput setaf $f)" fmt[-$f]="$(tput setab $f)"; done
     for f in {0..7}; do
@@ -292,7 +276,38 @@ fmt() {
   fi
 }
 
+spark() {
+  # directly inspired by https://github.com/holman/spark/blob/master/spark
+  # eval "$(opt wrap,scroll,overwrite? use_stdin,s sine)"
+  local use_stdin n min='2^99' max='-2^99' ticks=('▁' '▂' '▃' '▄' '▅' '▆' '▇' '█')
+  if [ '-' == "$1" ]; then
+    use_stdin=1 min=${2:-$min} max=${3:-$max}
+  fi
+  {
+    printf "z=$max\na=$min\n define l (n) {\n if (n<a) a=n; if (n>z) z=n; }\n" # adjust limits
+    printf "define q (n) {\n x=l(n); if (a == z) return (3); return (7.999 * (n-a)/(z-a)); }\n" # quantize input
+    if (( use_stdin )); then
+      while read n; do printf 'q(%s)\n' "$n"; done
+    else
+      printf 'x=l(%f)\n' "${@//,}"
+      printf 'q(%f)\n' "${@//,}"
+    fi
+    # check with `bc -s`
+  } | bc | { while read n; do printf "%s" "${ticks[$n]}"; done; }
+}
+sine() { bc -l <<< "while(1){s(x++/3);}"; }
+zsh__rate() { local n; while read -ku0 n; do printf '%s' "$n"; sleep "$1"; done; }
+bash__rate() { local n; while read -sn 1 n; do printf '%s' "$n"; sleep "$1"; done; }
+# try `sine | spark - -1 1 | rate 0.1`
+scroll_line() {
+  : # scroll a line instead of wrapping around when printing
+}
+heartbeat_line() {
+   :  # overwrite the beginning of a line when wrapping
+}
+
 prompt() {
+  # for section ideas see: https://liquidprompt.readthedocs.io/en/stable/functions/data.html
   # virtual env
   [ -n "$VIRTUAL_ENV" ] && fmt '%Tg-(%s)' "${VIRTUAL_ENV##*/}"
   # kubernetes context and namespace
@@ -301,12 +316,10 @@ prompt() {
   (( EXIT )) && fmt '%Tr- %s%T--' "$EXIT"
 }
 
-# get the kubernetes context and namespace
-k8s_ctx_ns() { kubectl config get-contexts | grep '^\*' | tr -s ' ' | cut -d' ' -f 2,5; }
-location() {
-  # print a string like `toplevel(*master↓2↑1):sub(9ab9999):/dir/path` if in a git repository or `~/working/dir` if not.
+k8s_ctx_ns() { kubectl config get-contexts | grep '^\*' | tr -s ' ' | cut -d' ' -f 2,5; } # context and namespace
+location() { # if in a git repo print like `toplevel(*master↓2↑1):sub(9ab9999):/dir/path` else `~/working/dir`
   local C="$(git -C "$1" rev-parse --show-toplevel)" remote branch left right
-  if [ -z "$C" ]; then [ -n "$1" ] || printf '%s' "${PWD//${HOME}/"~"}"; return; fi
+  if [ -z "$C" ]; then [ -n "$1" ] || fmt '%T--%s' "${PWD//${HOME}/"~"}"; return; fi
   location "$C/.."  # recurse up the file tree
   remote="$(git -C "$C" remote | head -n1)" # lets hope that they only have one remote, probably 'origin'
   branch="$(git -C "$C" rev-parse --abbrev-ref HEAD)"
@@ -322,7 +335,7 @@ location() {
   fmt '%T--):%s/' "${PWD//"$C"}"
 }
 
-## MISC
+# TODO use fzf_complete here instead
 trace () { trace_pid $(ps aux | fzf | awk '{print $2}'); }
 trace_pid () {
     [ "${1:-$$}" = "1" ] && return
@@ -359,12 +372,8 @@ nix__speak() {
 ......() { cd ../../../../..; }
 
 __() {
-  # enable vi-style line editing
-  # though it doesn't do anything in sh if it's not compiled with libedit support
-  set -o vi
-
-  # don't let virtualenv do weird stuff
-  VIRTUAL_ENV_DISABLE_PROMPT=yes
+  set -o vi # enable vi-style line editing
+  VIRTUAL_ENV_DISABLE_PROMPT=yes # don't let virtualenv do weird stuff to the prompt
   export EDITOR="$(command -v vi vim | tail -n1)"
   export PAGER="less"
   export LESS="FXr"
@@ -379,7 +388,6 @@ __() {
   alias ll='ls -l'
   alias sl='ls'
   alias ls='ls -F --color=auto'
-
   fmt # populate tput cache
   rc "$(here include/fzf_complete.bash)" fzf bash
   rc "$(here include/fzf_complete.zsh)" fzf zsh
@@ -388,39 +396,21 @@ __() {
   HISTSIZE=100000000
   SAVEHIST=100000000
   HISTFILE=~/.sh_history
-
 }
-timer rc
+
+rc
 
 # ascii art credit https://ascii.co.uk/art/cerberus https://ascii.co.uk/art/sphinx
 
 # TODO - one per line
-# track sourced rc (and related config)
-# rename config()->rc() inject_ssh()->rrc()
-# source fzf completion https://stackoverflow.com/a/70273843
-# _fzf_setup_completion https://github.com/junegunn/fzf#supported-commands autogen for *__complete()
-# fmt() make sure %%L doesn't match pattern %L since it should be a literal '%'
-# get rid of all aliases, functions() are more consistent
-# timer(): `opt repeat=1` # repeat command n times and print min max average n
-# add ./bin to path
-# venv() auto-create virtual environments
 # don't parse ls http://mywiki.wooledge.org/ParsingLs
 # git: use diff3 https://blog.nilbus.com/take-the-pain-out-of-git-conflict-resolution-use-diff3/ https://blog.nilbus.com/take-the-pain-out-of-git-conflict-resolution-use-diff3/
 # git: integrate forgit with existing fzf completion architecture
-# installer system - separate from config() but install tools specified by config
-# degrade/fallback system - as part of config(), fallback to available tools if preferred versions aren't available
-# install/fallback grep=rg ls=exa find=fd https://github.com/sharkdp/fd cat=batcat vipe
-# config() warn when a function is only partially defined ( like foo__bash exists but foo__zsh doesn't)
-# config() consistent way to set $TERM
-# config() term: [iTerm xterm] [window-dressing(title), copy-paste, scrollback, window-size]
+# term__(): [iTerm xterm] [window-dressing(title), copy-paste, scrollback, window-size]
 # help() unify bash.help, man, info, -h, -help, --help, type, __help
-# rc.sh description in header
+# test suite? especially for bash vs zsh
+# installer system - separate from rc() but install tools specified by rc
+# degrade/fallback system - as part of rc(), fallback to available tools if preferred versions aren't available
+# install/fallback grep=rg ls=exa find=fd https://github.com/sharkdp/fd cat=batcat vipe
 # art
-# M() -v VAR: save repeated groups (...)* as $VAR[] then return $M[] as usual
-# `sed -E` gives a lot nicer syntax, when isn't it available? compatible with M()
-# inject_ssh() - get config of remote machine in initial connection, use that to trim files to send over
-# config() detect ssh/mosh remote
-# help() - try all the ways to get info about a thing()
-# meta-query/introspection interface to BASH_SOURCE, FUNCNAME, LINENO, etc. perhaps join with config as general query
 # https://マリウス.com/command-line/
-# in launcher, figure out if an application is terminal based and optionally run in a terminal https://askubuntu.com/a/1091249
