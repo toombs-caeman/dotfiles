@@ -20,12 +20,18 @@ a grab bag of stuff that personalizes my computers
         * what happened and what's about to happen (history and completion)
         * who, what, where, when, why (user, command output, directory, timestamp, comments)
 
+# config
+config namespacing - depending on the configuration of the base machine, load different functions
+
+
 # TODO
-* kakoune
+* kakoune / neovim / vim / ide
   * https://github.com/anhsirk0/kakoune-themes
   * kakoune-surround
+  * https://github.com/junegunn/fzf#supported-commands
 * OS/keybinding level integration
     * notifications clipboard volume launcher closer
+    * take notes from regolith linux
 * install / check script for dependencies
     * pseudo- GNU stow? symlink out and store a copy of the original, then restore if necessary
 * define the One True Way™ and make sure all tools are built on that
