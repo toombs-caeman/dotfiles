@@ -251,6 +251,8 @@ M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); } # wrapper for 
 # separator whenever the pattern needs to be repeated in order to consume all the given arguments.
 # Used together `fmt '^%s$%L(%s)%I, ' a b 'c d'` prints '^(a), (b), (c d)$'
 # TODO `fmt -v VAR` pass `-v VAR` to final printf, use __local_vars to avoid collision
+# TODO allow %%T escaped %T
+# TODO directive for 256 color https://wikimho.com/us/q/unix/269077
 declare -A fmt=() # fmt is a cache of tput values so we don't constantly make subshells when formatting
 fmt() {
   if (( $# )); then
@@ -263,19 +265,20 @@ fmt() {
     printf -v f "${M[7]//"%"/%%}${M[4]}" "$@"
     printf "${M[2]:-"%s"}" "${f#"${M[7]}"}"
   else
-    fmt[0]=1 # populate cache
-    local f b cf c=(b r g y u m c w)
-    for f in {0..7}; do fmt[${f}-]="$(tput setaf $f)" fmt[-$f]="$(tput setab $f)"; done
-    for f in {0..7}; do
-      cf=${c[$f]} fmt[${cf}-]="${fmt[${f}-]}" fmt[-$cf]="${fmt[-$f]}"
-      for b in {0..7}; do fmt[$f$b]="${fmt[${f}-]}${fmt[-$b]}" fmt[$cf${c[$b]}]="${fmt[$f$b]}"; done
-    done
-    fmt[--]="$(tput sgr0)" fmt[__]="$(tput smul)" fmt[di]="$(tput dim)" fmt[bo]="$(tput bold)"
+    # populate cache
+    # Black Red Green Yellow blUe Magenta Cyan White
+    fmt[0]=1; local f b c=(b r g y u m c w B R G Y U M C W)
+    for f in {0..15}; do fmt[${c[$f]}-]="$(tput setaf $f)" fmt[-${c[$f]}]="$(tput setab $f)"; done
+    for f in "${c[@]}"; do for b in "${c[@]}"; do fmt[$f$b]="${fmt[${f}-]}${fmt[-$b]}"; done; done
+    fmt[--]="$(tput  sgr0)" fmt[__]="$(tput  smul)" fmt[..]="$(tput  dim)" fmt[**]="$(tput  bold)"
     # follow printf and return 1 if no pattern is given
     return 1
   fi
 }
-
+colortest() {
+  local f b c=(b r g y u m c w B R G Y U M C W)
+  for f in "${c[@]}"; do for b in "${c[@]}"; do fmt "%T$f$b%s" "${1:-"##"}"; done; fmt "%T--\n"; done
+}
 spark() {
   # directly inspired by https://github.com/holman/spark/blob/master/spark
   # eval "$(opt wrap,scroll,overwrite? use_stdin,s sine)"
