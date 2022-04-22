@@ -33,8 +33,6 @@
 # __*() are completion functions. __foo() prints a list of newline separated completion options for foo()
 # *__*() are considered collapsing functions. rc() copies foo__bar__baz() to baz() if `q foo bar`
 
-## do nothing if not in an interactive shell
-case $- in *i*) ;; *) return;; esac
 
 # print absolute paths as if the argument is always relative to the directory of this file
 # TODO breaks if run as '. ./rc.sh'
@@ -238,7 +236,7 @@ helm__() { . <(helm completion ${SHELL##*/}); }
 inv__() { . <(inv --print-completion-script=${SHELL##*/}); }
 
 
-M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); } # wrapper for regex matching
+M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); } # wrapper for regex. zsh: setopt bashrematch
 
 # FMT
 # fmt() is printf(), but understands additional directives.
@@ -311,9 +309,7 @@ heartbeat_line() {
 
 prompt() {
   # for section ideas see: https://liquidprompt.readthedocs.io/en/stable/functions/data.html
-  # virtual env
   [ -n "$VIRTUAL_ENV" ] && fmt '%Tg-(%s)' "${VIRTUAL_ENV##*/}"
-  # kubernetes context and namespace
   command -v kubectl >/dev/null && fmt '%Tu-(%s⎈%s)' $(k8s_ctx_ns)
   location 2>/dev/null
   (( EXIT )) && fmt '%Tr- %s%T--' "$EXIT"
@@ -377,6 +373,7 @@ nix__speak() {
 __() {
   set -o vi # enable vi-style line editing
   VIRTUAL_ENV_DISABLE_PROMPT=yes # don't let virtualenv do weird stuff to the prompt
+  export FZF_DEFAULT_OPTS='--color=16'  # use ansi colors so we follow the theme
   export EDITOR="$(command -v vi vim | tail -n1)"
   export PAGER="less"
   export LESS="FXr"
@@ -402,7 +399,6 @@ __() {
 }
 
 rc
-
 # ascii art credit https://ascii.co.uk/art/cerberus https://ascii.co.uk/art/sphinx
 
 # TODO - one per line
@@ -410,7 +406,7 @@ rc
 # git: use diff3 https://blog.nilbus.com/take-the-pain-out-of-git-conflict-resolution-use-diff3/ https://blog.nilbus.com/take-the-pain-out-of-git-conflict-resolution-use-diff3/
 # git: integrate forgit with existing fzf completion architecture
 # term__(): [iTerm xterm] [window-dressing(title), copy-paste, scrollback, window-size]
-# help() unify bash.help, man, info, -h, -help, --help, type, __help
+# help() unify bash.help(), man, info, -h, -help, --help, type, link to docs?
 # test suite? especially for bash vs zsh
 # installer system - separate from rc() but install tools specified by rc
 # degrade/fallback system - as part of rc(), fallback to available tools if preferred versions aren't available

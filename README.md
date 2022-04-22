@@ -22,95 +22,96 @@ a grab bag of stuff that personalizes my computers
 
 
 # TODO
-* audio
-  * tui volume control and eq
 * git workflow
     * [forgit](https://github.com/wfxr/forgit)?
     * [git-delta](https://github.com/dandavison/delta)
-* kakoune / neovim / vim / ide
-  * https://github.com/anhsirk0/kakoune-themes
-  * kakoune-surround
-  * https://github.com/junegunn/fzf#supported-commands
-* OS/keybinding level integration
-    * notifications clipboard volume launcher closer
-    * copy mac keybindings to bring over to linux
-    * also check out [regolith](https://regolith-linux.org/)
-* fix dmenu launch replacement, needs some history
-* in launcher, figure out if an application is terminal based and optionally run in a terminal https://askubuntu.com/a/1091249
-* unified backup utility, use restic?
-* os level functions
-  * network/wifi manager
+* editor - pick one
+  * neovim
+    * [lunarvim](https://www.lunarvim.org/) ide
+  * kakoune
+      * [themes](https://github.com/anhsirk0/kakoune-themes)
+      * kakoune-surround
+  * vim
+    * [fzf-vim](https://github.com/junegunn/fzf/blob/master/README-VIM.md)
+* font
+  * [nerdfonts](https://www.nerdfonts.com/)
+  * [FiraCode](https://github.com/tonsky/FiraCode)
+  * [hack](https://github.com/source-foundry/Hack)
+* keyboard
+  * save layout
+  * flash instructions
+* WM / DE
+  * arrange windows
   * notifications
+    * [notifications](http://blog.z3bra.org/2014/04/pop-it-up.html)
   * clipboard
+  * status bar
+  * network/wifi manager
   * audio
     * volume
     * eq
-  * launch
-  * arrange windows
-  * close
-  * display stats
-  * backup/restore
+  * launcher
+    * fix dmenu launch replacement, needs some history
+    * in launcher, figure out if an application is terminal based and optionally run in a terminal https://askubuntu.com/a/1091249
+  * switcher
+  * closer
+  * keybindings
+    * copy mac keybindings to bring over to linux
+    * also check out [regolith](https://regolith-linux.org/)
+* backup utility
+  * [restic](https://restic.net/)
+  * [rsync](https://rsync.samba.org/)
+* media
+  * mpd
+  * mpv
+  * bookmark cache
 
 # Potential new stuff
-* install / check script for dependencies
-    * pseudo- GNU stow? symlink out and store a copy of the original, then restore if necessary
+* new computer bootstrap script
 * define the One True Way™ and make sure all tools are built on that
     * external tools
-        * git bat(batcat) exa rg kak zsh fzf dasel sqlite3 find python
+        * git bat(batcat) exa rg kak zsh fzf dasel sqlite3 find python zsh bash
     * ricer - configuration
         * nix graphics
     * navi - hack together a movement script based around fzf
     * micro languages
       * parsing language (pyparsing?)
       * regex
-      * templating language - consider moustache
-      * data format - [TOML](https://github.com/toml-lang/toml), [YAML](https://yaml.org/), or pseudo-INI
-        * tabular data, json-like [Tablatal / Indental](https://wiki.xxiivv.com/site/tablatal.html)
-* create an interface for darwin/nix to achieve parity
+        * [Posix ERE](https://www.regular-expressions.info/posix.html)
+      * templating language
+        * [moustache](https://mustache.github.io/mustache.5.html) templating
+        * [jinja](https://jinja.palletsprojects.com)
+        * python's [f-string](https://peps.python.org/pep-0498/)
+      * data format
+        * [TOML](https://github.com/toml-lang/toml)
+        * [YAML](https://yaml.org/), or pseudo-INI
+        * [Tablatal / Indental](https://wiki.xxiivv.com/site/tablatal.html)
+      * more than a consistent format, it's more important to have a consistent data query language
+        * [dasel](https://github.com/TomWright/dasel) 
+        * [gron](https://github.com/tomnomnom/gron) for grepping json
 * bookmark / cache / rss / scraper tool
     * merge and manage bookmarks and cached content
         * maybe just use [buku](https://github.com/jarun/buku)
     * keep a shallow cache of bookmarked websites in case they disappear
+      * search for dead links
+      * update cache from the wayback machine if necessary
     * allow annotations
     * cron to ping sites that regularly update and send a notification
     * generate a local rss feed from subscriptions and new content
     * pull new bookmarks from chrome / firefox
-* mpd
-* mpv
-* include bash profile to initialize graphical interface
-* nail down graphics pipline for x and wayland
-    - make switch configurable through ricer
-    - X
-        * i3-gaps
-        * feh
-        * dunst
-        * conky maia
-    - wayland
-        * sway
-        * swaybg
-        * mako
-        * system monitor?
-* [notifications](http://blog.z3bra.org/2014/04/pop-it-up.html)
+      * use folders/tags to trigger extra actions
+    * ref [fraidycat](https://fraidyc.at/)
+* push notifications?
  
-* data formats
-    * [moustache](https://mustache.github.io/mustache.5.html) templating
-
 * idea sources
     * [dotfiles.io](http://dotfiles.github.io/)
-    
-* use as inspiration, but not directly
-    * [sparklines](https://github.com/holman/spark/blob/master/spark)
-    * [has](https://github.com/kdabir/has/blob/master/has)
     
 * file watcher
     * [entr](https://github.com/eradman/entr) 
     * [list of file watchers](https://anarc.at/blog/2019-11-20-file-monitoring-tools/)
-* https://routley.io/posts/bespoke-software-rss-aggregator/
-* include whitefox layout
-* [gron](https://github.com/tomnomnom/gron) for grepping json
+* [bespoke software](https://routley.io/posts/bespoke-software-rss-aggregator/)
 * [awesome shell](https://github.com/alebcay/awesome-shell)
 * [fzf completion menu]( https://reposhub.com/linux/shell-script-development/Aloxaf-fzf-tab.html)
 * [fzf history menu](https://medium.com/@ankurloriya/fzf-command-make-your-history-command-smarter-3294dfd1272f)
 * [moreutils vipe](https://joeyh.name/code/moreutils/) 
-* [dasel](https://github.com/TomWright/dasel)
 

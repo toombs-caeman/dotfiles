@@ -1,7 +1,8 @@
 # i3 config file (v4)
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
+# also /etc/i3/config
 
-# {{msg}}
+# managed with ricer.sh
 
 # Set mod key (Mod1=<Alt>, Mod4=<Super>)
 set $mod Mod4
@@ -32,7 +33,7 @@ bindsym $mod+Alt+q --release exec --no-startup-id xkill
 
 # start program launcher
 #bindsym $mod+space exec "xterm -T 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse)'"
-bindsym $mod+space exec "alacritty -t 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse || echo 'true')'"
+bindsym $mod+space exec "alacritty -t 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --color=16 --reverse || echo 'true')'"
 for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 25 ppt, move absolute position center
 
 
@@ -53,12 +54,14 @@ bindsym $mod+Shift+Print --release exec --no-startup-id i3-scrot -s
 focus_follows_mouse no
 
 # movement
-{% set mmaps = [('h','j','k','l'), ('Left','Down','Up','Right')]-%}
-{% set mops = (('','focus'),('Shift+','move')) -%}
-{% for op in mops %}{% for map in mmaps %}
-{% for m in range(4) %}bindsym $mod+{{op[0]}}{{map[m]}} {{op[1]}} {{ mmaps[1][m].lower() }}
-{% endfor %}{% endfor %}{% endfor %}
-
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
 # workspace back and forth (with/without active container)
 workspace_auto_back_and_forth yes
 #bindsym $mod+b workspace back_and_forth
@@ -86,22 +89,50 @@ bindsym $mod+Shift+space floating toggle
 # focus the parent container
 bindsym $mod+a focus parent
 
-{% for n in range(1, 9) %}
-bindsym $mod+{{n}} workspace {{n}}{# switch to workspace #}
-bindsym $mod+Ctrl+{{n}} move container to workspace {{n}}{# Move focused container to workspace #}
-bindsym $mod+Shift+{{n}} move container to workspace {{n}}; workspace {{n}}{# Move to workspace with focused container #}
-{% endfor %}
+bindsym $mod+1 workspace 1
+bindsym $mod+Ctrl+1 move container to workspace 1
+bindsym $mod+Shift+1 move container to workspace 1; workspace 1
+
+bindsym $mod+2 workspace 2
+bindsym $mod+Ctrl+2 move container to workspace 2
+bindsym $mod+Shift+2 move container to workspace 2; workspace 2
+
+bindsym $mod+3 workspace 3
+bindsym $mod+Ctrl+3 move container to workspace 3
+bindsym $mod+Shift+3 move container to workspace 3; workspace 3
+
+bindsym $mod+4 workspace 4
+bindsym $mod+Ctrl+4 move container to workspace 4
+bindsym $mod+Shift+4 move container to workspace 4; workspace 4
+
+bindsym $mod+5 workspace 5
+bindsym $mod+Ctrl+5 move container to workspace 5
+bindsym $mod+Shift+5 move container to workspace 5; workspace 5
+
+bindsym $mod+6 workspace 6
+bindsym $mod+Ctrl+6 move container to workspace 6
+bindsym $mod+Shift+6 move container to workspace 6; workspace 6
+
+bindsym $mod+7 workspace 7
+bindsym $mod+Ctrl+7 move container to workspace 7
+bindsym $mod+Shift+7 move container to workspace 7; workspace 7
+
+bindsym $mod+8 workspace 8
+bindsym $mod+Ctrl+8 move container to workspace 8
+bindsym $mod+Shift+8 move container to workspace 8; workspace 8
 
 # bind volume keys to change master volume
 bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset -c 2 'Master' 3%+
 bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset -c 2 'Master' 3%-
 # Open specific applications in floating mode
-{% set floaters = ('alsamixer', 'Clipgrab','Simple-scan', 'GParted','Pavucontrol') %}
-{% set sticky = ('Nitrogen', 'Lxappearance') %}
-{% for f in floaters %}for_window [class="{{f}}"] floating enable border normal
-{% endfor %}
-{% for s in sticky %}for_window [class="{{s}}"] floating enable sticky enable border normal
-{% endfor %}
+for_window [class="alsamixer"] floating enable border normal
+for_window [class="Clipgrab"] floating enable border normal
+for_window [class="Simple-scan"] floating enable border normal
+for_window [class="GParted"] floating enable border normal
+for_window [class="Pavucontrol"] floating enable border normal
+
+for_window [class="Nitrogen"] floating enable sticky enable border normal
+for_window [class="Lxappearance"] floating enable sticky enable border normal
 
 for_window [class="Oblogout"] fullscreen enable
 
@@ -164,7 +195,7 @@ bindsym $mod+9 exec --no-startup-id blurlock
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id compton -b
-exec_always --no-startup-id feh --bg-fill {{background}} --no-fehbg --image-bg '#{{color[0]}}'
+exec_always --no-startup-id feh --bg-fill {{wallpaper}} --no-fehbg --image-bg '#{{color0}}'
 #exec --no-startup-id manjaro-hello
 exec --no-startup-id nm-applet
 exec --no-startup-id xfce4-power-manager
@@ -193,9 +224,22 @@ exec --no-startup-id i3-msg 'exec /usr/games/steam -silent'
 # Same logic applied to everything else.
 set_from_resource $term_background background
 set_from_resource $term_foreground foreground
-{% for n in range(16) -%}
-set_from_resource $term_color{{n}}     color{{n}}
-{% endfor %}
+set_from_resource $term_color0     color0
+set_from_resource $term_color1     color1
+set_from_resource $term_color2     color2
+set_from_resource $term_color3     color3
+set_from_resource $term_color4     color4
+set_from_resource $term_color5     color5
+set_from_resource $term_color6     color6
+set_from_resource $term_color7     color7
+set_from_resource $term_color8     color8
+set_from_resource $term_color9     color9
+set_from_resource $term_color10     color10
+set_from_resource $term_color11     color11
+set_from_resource $term_color12     color12
+set_from_resource $term_color13     color13
+set_from_resource $term_color14     color14
+set_from_resource $term_color15     color15
 
 # Start i3bar to display a workspace bar (plus the system information i3status if available)
 bar {
@@ -212,75 +256,28 @@ bar {
 #   font xft:URWGothic-Book 11
 	strip_workspace_numbers yes
 
-    colors {
-        background #{{color[0]}}
-        statusline #{{color[7]}}
-        separator  #{{color[4]}}
-        # class            border         backgr.        text  indicator child_border
-        focused_workspace  #{{color[10]}} #{{color[10]}} #{{color[15]}}
-        active_workspace   #{{color[2]}}  #{{color[2]}}  #{{color[15]}}
-        inactive_workspace #{{color[0]}}  #{{color[0]}}  #{{color[15]}}
-        urgent_workspace   #{{color[9]}}  #{{color[9]}}  #{{color[15]}}
-    }
+  colors {
+    background #{{background}}
+    statusline #{{color7}}
+    separator  #{{cursor}}
+
+    focused_workspace  #{{cursor}} #{{cursor}} #{{color7}}
+    active_workspace   #{{background}} #{{cursor}} #{{color7}}
+    inactive_workspace #{{background}} #{{background}} #{{color8}}
+    urgent_workspace   #{{color1}} #{{color1}} #{{color7}}
+    binding_mode       #{{color1}} #{{color1}} #{{color7}}
+  }
 }
 
 # hide/unhide i3status bar
 bindsym $mod+m bar mode toggle
 
-# Theme colors
-# class                   border  backgr. text    indic.   child_border
-  client.focused          #556064 #556064 #80FFF9 #FDF6E3
-  client.focused_inactive #2F3D44 #2F3D44 #1ABC9C #454948
-  client.unfocused        #2F3D44 #2F3D44 #1ABC9C #454948
-  client.urgent           #CB4B16 #FDF6E3 #1ABC9C #268BD2
-  client.placeholder      #000000 #0c0c0c #ffffff #000000 
+# class                 border  bground text    indicator child_border
+client.focused          #{{color8}} #{{color8}} #{{color7}} #{{color8}}   #{{color8}}
+client.focused_inactive #{{cursor}} #{{cursor}} #{{color7}} #{{cursor}}   #{{cursor}}
+client.unfocused        #{{background}} #{{background}} #{{color8}} #{{background}}   #{{background}}
+client.urgent           #{{cursor}} #{{color1}} #{{color7}} #{{color1}}   #{{color1}}
+client.placeholder      #{{background}} #{{background}} #{{color7}} #{{background}}   #{{background}}
 
-  client.background       #2B2C2B
-
-#############################
-### settings for i3-gaps: ###
-#############################
-{% if 0 %}
-# Set inner/outer gaps
-gaps inner 14
-gaps outer 0
-
-# Additionally, you can issue commands with the following syntax. This is useful to bind keys to changing the gap size.
-# gaps inner|outer current|all set|plus|minus <px>
-# gaps inner all set 10
-# gaps outer all plus 5
-
-# Smart gaps (gaps used if only more than one container on the workspace)
-smart_gaps on
-
-# Smart borders (draw borders around container only if it is not the only container on this workspace) 
-# on|no_gaps (on=always activate and no_gaps=only activate if the gap size to the edge of the screen is 0)
-smart_borders on
-
-# Press $mod+Shift+g to enter the gap mode. Choose o or i for modifying outer/inner gaps. Press one of + / - (in-/decrement for current workspace) or 0 (remove gaps for current workspace). If you also press Shift with these keys, the change will be global for all workspaces.
-set $mode_gaps Gaps: (o) outer, (i) inner
-set $mode_gaps_outer Outer Gaps: +|-|0 (local), Shift + +|-|0 (global)
-set $mode_gaps_inner Inner Gaps: +|-|0 (local), Shift + +|-|0 (global)
-bindsym $mod+Shift+g mode "$mode_gaps"
-
-mode "$mode_gaps" {
-        bindsym o      mode "$mode_gaps_outer"
-        bindsym i      mode "$mode_gaps_inner"
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
-}
-
-{% for side in ('inner', 'outer') %}
-mode "$mode_gaps_{{side}}" {
-        {% for shift in (('','current'), ('Shift+', 'all')) %}
-        bindsym {{shift[0]}}plus  gaps {{side}} {{shift[1]}} plus 5
-        bindsym {{shift[0]}}minus gaps {{side}} {{shift[1]}} minus 5
-        bindsym {{shift[0]}}0     gaps {{side}} {{shift[1]}} set 0
-        {% endfor %}
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
-}
-{% endfor %}
-
-{% endif %}
-exec --no-startup-id sh -c ricer ~/my/toombs-caeman/dotfiles/themes.yml
+client.background       #{{color7}}
+# exec --no-startup-id sh -c ricer ~/my/toombs-caeman/dotfiles/themes.yml

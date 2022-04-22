@@ -7,53 +7,53 @@ Xft.autohint:  false
 Xft.hintstyle: hintslight
 Xft.lcdfilter: lcddefault
 
-XTerm*background:        #{{color[0]}}
-XTerm*foreground:        #{{color[15]}}
-XTerm*pointerColor:      #{{color[7]}}
+XTerm*background:        #{{color0}}
+XTerm*foreground:        #{{color15}}
+XTerm*pointerColor:      #{{color7}}
 XTerm*faceName:          Fixed
 XTerm*faceSize:          11
 XTerm*reverseVideo:      on
 XTerm*selectToClipboard: true
 
-*background:                      #{{color[0]}}
-*foreground:                      #{{color[15]}}
+*background:                      #{{color0}}
+*foreground:                      #{{color15}}
 *fading:                          8
 *fadeColor:                       black
-*cursorColor:                     #{{color[7]}}
-*pointerColorBackground:          #{{color[8]}}
-*pointerColorForeground:          #{{color[7]}}
+*cursorColor:                     #{{color7}}
+*pointerColorBackground:          #{{color8}}
+*pointerColorForeground:          #{{color7}}
 
 !! black dark/light
-*color0:                          #{{color[0]}}
-*color8:                          #{{color[8]}}
+*color0:                          #{{color0}}
+*color8:                          #{{color8}}
 
 !! red dark/light
-*color1:                          #{{color[1]}}
-*color9:                          #{{color[9]}}
+*color1:                          #{{color1}}
+*color9:                          #{{color9}}
 
 !! green dark/light
-*color2:                          #{{color[2]}}
-*color10:                         #{{color[10]}}
+*color2:                          #{{color2}}
+*color10:                         #{{color10}}
 
 !! yellow dark/light
-*color3:                          #{{color[3]}}
-*color11:                         #{{color[11]}}
+*color3:                          #{{color3}}
+*color11:                         #{{color11}}
 
 !! blue dark/light
-*color4:                          #{{color[4]}}
-*color12:                         #{{color[12]}}
+*color4:                          #{{color4}}
+*color12:                         #{{color12}}
 
 !! magenta dark/light
-*color5:                          #{{color[5]}}
-*color13:                         #{{color[13]}}
+*color5:                          #{{color5}}
+*color13:                         #{{color13}}
 
 !! cyan dark/light
-*color6:                          #{{color[6]}}
-*color14:                         #{{color[14]}}
+*color6:                          #{{color6}}
+*color14:                         #{{color14}}
 
 !! white dark/light
-*color7:                          #{{color[7]}}
-*color15:                         #{{color[15]}}
+*color7:                          #{{color7}}
+*color15:                         #{{color15}}
 
 Xcursor.theme: xcursor-breeze
 Xcursor.size:                     0
@@ -66,7 +66,7 @@ URxvt.font:                       9x15,xft:FiraCode-Regular
 !! terminus names see end of file!
 
 URxvt.depth:                      32
-URxvt.background:                 [100]#{{color[0]}}
+URxvt.background:                 [100]#{{color0}}
 URxvt*scrollBar:                  false
 URxvt*mouseWheelScrollPage:       false
 URxvt*cursorBlink:                true

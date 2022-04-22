@@ -1,1 +1,641 @@
-@namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
+/* credit to https://github.com/ceuk/firefox-moonlight-dracula */
+:root {
+    --moonlight-desaturated-gray: #7f85a3;
+    --moonlight-dark-blue: #{{color8}};
+    --moonlight-blue: #82aaff;
+    --moonlight-sky-blue: #{{color6}};
+    --moonlight-cyan: #{{color14}};
+    --moonlight-red: #{{color9}};
+    --moonlight-dark-red: #{{color1}};
+    --moonlight-light-red: #ff98a4;
+    --moonlight-yellow: #{{color11}};
+    --moonlight-orange: #{{color3}};
+    --moonlight-dark-orange: #fc7b7b;
+    --moonlight-teal: #{{color10}};
+    --moonlight-green: #{{color2}};
+    --moonlight-purple: #{{color4}};
+    --moonlight-pink: #{{color13}};
+    --moonlight-indigo: #{{color12}};
+    --moonlight-bright-cyan: #b4f9f8;
+    --moonlight-gray-10-alt: #{{color12}};
+    --moonlight-gray-10: #A7A8B7;
+    --moonlight-gray-9: #94959F;
+    --moonlight-gray-8: #6E6F79;
+    --moonlight-gray-7: #61626C;
+    --moonlight-gray-6: #54555F;
+    --moonlight-gray-5: #474852;
+    --moonlight-gray-4: #3B3C46;
+    --moonlight-gray-3: #2E2F39;
+    --moonlight-gray-2: #{{color0}};
+    --moonlight-gray-1: #14151F;
+    
+    --scrollbar-chrome-size: 6px;
+}
+/* 
+if the -moz-appearance: none; still gives you fullscreen issues 
+change (#navigator-toolbox) with your top bar (in this case #nav-bar) and use 
+-moz-appearance: -moz-window-titlebar-maximized !important; And remove the padding-top 
+*/
+:root[tabsintitlebar][sizemode="maximized"] #navigator-toolbox {
+    -moz-appearance: none !important;
+    padding-top: 12px !important;
+}
+/* Fix the FUllscreen changing padding on other bars. */
+:root[tabsintitlebar][sizemode="maximized"] #titlebar {
+    -moz-appearance: none !important;
+}
+
+/* Change bars order */
+#PersonalToolbar {
+    -moz-box-ordinal-group: 3 !important;
+}
+#titlebar {
+    -moz-box-ordinal-group: 2 !important;
+}
+#nav-bar {
+    -moz-box-ordinal-group: 1 !important;
+}
+
+/* Change bottom border color */
+#navigator-toolbox {
+    border-color: var(--moonlight-gray-1) !important;
+    background-color: var(--moonlight-gray-2) !important;
+    padding: 0 3px 3px 3px !important;
+}
+
+#tabbrowser-tabpanels {
+    background-color: var(--moonlight-gray-2) !important;
+}/* Hide window MAX MIN CLOSE buttons */
+.titlebar-buttonbox-container {
+    display: none;
+}
+
+/* Hide toolbar spacers */
+#titlebar .titlebar-spacer {
+    display: none !important;
+}
+
+#TabsToolbar {
+    margin-top: -1px !important;
+    padding-bottom: 1px !important;
+}
+
+#toolbar-menubar {
+    color: var(--moonlight-gray-10) !important;   
+}
+
+.tabbrowser-tab .tab-stack {
+    background: var(--moonlight-gray-2) !important;
+    border: 1px solid var(--moonlight-gray-2) !important;
+    margin: 2px 4px 2px 2px !important;
+    border-radius: 3px !important;
+    color: var(--moonlight-gray-10) !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+.tabbrowser-tab .tab-background {
+    border: none !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+.tabbrowser-tab::after {
+    display: none !important;
+}
+.tabbrowser-tab:hover .tab-stack{
+    border-color: var(--moonlight-blue) !important;
+    color: var(--moonlight-gray-10) !important;
+}
+.tabbrowser-tab:hover .tab-background {
+    background: var(--moonlight-gray-5) !important;
+}
+.tabbrowser-tab[selected] .tab-stack {
+    border-color: var(--moonlight-gray-1) !important;
+    color: var(--moonlight-gray-10) !important;
+}
+.tabbrowser-tab[selected] .tab-background {
+    background: var(--moonlight-gray-4) !important;
+}
+.tab-background .tab-line {
+    display: none;
+}
+.tabbrowser-tab .tab-text {
+    opacity: 1 !important;
+}
+.tabbrowser-tab .close-icon {
+    fill: var(--moonlight-gray-7) !important;
+    transition: fill 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+.tabbrowser-tab:hover .close-icon {
+    fill: var(--moonlight-gray-9) !important;
+    fill-opacity: 0 !important;
+}
+#tabs-newtab-button .toolbarbutton-icon {
+    width: calc(2 * var(--toolbarbutton-inner-padding) + 12px) !important;
+    height: calc(2 * var(--toolbarbutton-inner-padding) + 12px) !important;
+    margin-top: 1px !important;
+}
+#nav-bar {
+    background-color: var(--moonlight-gray-2) !important;
+    box-shadow: none !important;
+}
+
+/* Toolbar buttons */
+.toolbarbutton-1 {
+    fill: var(--moonlight-gray-7) !important;
+    transition: fill 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+
+.toolbarbutton-1:hover {
+    fill: var(--moonlight-gray-9) !important;
+}
+
+.toolbarbutton-1[open="true"] {
+    fill: var(--moonlight-gray-9) !important;
+}
+
+.toolbarbutton-1[disabled] {
+    fill: var(--moonlight-gray-5) !important;
+}
+
+.toolbarbutton-1 .toolbarbutton-icon,
+.toolbarbutton-1 .toolbarbutton-badge-stack {
+    background: none !important;
+}
+
+/* Remove back button background and border */
+
+#back-button > .toolbarbutton-icon {
+    background: none !important;
+    border: none !important;
+}
+
+/* Web extensions custom styling */
+
+#nav-bar-customization-target > .toolbarbutton-1.webextension-browser-action .toolbarbutton-badge-stack,
+#nav-bar-customization-target > #fxa-toolbar-menu-button .toolbarbutton-badge-stack {
+    background: var(--moonlight-gray-4) !important;
+    border: 1px solid var(--moonlight-gray-1);
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+
+#nav-bar-customization-target > .toolbarbutton-1.webextension-browser-action:hover .toolbarbutton-badge-stack,
+#nav-bar-customization-target > #fxa-toolbar-menu-button:hover .toolbarbutton-badge-stack {
+    background: var(--moonlight-gray-5) !important;
+    border-color: var(--moonlight-blue);
+}
+
+#nav-bar-customization-target > .toolbarbutton-1.webextension-browser-action[open="true"]
+    .toolbarbutton-badge-stack,
+#fxa-toolbar-menu-button[open="true"] .toolbarbutton-badge-stack {
+    background: var(--moonlight-blue) !important;
+}
+
+/* Remove burger menu spacing */
+#PanelUI-button {
+    margin-inline-start: 0 !important;
+    padding-inline-start: 0 !important;
+    border: none !important;
+    border-inline-start: none !important;
+}
+/* --- */
+
+/* - Url bar - */
+#urlbar-input {
+    color: var(--moonlight-gray-10) !important;
+}
+#urlbar #urlbar-background {
+    background-color: var(--moonlight-gray-3) !important;
+    border: none !important;
+    border-radius: 3px;
+    box-shadow: none !important;
+}
+#urlbar[open="true"] #urlbar-background {
+    background-color: var(--moonlight-gray-4) !important;
+}
+.urlbarView:not(.megabar) .urlbarView-row:not([type="tip"]):hover,
+.urlbarView.megabar .urlbarView-row:not([type="tip"]):hover > .urlbarView-row-inner {
+    background: none !important;
+}
+.urlbarView #urlbar-results .urlbarView-row .urlbarView-row-inner {
+    transition: color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+.urlbarView #urlbar-results .urlbarView-row .urlbarView-row-inner:hover {
+    background-color: var(--moonlight-gray-5) !important;
+    color: var(--moonlight-blue) !important;
+}
+.urlbarView
+    #urlbar-results
+    .urlbarView-row[aria-selected="true"]
+    .urlbarView-row-inner {
+    border: 1px solid var(--moonlight-blue) !important;
+    background-color: var(--moonlight-gray-5) !important;
+    color: var(--moonlight-blue) !important;
+}
+.urlbarView.megabar .urlbarView-body-inner {
+    border: 0 !important;
+}
+.urlbarView #urlbar-results {
+    color: var(--moonlight-gray-10) !important;
+}
+.urlbarView #urlbar-results .urlbarView-row .urlbarView-url {
+    color: var(--moonlight-blue) !important;
+}
+
+/* Url bar Icons */
+
+#urlbar-container box,
+#urlbar-container image,
+.urlbar-icon-wrapper {
+    background-color: transparent !important;
+}
+
+#urlbar-container [class*="icon"],
+#urlbar-container [id*="icon"]
+{
+    border: 0 !important;
+    fill: var(--moonlight-gray-7) !important;
+    fill-opacity: 1 !important;
+    transition: fill 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+
+#urlbar-container [class*="icon"]:hover,
+#urlbar-container [id*="icon"]:hover,
+#urlbar-container [open="true"] [class*="icon"],
+#urlbar-container [open="true"] [id*="icon"],
+#urlbar-container [class*="icon"][open="true"],
+#urlbar-container [id*="icon"][open="true"]
+{
+    fill: var(--moonlight-gray-9) !important;
+    fill-opacity: 1 !important;
+}
+
+#urlbar-zoom-button {
+    border-color: var(--moonlight-gray-1) !important;
+    background-color: var(--moonlight-gray-4) !important;
+    color: var(--moonlight-gray-10) !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#urlbar-zoom-button:hover {
+    background-color: var(--moonlight-gray-5) !important;
+    border-color: var(--moonlight-blue) !important;
+}
+
+#pageActionSeparator {
+    display: none !important;
+}
+
+/* --- */
+#PersonalToolbar {
+    background-color: var(--moonlight-gray-2) !important;
+    padding: 3px 0 !important;
+}
+#PersonalToolbar toolbarbutton.bookmark-item {
+    padding: 6px !important;
+    margin-right: 4px !important;
+    background-color: var(--moonlight-gray-4); 
+    border: 1px solid var(--moonlight-gray-1) !important;
+    color: var(--moonlight-gray-10) !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+    border-radius: 3px !important;
+}
+#PersonalToolbar toolbarbutton.bookmark-item:hover,
+#PersonalToolbar toolbarbutton.bookmark-item[open=true]
+{
+    background: var(--moonlight-gray-5) !important;
+    border-color: var(--moonlight-blue) !important;
+}
+findbar {
+    border-color: var(--moonlight-gray-1) !important;
+}
+findbar .findbar-container {
+    background-color: var(--moonlight-gray-2) !important;
+    color: var(--moonlight-gray-7) !important;
+}
+findbar .findbar-closebutton {
+    background-color: var(--moonlight-gray-2) !important;
+}
+findbar .findbar-closebutton .toolbarbutton-icon {
+    fill: var(--moonlight-gray-7) !important;
+    transition: fill 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+findbar .findbar-closebutton:hover .toolbarbutton-icon {
+    fill: var(--moonlight-gray-9) !important;
+    fill-opacity: 0 !important;
+}
+findbar .findbar-button {
+    border: 1px solid var(--moonlight-gray-1) !important;
+    background-color: var(--moonlight-gray-4) !important;
+    color: var(--moonlight-gray-10) !important;
+    border-radius: 3px !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+findbar .findbar-button:hover
+{
+    background: var(--moonlight-gray-5) !important;
+    border: 1px solid var(--moonlight-blue) !important;
+}
+
+findbar .findbar-button[checked="true"] {
+    background: var(--moonlight-gray-5) !important;
+    color: var(--moonlight-blue) !important;
+    border: 1px solid var(--moonlight-blue) !important;
+}
+
+findbar .findbar-textbox {
+    background-color: var(--moonlight-gray-4) !important;
+    border: 1px solid var(--moonlight-gray-1) !important;
+    color: var(--moonlight-gray-10) !important;
+    border-radius: 3px !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+
+findbar .findbar-textbox:focus {
+    border-color: var(--moonlight-blue) !important;
+    background-color: var(--moonlight-gray-3) !important;
+}
+findbar .findbar-find-previous,
+findbar .findbar-find-next{
+    background-color: var(--moonlight-gray-2) !important;
+    border: none !important;
+}
+
+findbar .findbar-find-previous .toolbarbutton-icon,
+findbar .findbar-find-next .toolbarbutton-icon {
+    fill: var(--moonlight-gray-7) !important;
+    transition: fill 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+
+findbar .findbar-find-previous .toolbarbutton-icon[disabled="true"],
+findbar .findbar-find-next .toolbarbutton-icon[disabled="true"] {
+    fill: var(--moonlight-gray-5) !important;
+    opacity: 1 !important;
+}
+
+findbar .findbar-find-previous:not([disabled="true"]):hover .toolbarbutton-icon,
+findbar .findbar-find-next:not([disabled="true"]):hover .toolbarbutton-icon {
+    fill: var(--moonlight-gray-9) !important;
+}
+
+
+#sidebar-search-container,
+#bookmarks-view,
+#historyTree,
+[lwt-sidebar] {
+  background-color: var(--moonlight-gray-2) !important;
+  color: var(--moonlight-gray-10) !important;
+}
+
+
+#sidebar-splitter {
+  border-color: var(--moonlight-gray-1) !important;
+}
+#sidebar-box {
+  background-color: var(--moonlight-gray-2) !important;
+  color: var(--moonlight-gray-10) !important;
+}
+#sidebar-box #sidebar-header {
+  border: none !important;
+}
+#sidebar-box #sidebar-header #sidebar-switcher-target {
+  transition: color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#sidebar-box #sidebar-header #sidebar-switcher-target:hover,
+#sidebar-box #sidebar-header #sidebar-switcher-target.active {
+  color: var(--moonlight-blue) !important;
+}
+#sidebar-box #sidebar-header #sidebar-close {
+  fill-opacity: 0 !important;
+  color: var(--moonlight-gray-7) !important;
+  transition: color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#sidebar-box #sidebar-header #sidebar-close:hover {
+  fill-opacity: 0 !important;
+  color: var(--moonlight-gray-10) !important;
+}
+
+#sidebar-header {
+/*   border: none !important; */
+  border-color: var(--moonlight-gray-1) !important;
+}
+
+
+#sidebar-search-container #search-box {
+  -moz-appearance: none !important;
+  background-color: var(--moonlight-gray-4) !important;
+  border: 1px solid var(--moonlight-gray-1) !important;
+  color: var(--moonlight-gray-10) !important;
+  border-radius: 3px !important;
+  transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#sidebar-search-container #search-box:focus-within {
+  border-color: var(--moonlight-blue) !important;
+  background-color: var(--moonlight-gray-3) !important;
+}
+#sidebar-search-container #search-box .textbox-search-clear {
+  filter: invert(16%) sepia(23%) saturate(1040%) hue-rotate(193deg) brightness(94%) contrast(86%);
+}
+#sidebar-search-container #viewButton {
+  background-color: var(--moonlight-gray-4) !important;
+  border: 1px solid var(--moonlight-gray-1);
+  border-radius: 3px !important;
+  color: var(--moonlight-gray-10);
+  transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#sidebar-search-container #viewButton:hover {
+  background-color: var(--moonlight-gray-5) !important; 
+  border-color: var(--moonlight-blue) !important;
+  color: var(--moonlight-blue) !important;
+}
+
+
+treechildren::-moz-tree-separator{
+-moz-appearance: none !important;
+border: none !important;
+border-bottom: solid 1px var(--moonlight-gray-1) !important;
+background: transparent !important;
+min-height: 0px !important;
+max-height: 0px !important;
+}
+/* Separator */
+menuseparator,
+#contentAreaContextMenu menuseparator,
+toolbarseparator,
+.bookmarks-actions-menuseparator {
+    -moz-appearance: none !important;
+    border-color: var(--moonlight-gray-1) !important;
+    border-width: 1px !important;
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    margin-top: 2px !important;
+    margin-bottom: 2px !important;
+}
+/* Reset form elements appereance */
+panel richlistbox,
+panel tree,
+panel button,
+panel menulist,
+panel textbox,
+menupopup,
+menu,
+menuitem {
+    -moz-appearance: none !important;
+}
+
+/* Spacing between menu items */
+menulist,
+menuitem,
+menu {
+    min-height: 2.5em;
+}
+
+/* ? */
+panel menulist {
+    border: 1px solid transparent;
+}
+/* Menus */
+#sidebarMenu-popup toolbarbutton,
+panel richlistbox,
+panel tree,
+panel button,
+panel menulist,
+panel textbox,
+menupopup:not(#BMB_bookmarksPopup),
+#main-menubar > menu > menupopup,
+#context-navigation {
+    color: var(--moonlight-gray-10) !important;
+    background-color: var(--moonlight-gray-2) !important;
+    border-color: var(--moonlight-gray-1) !important;
+}
+#sidebarMenu-popup toolbarbutton:hover,
+panel treechildren::-moz-tree-row(selected),
+panel button:hover,
+menu:hover,
+menu[_moz-menuactive],
+menu[open],
+menuitem:hover,
+menuitem[_moz-menuactive] {
+    background-color: var(--moonlight-gray-5) !important;
+    color: var(--moonlight-gray-10) !important;
+}
+
+menu[disabled="true"] {
+    color: var(--moonlight-gray-6) !important;
+}
+menuitem[disabled="true"] {
+    color: var(--moonlight-gray-6) !important;
+}
+
+menulist > menupopup > menuitem,
+menulist > menupopup > menucaption,
+menulist > menupopup > menu {
+  color: var(--moonlight-gray-10) !important;
+}
+
+.expander-up {
+    list-style-image: url("./icons/collapse.png") !important;
+}
+.expander-down {
+    list-style-image: url("./icons/expand.png") !important;
+}
+
+#editBookmarkPanel label {
+    color: var(--moonlight-gray-10) !important;
+}
+#editBookmarkPanel input {
+    -moz-appearance: none;
+    background-color: var(--moonlight-gray-4) !important;
+    color: var(--moonlight-gray-10) !important;
+    border: 1px solid var(--moonlight-gray-1) !important;
+    border-radius: 3px !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#editBookmarkPanel input:focus {
+    background-color: var(--moonlight-gray-3) !important;
+    border-color: var(--moonlight-blue) !important;
+}
+
+
+/* Popup panels (more tools... , open menu) */
+panel panelview {
+    color: var(--moonlight-gray-10) !important;
+    background-color: var(--moonlight-gray-2)  !important;
+}
+.panel-arrowcontent {
+    background-color: var(--moonlight-gray-2)  !important;
+}
+.panel-arrowcontainer .panel-arrowbox .panel-arrow {
+    fill: var(--moonlight-gray-1) !important;
+}
+.panel-arrowcontainer .panel-arrowcontent {
+    border-color: var(--moonlight-gray-1) !important;
+}
+
+/* Context navigation buttons (right-click page) */
+#context-navigation menuitem {
+    color: var(--moonlight-gray-7) !important;
+    background: none !important;
+    transition: color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#context-navigation menuitem:hover {
+    color: var(--moonlight-gray-9) !important;
+}
+/* Customize button in more extensions */
+#overflowMenu-customize-button {
+    background-color: var(--moonlight-gray-4) !important;
+    border: 1px solid var(--moonlight-gray-1) !important;
+    border-radius: 3px !important;
+    margin: 4px !important;
+    color: var(--moonlight-gray-10) !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#overflowMenu-customize-button:hover {
+    background-color: var(--moonlight-gray-5) !important;
+    border: 1px solid var(--moonlight-blue) !important;
+}
+#appMenu-zoomReset-button {
+    border-color: var(--moonlight-gray-1) !important;
+    background-color: var(--moonlight-gray-4) !important;
+    color: var(--moonlight-gray-10) !important;
+    transition: background-color, border-color 300ms cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+#appMenu-zoomReset-button:hover {
+    background-color: var(--moonlight-gray-5) !important;
+    border-color: var(--moonlight-blue) !important;
+}
+
+/* Change bookmark icon colors */
+/* Standard folder -- on Toolbar and Menus */
+#PlacesToolbarItems toolbarbutton[container="true"] .toolbarbutton-icon,
+:-moz-any(
+#PlacesToolbarItems,
+#PlacesChevronPopup,
+#BMB_bookmarksPopup,
+#bookmarksMenu) menu[container="true"] > .menu-iconic-left > .menu-iconic-icon,
+/* Standard folder -- in Sidebar, Library, Add/Edit Bookmark dialog */
+:-moz-any(
+#bookmarks-view, 
+#editBMPanel_folderTree, 
+#placesList, 
+#placeContent) treechildren::-moz-tree-image(container), 
+#editBMPanel_folderMenuList > .menulist-label-box > .menulist-icon,
+#editBMPanel_folderMenuList menupopup menuitem {
+    fill: var(--moonlight-blue) !important;
+}
+
+/* Arrow customization in the bookmark folder while overflowing */
+.menupopup-scrollbutton {
+    -moz-appearance: none !important;
+    background-color: var(--moonlight-gray-3) !important;
+    width: 100%;
+}
+.menupopup-scrollbutton:hover {
+    background-color: var(--moonlight-gray-5) !important;
+}
+.scrollbutton-up:not([orient="horizontal"]),
+.scrollbutton-up:not([orient="horizontal"]) .toolbarbutton-icon {
+    -moz-appearance: none !important;
+    list-style-image: url("./icons/collapse.png") !important;
+}
+.scrollbutton-down:not([orient="horizontal"]),
+.scrollbutton-down:not([orient="horizontal"]) .toolbarbutton-icon {
+    -moz-appearance: none !important;
+    list-style-image: url("./icons/expand.png") !important;
+}
