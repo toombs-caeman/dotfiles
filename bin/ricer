@@ -1,65 +1,89 @@
 #!/usr/bin/env bash
 
-RC="${BASH_SOURCE%/*}/.."
-. "$RC/rc.sh" # import opt()
+theme_dir="${BASH_SOURCE%/*}/../themes"
+template_dir="${BASH_SOURCE%/*}/../templates"
+config() {
+    echo "theme=$theme wallpaper=$wallpaper"
+    # when       template        destination                        callback
+    t xrdb       Xresources      ~/.Xresources                      xrdb -load ~/.Xresources
+    t alacritty  alacritty.yml   ~/.alacritty.yml
+    t i3-msg     i3status.conf   ~/.config/i3status/config
+    t i3-msg     i3config.sh     ~/.i3/config                       i3-msg restart
+    t nvim       nvim.vim        ~/.config/nvim/init.vim
+    t nvim       plug.vim        ~/.config/nvim/autoload/plug.vim   nvim +PlugInstall '+qall!'
+    # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
+    # firefox: enable toolkit.legacyUserProfileCustomizations.stylesheets
+    # : ~/.mozilla/firefox/*.default/chrome # expand glob pattern
+    # t firefox   userChrome.css   "$_/userChrome.css"
+}
+main() {
+    eval "`opt convert,c= theme,t= list find,fzf,f wallpaper,w= --nargs -d "paste color themes into templates."`"
+    if (( list )); then
+        printf '%s\n' "$(cd "$theme_dir"; themes | column -t)"
+        return
+    fi
+    local sed='' des='' colors=()
+    if [ -n "$convert" ]; then
+        load_theme "$theme_dir/dracula"
+        # 'Orange' is dracula's only standard color not represented in the ANSI palette. color9 is closest (but pinker)
+        printf -v des '%ss,%s,{{%s}},gi;' "$des" "FFB86C" color9
+        sed -i "$des" "$convert"
+        return
+    fi
+    if [ -n "$theme" ] || (( find )); then
+        [ -f "$theme_dir/$theme" ] ||
+        theme="$(cd "$theme_dir"; themes | column -t | fzf -1 -q "$theme" --ansi | cut -d ' ' -f 1)"
+    else
+        theme="$(cd "$theme_dir"; find * -type f|shuf|head -n1)"
+    fi
+    [ -n "$theme" ] || return
+
+    [ -n "$wallpaper" ] || wallpaper="$(find ~/Pictures/Wallpapers -type f | shuf | head -n1)"
+    [ ! -f "$wallpaper" ] && echo "wallpaper '$wallpaper' not found" >&2 && return 1
+
+    load_theme "$theme_dir/$theme"
+    printf -v sed '%ss,{{%s}},%s,g;' "$sed" wallpaper "${wallpaper//,/\,}" # escape ',' for sed command
+    config
+}
+t() {
+    command -v "$1" >/dev/null &&
+        mkdir -p "${3%/*}" &&
+        sed "$sed" < "$template_dir/$2" > "$3" &&
+        (($#>4)) &&
+        "${@:4}" >/dev/null
+}
+themes() {
+    # lists the available themes followed by rendering all their colors
+    # use 256-color capabilities to print the colors as they would look
+    # unlike ansi codes, this won't update when term colors get updated
+    local f line
+    for f in *; do 
+        printf '\e[m%s <' "${f##*/}"
+        while read line; do
+            : "${line#??}"
+            printf '\e[0;38;2;%d;%d;%dm█' "0x${line%????}" "0x${_%??}" "0x${_#??}"
+        done < "$f"
+        printf '\e[m>\n'
+    done
+}
+load_theme() { # return $colors[] $sed $des
+  while read line; do colors+=("$line"); done < "$1"
+  local names=(color{0..15} foreground background cursor)
+  for n in {0..18}; do
+        printf -v sed '%ss,{{%s}},%s,g;' "$sed" "${names[$n]}" "${colors[$n]}"
+        printf -v des '%ss,%s,{{%s}},gi;' "$des" "${colors[$n]}" "${names[$n]}"
+  done
+}
+
+. "${BASH_SOURCE%/*}/../rc.sh" # import opt()
+main "$@"
 
 # I took most of the themes in themes/ from [pywal](https://github.com/dylanaraps/pywal)
 # the ricer theme format is color 0 - 15, foreground, background, cursor using 6 digit hex codes. 1 color per line.
-ricer_load_pywal_themes() {
+_ricer_load_pywal_themes() {
   for f in *.json; do
     jq "$(fmt '(.colors|{%s}[]),(.special|{foreground,background,cursor}[])%Lcolor%s%I,' {0..15})" "$f" | \
       tr -d '"#' > "${f%%.json}"
   done
   rm *.json
 }
-ricer() {
-  eval "`opt convert,c= theme,t= wallpaper,w= --nargs -d "paste color themes into templates."`"
-  # --convert TMPL to change a [dracula](https://spec.draculatheme.com/) template to a ricer template, in-place.
-  if [ -n "$theme" ]; then theme="$RC/themes/${theme##*/}"; else theme="$(find "$RC/themes" -type f|shuf|head -n1)"; fi
-  if [ ! -f "$theme" ]; then echo "theme '$theme' not found" >&2; return 1; fi
-  if [ ! -n "$wallpaper" ]; then wallpaper="$(find ~/Pictures/Wallpapers -type f | shuf | head -n1)"; fi
-  if [ ! -f "$wallpaper" ]; then echo "wallpaper '$wallpaper' not found" >&2; return 1; fi
-  if [ -n "$convert" ]; then theme="$RC/themes/dracula"; fi
-
-  # load theme
-  local sed='' des='' colors=()
-  _ricer_sed() { printf -v sed '%ss,{{%s}},%s,g;' "$sed" "$1" "$2";printf -v des '%ss,%s,{{%s}},gi;' "$des" "$2" "$1"; }
-  while read line; do colors+=("$line"); done < "$theme"
-  for i in {0..15}; do _ricer_sed "color$i" "${colors[$i]}"; done
-  _ricer_sed foreground "${colors[16]}"
-  _ricer_sed background "${colors[17]}"
-  _ricer_sed cursor     "${colors[18]}"
-  # convert dracula theme
-  if [ -n "$convert" ]; then
-    # 'Orange' is the only standard palette color not represented in the ANSI palette. color9 is closest (but pinker)
-    _ricer_sed color9 "FFB86C"
-    sed -i "$des" "$convert"
-    return
-  else
-    _ricer_sed wallpaper  "${wallpaper//,/\,}" # escape ',' for sed command
-  fi
-  printf '\e[m%s: <' "${theme##*/}"
-  for c in "${colors[@]}"; do : "${c#??}"; printf '\e[0;38;2;%d;%d;%dm█' "0x${c%????}" "0x${_%??}" "0x${_#??}"; done
-  printf '\e[m>\n'
-  _ricer() { 
-      command -v "$1" >/dev/null && 
-          mkdir -p "${3%/*}" &&
-          sed "$sed" < "$RC/templates/$2" > "$3" && 
-          (($#>4)) && 
-          "${@:4}" >/dev/null
-  }
-  #      when       template        destination                 callback
-  _ricer xrdb       Xresources      ~/.Xresources               xrdb -load ~/.Xresources
-  _ricer alacritty  alacritty.yml   ~/.alacritty.yml
-  _ricer i3-msg     i3status.conf   ~/.config/i3status/config
-  _ricer i3-msg     i3config.sh     ~/.i3/config                i3-msg restart
-  _ricer nvim       nvim.vim        ~/.config/nvim/init.vim
-  _ricer nvim       plug.vim        ~/.config/nvim/autoload/plug.vim nvim +PlugInstall '+qall!'
-  # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
-  #  firefox: enable toolkit.legacyUserProfileCustomizations.stylesheets
-#  : ~/.mozilla/firefox/*.default/chrome # expand glob pattern
-#  _ricer firefox   userChrome.css   "$_/userChrome.css"
-  return 0
-}
-
-ricer "$@"

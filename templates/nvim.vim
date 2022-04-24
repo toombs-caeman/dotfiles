@@ -12,6 +12,7 @@ Plug 'preservim/nerdtree'           " file system explore
 Plug 'Xuyuanp/nerdtree-git-plugin'  " show git status in NERDTree
 " TODO Plug 'tpope/vim-surround'    " surround objects
 " TODO Plug 'tpope/vim-fugitive'    " working with git
+" TODO Plug 'dracula/vim', { 'as': 'dracula' } "colorscheme
 call plug#end()
 
 " status line
@@ -94,4 +95,6 @@ nnoremap k gk
 "
 " visualize vim keymaps per mode+leader+modifier
 " fzf.vim
+" colorscheme https://github.com/dracula/vim/blob/master/autoload/dracula.vim
 " shortcut Ctrl+/ to toggle comment https://github.com/preservim/nerdcommenter
+" horizontal scrolling https://github.com/alacritty/alacritty/issues/2185

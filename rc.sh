@@ -122,6 +122,7 @@ func() { # working with shell functions
 # if -h or --help is passed, 'foo description' will be used as a description in the help text.
 # if opt() is passed --nargs, positional arguments are disallowed.
 # if opt() is passed --nohelp, -h|--help flags won't be generated
+# TODO `local help="$help"` to allow message to leak in
 opt() {
   local description='generate a script that parses arguments'
   # recurse to process our own arguments
