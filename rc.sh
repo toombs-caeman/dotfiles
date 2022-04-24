@@ -374,7 +374,7 @@ __() {
   set -o vi # enable vi-style line editing
   VIRTUAL_ENV_DISABLE_PROMPT=yes # don't let virtualenv do weird stuff to the prompt
   export FZF_DEFAULT_OPTS='--color=16'  # use ansi colors so we follow the theme
-  export EDITOR="$(command -v vi vim | tail -n1)"
+  export EDITOR="$(command -v vi vim nvim | tail -n1)"
   export PAGER="less"
   export LESS="FXr"
   export VISUAL=$EDITOR

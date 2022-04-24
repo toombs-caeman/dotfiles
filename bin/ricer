@@ -41,16 +41,25 @@ ricer() {
   printf '\e[m%s: <' "${theme##*/}"
   for c in "${colors[@]}"; do : "${c#??}"; printf '\e[0;38;2;%d;%d;%dm█' "0x${c%????}" "0x${_%??}" "0x${_#??}"; done
   printf '\e[m>\n'
-  _ricer() { command -v "$1" >/dev/null && sed "$sed" < "$RC/templates/$2" > "$3" && (($#>4)) && "${@:4}" >/dev/null; }
+  _ricer() { 
+      command -v "$1" >/dev/null && 
+          mkdir -p "${3%/*}" &&
+          sed "$sed" < "$RC/templates/$2" > "$3" && 
+          (($#>4)) && 
+          "${@:4}" >/dev/null
+  }
   #      when       template        destination                 callback
   _ricer xrdb       Xresources      ~/.Xresources               xrdb -load ~/.Xresources
   _ricer alacritty  alacritty.yml   ~/.alacritty.yml
   _ricer i3-msg     i3status.conf   ~/.config/i3status/config
   _ricer i3-msg     i3config.sh     ~/.i3/config                i3-msg restart
+  _ricer nvim       nvim.vim        ~/.config/nvim/init.vim
+  _ricer nvim       plug.vim        ~/.config/nvim/autoload/plug.vim nvim +PlugInstall '+qall!'
   # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
   #  firefox: enable toolkit.legacyUserProfileCustomizations.stylesheets
 #  : ~/.mozilla/firefox/*.default/chrome # expand glob pattern
 #  _ricer firefox   userChrome.css   "$_/userChrome.css"
+  return 0
 }
 
 ricer "$@"

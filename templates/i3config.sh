@@ -2,7 +2,7 @@
 # Please see http://i3wm.org/docs/userguide.html for a complete reference!
 # also /etc/i3/config
 
-# managed with ricer.sh
+# managed with ricer
 
 # Set mod key (Mod1=<Alt>, Mod4=<Super>)
 set $mod Mod4
@@ -32,8 +32,8 @@ bindsym $mod+Shift+q kill
 bindsym $mod+Alt+q --release exec --no-startup-id xkill
 
 # start program launcher
-#bindsym $mod+space exec "xterm -T 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --reverse)'"
-bindsym $mod+space exec "alacritty -t 'launcher' -e /bin/bash -c 'i3-msg exec $(compgen -c | sort -u | fzf --color=16 --reverse || echo 'true')'"
+bindsym $mod+space exec alacritty -t launcher -e launch
+#bindsym $mod+space exec "alacritty -t launcher -e bash -c 'echo $PATH; sleep 10'"
 for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 25 ppt, move absolute position center
 
 
@@ -272,12 +272,12 @@ bar {
 # hide/unhide i3status bar
 bindsym $mod+m bar mode toggle
 
-# class                 border  bground text    indicator child_border
-client.focused          #{{color8}} #{{color8}} #{{color7}} #{{color8}}   #{{color8}}
-client.focused_inactive #{{cursor}} #{{cursor}} #{{color7}} #{{cursor}}   #{{cursor}}
-client.unfocused        #{{background}} #{{background}} #{{color8}} #{{background}}   #{{background}}
-client.urgent           #{{cursor}} #{{color1}} #{{color7}} #{{color1}}   #{{color1}}
-client.placeholder      #{{background}} #{{background}} #{{color7}} #{{background}}   #{{background}}
+# class                 border          bground         text        indicator       child_border
+client.focused          #{{cursor}}     #{{color8}}     #{{color7}} #{{color8}}     #{{color8}}
+client.focused_inactive #{{background}} #{{cursor}}     #{{color7}} #{{cursor}}     #{{background}}
+client.unfocused        #{{background}} #{{background}} #{{color8}} #{{background}} #{{background}}
+client.urgent           #{{cursor}}     #{{color1}}     #{{color7}} #{{color1}}     #{{color1}}
+client.placeholder      #{{background}} #{{background}} #{{color7}} #{{background}} #{{background}}
 
 client.background       #{{color7}}
 # exec --no-startup-id sh -c ricer ~/my/toombs-caeman/dotfiles/themes.yml

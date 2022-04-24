@@ -1,0 +1,10 @@
+#!/bin/bash
+echo "x$SHELL" >&2
+# use fzf to select a command. If we're not sure that it's supposed to be a GUI, run it in a terminal
+# thanks to https://askubuntu.com/a/1091249
+test -n "$(compgen -c | sort -ru | fzf --color=16 --reverse)" || exit
+find {/usr,~/.local}/share/applications -name '*.desktop' -print0 | \
+    xargs -0 grep -i -l "Terminal=False"| \
+    xargs sed -nE 's,^Exec=([^ ]*/)*([^/ ]*).*$,\2,p' | \
+    grep -q "$_" || : "alacritty -e /bin/bash -ic '$_'"
+i3-msg exec "$_" >/dev/null 

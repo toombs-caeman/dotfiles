@@ -20,6 +20,20 @@ a grab bag of stuff that personalizes my computers
         * what happened and what's about to happen (history and completion)
         * who, what, where, when, why (user, command output, directory, timestamp, comments)
 
+# INSTALL (WIP)
+add $RC/bin to $PATH in .profile lets it be available in i3config after restart
+```sh
+command -v apt && INSTALLER='sudo apt install'
+command -v pacman && INSTALLER='sudo pacman -S'
+$INSTALL git fzf neovim bash zsh
+here="${BASH_SOURCE%/*}"
+printf 'PATH="$PATH:/%s/bin"' "$here" >> ~/.profile
+printf '. %s/rc.sh' "$here" >> ~/.bashrc
+printf '. %s/rc.sh' "$here" >> ~/.zshrc
+$here/ricer -t dracula
+```
+
+
 
 # TODO
 * git workflow
@@ -43,6 +57,7 @@ a grab bag of stuff that personalizes my computers
 * WM / DE
   * arrange windows
   * notifications
+    * dunst isn't configured, currently using inotify-osd
     * [notifications](http://blog.z3bra.org/2014/04/pop-it-up.html)
   * clipboard
   * status bar
@@ -51,8 +66,6 @@ a grab bag of stuff that personalizes my computers
     * volume
     * eq
   * launcher
-    * fix dmenu launch replacement, needs some history
-    * in launcher, figure out if an application is terminal based and optionally run in a terminal https://askubuntu.com/a/1091249
   * switcher
   * closer
   * keybindings
@@ -67,6 +80,9 @@ a grab bag of stuff that personalizes my computers
   * bookmark cache
 
 # Potential new stuff
+* visualize vim keymaps by mode+leader+modifier
+    * https://www.asciiart.eu/computers/keyboards
+    * `vim -e +"redir>>/dev/stdout | map | redir END" -scq`
 * new computer bootstrap script
 * define the One True Way™ and make sure all tools are built on that
     * external tools
