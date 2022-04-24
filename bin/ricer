@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-theme_dir="${BASH_SOURCE%/*}/../themes"
-template_dir="${BASH_SOURCE%/*}/../templates"
+theme_dir="${BASH_SOURCE%/*/*}/themes"
+template_dir="${BASH_SOURCE%/*/*}/templates"
 config() {
     echo "theme=$theme wallpaper=$wallpaper"
     # when       template        destination                        callback
     t xrdb       Xresources      ~/.Xresources                      xrdb -load ~/.Xresources
     t alacritty  alacritty.yml   ~/.alacritty.yml
     t i3-msg     i3status.conf   ~/.config/i3status/config
-    t i3-msg     i3config.sh     ~/.i3/config                       i3-msg restart
+    t i3-msg     i3config.sh     ~/.i3/config                       i3-msg restart >/dev/null
     t nvim       nvim.vim        ~/.config/nvim/init.vim
     t nvim       plug.vim        ~/.config/nvim/autoload/plug.vim   nvim +PlugInstall '+qall!'
     # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
@@ -16,67 +16,58 @@ config() {
     # : ~/.mozilla/firefox/*.default/chrome # expand glob pattern
     # t firefox   userChrome.css   "$_/userChrome.css"
 }
-main() {
-    eval "`opt convert,c= theme,t= list find,fzf,f wallpaper,w= --nargs -d "paste color themes into templates."`"
-    if (( list )); then
-        printf '%s\n' "$(cd "$theme_dir"; themes | column -t)"
-        return
+t() { command -v "$1" >/dev/null && mkdir -p "${3%/*}" && sed "$sed" <"$template_dir/$2" >"$3"&&(($#>3)) && "${@:4}"; }
+ricer() {
+    eval "`opt convert,c= theme,t= list fzf,f wallpaper,w= --nargs -d "paste color themes into templates."`"
+    themes="$(
+        cd "$theme_dir"
+        for f in *; do 
+            printf '%s <' "${f##*/}"
+            while read line; do
+                : "${line#??}"
+                printf '\e[0;38;2;%d;%d;%dm█' "0x${line%????}" "0x${_%??}" "0x${_#??}"
+            done < "$f"
+            printf '\e[m>\n'
+        done | column -t
+    )"
+
+    # list themes and exit
+    (( list )) && echo "$themes" && return
+
+    # select theme
+    [ -n "$convert" ] && theme=dracula # short circuit theme selection if we're converting a template
+    if [ -n "$theme" ] || (( fzf )); then
+        [ -f "$theme_dir/$theme" ] ||
+        theme="$(echo "$themes" | fzf -1 -q "$theme" --ansi | cut -d' ' -f 1)"
+    else
+        theme="$(echo "$themes"|cut -d\  -f1|shuf|head -n1)"
     fi
-    local sed='' des='' colors=()
+    [ -n "$theme" ] || return 1
+
+    # load theme
+    local sed='' des='' colors=() s='%ss,{{%s}},%s,g;' d='%ss,%s,{{%s}},gi;'
+    while read line; do colors+=("$line"); done < "$theme_dir/$theme"
+    local names=(color{0..15} foreground background cursor)
+    for n in {0..18}; do
+          printf -v sed "$s" "$sed" "${names[$n]}" "${colors[$n]}"
+          printf -v des "$d" "$des" "${colors[$n]}" "${names[$n]}"
+    done
+
+    # convert dracula-themed file into template
     if [ -n "$convert" ]; then
-        load_theme "$theme_dir/dracula"
         # 'Orange' is dracula's only standard color not represented in the ANSI palette. color9 is closest (but pinker)
-        printf -v des '%ss,%s,{{%s}},gi;' "$des" "FFB86C" color9
+        printf -v des "$d" "$des" "FFB86C" color9
         sed -i "$des" "$convert"
         return
     fi
-    if [ -n "$theme" ] || (( find )); then
-        [ -f "$theme_dir/$theme" ] ||
-        theme="$(cd "$theme_dir"; themes | column -t | fzf -1 -q "$theme" --ansi | cut -d ' ' -f 1)"
-    else
-        theme="$(cd "$theme_dir"; find * -type f|shuf|head -n1)"
-    fi
-    [ -n "$theme" ] || return
 
+    # select wallpaper
     [ -n "$wallpaper" ] || wallpaper="$(find ~/Pictures/Wallpapers -type f | shuf | head -n1)"
     [ ! -f "$wallpaper" ] && echo "wallpaper '$wallpaper' not found" >&2 && return 1
+    printf -v sed "$s" "$sed" wallpaper "${wallpaper//,/\,}" # escape ',' for sed command
 
-    load_theme "$theme_dir/$theme"
-    printf -v sed '%ss,{{%s}},%s,g;' "$sed" wallpaper "${wallpaper//,/\,}" # escape ',' for sed command
     config
 }
-t() {
-    command -v "$1" >/dev/null &&
-        mkdir -p "${3%/*}" &&
-        sed "$sed" < "$template_dir/$2" > "$3" &&
-        (($#>4)) &&
-        "${@:4}" >/dev/null
-}
-themes() {
-    # lists the available themes followed by rendering all their colors
-    # use 256-color capabilities to print the colors as they would look
-    # unlike ansi codes, this won't update when term colors get updated
-    local f line
-    for f in *; do 
-        printf '\e[m%s <' "${f##*/}"
-        while read line; do
-            : "${line#??}"
-            printf '\e[0;38;2;%d;%d;%dm█' "0x${line%????}" "0x${_%??}" "0x${_#??}"
-        done < "$f"
-        printf '\e[m>\n'
-    done
-}
-load_theme() { # return $colors[] $sed $des
-  while read line; do colors+=("$line"); done < "$1"
-  local names=(color{0..15} foreground background cursor)
-  for n in {0..18}; do
-        printf -v sed '%ss,{{%s}},%s,g;' "$sed" "${names[$n]}" "${colors[$n]}"
-        printf -v des '%ss,%s,{{%s}},gi;' "$des" "${colors[$n]}" "${names[$n]}"
-  done
-}
-
-. "${BASH_SOURCE%/*}/../rc.sh" # import opt()
-main "$@"
 
 # I took most of the themes in themes/ from [pywal](https://github.com/dylanaraps/pywal)
 # the ricer theme format is color 0 - 15, foreground, background, cursor using 6 digit hex codes. 1 color per line.
@@ -87,3 +78,6 @@ _ricer_load_pywal_themes() {
   done
   rm *.json
 }
+
+. "${BASH_SOURCE%/*}/../rc.sh" # import opt()
+ricer "$@"

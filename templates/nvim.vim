@@ -75,6 +75,8 @@ augroup END
 " visual movement
 nnoremap j gj
 nnoremap k gk
+" move to the end when joining lines
+nnoremap J J$
 
 " TODO - one per line
 " window shortcuts to <A-*> from <C-w>*
