@@ -33,7 +33,7 @@ set ruler		            " show the cursor position all the time
 set showmatch               " show matching brackets.
 set cc=120                  " set an 120 column border for good coding style
 set scrolloff=5             " Show a few lines of context around the cursor
-set sidescrolloff=5         " in all directions
+set sidescrolloff=10        " in all directions
 set list                    " indicate hidden text
 set listchars+=precedes:<,extends:>
 set nowrap                  " don't wrap lines
@@ -75,8 +75,6 @@ augroup END
 " visual movement
 nnoremap j gj
 nnoremap k gk
-" move to the end when joining lines
-nnoremap J J$
 
 " TODO - one per line
 " window shortcuts to <A-*> from <C-w>*

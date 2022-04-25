@@ -7,19 +7,18 @@ Xft.autohint:  false
 Xft.hintstyle: hintslight
 Xft.lcdfilter: lcddefault
 
-XTerm*background:        #{{color0}}
-XTerm*foreground:        #{{color15}}
-XTerm*pointerColor:      #{{color7}}
+XTerm*background:        #{{background}}
+XTerm*foreground:        #{{foreground}}
+XTerm*pointerColor:      #{{cursor}}
 XTerm*faceName:          Fixed
 XTerm*faceSize:          11
-XTerm*reverseVideo:      on
 XTerm*selectToClipboard: true
 
-*background:                      #{{color0}}
-*foreground:                      #{{color15}}
+*background:                      #{{background}}
+*foreground:                      #{{foreground}}
 *fading:                          8
 *fadeColor:                       black
-*cursorColor:                     #{{color7}}
+*cursorColor:                     #{{cursor}}
 *pointerColorBackground:          #{{color8}}
 *pointerColorForeground:          #{{color7}}
 

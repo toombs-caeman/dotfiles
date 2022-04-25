@@ -34,6 +34,7 @@
 # *__*() are considered collapsing functions. rc() copies foo__bar__baz() to baz() if `q foo bar`
 
 
+. "$(lib)" # import lib
 # print absolute paths as if the argument is always relative to the directory of this file
 # TODO breaks if run as '. ./rc.sh'
 here() { : "${BASH_SOURCE[0]:-${(%):-%x}}"; (( $# )) && echo "${_%/*}/${1#/}" || echo "$_"; }
@@ -49,9 +50,9 @@ rc() {
     q "${@:2}" && . "$1"
   else
     # set data for q() special cases
-    export OS="$(uname -a | cut -d' ' -f1;)"
-    export TERM="$(printf '%s\n' "$TERM";)" # TODO consistent way to set $TERM
-    export SHELL="$(ps -p $$ -o command | cut -d' ' -f 1 | tail -n1;)"
+    export OS="$(uname -s)"
+    export TERM="$TERM" # TODO consistent way to set $TERM
+    export SHELL="$(ps -p $$ -o comm=)"
     local f c
     # run setup functions (ending with __)
     for c in $(func ls | sed -n 's/__$//p' | sort); do q ${c/__/ } && ${c}__; done
@@ -114,47 +115,6 @@ func() { # working with shell functions
   esac
 }
 
-# OPT
-# opt() generates a script that parses arguments.
-# example: `eval "$(opt x y z: job,j='a job' -d 'foo description')"`
-# in this example, $x will be set to 1 if -x is passed. Same with $y. -z must be passed and takes an argument.
-# $job will be set to its argument if --job or -j is passed, otherwise it will have the value 'a job'
-# if -h or --help is passed, 'foo description' will be used as a description in the help text.
-# if opt() is passed --nargs, positional arguments are disallowed.
-# if opt() is passed --nohelp, -h|--help flags won't be generated
-# TODO `local help="$help"` to allow message to leak in
-opt() {
-  local description='generate a script that parses arguments'
-  # recurse to process our own arguments
-  if [ -- != "$1" ]; then eval "$(opt -- description,d="no description found" nargs nohelp)"; else shift; fi
-  local vars=() cases=() required=() names=() sed=''
-  # generate variable names and cases from arguments
-  sed='s/^\([^,:=]*\)/\1,\1/;s/,/|--/g;s/-\(.\)\([:=|]\|$\)/\1\2/g;s/|/ /;' # 'a,bc,d=' -> 'a -a|--bc|-d='
-  sed=$sed'/\(:\|=\)$/!{s/\([^ ]*\) \(.*\)/\1 \2) \1=1/;};' # 'a -b|-c' -> 'a -b|-c) a=1'
-  sed=$sed'/\(:\|=\)$/{s/.$/)/;s/\([^ ]*\) \(.*\)/\1 \2 shift\;\1=\$1/;};' # 'a -b|-c:' -> 'a -b|-c) shift;a=$1'
-  while M "$1" '^(.[^=:]*)(=(.*)|:)?$'; do # M (names list)(flag + value)(value)
-      v="$(sed "$sed" <<< "${M[1]}${M[2]:0:1}")" vars+=("${v%% *}" "${M[3]}") cases+=("${v#* }")
-      [ "${M[2]}" = : ] && required+=("${names[0]}")
-      shift
-  done
-  (( $# )) && printf 'malformed opt definition: "%s"\n' "$1" >&2 && return 1
-  local help="echo ${FUNCNAME[1]:-${funcstack[1]}}: $(printf '%q' "$description") >&2"
-  (( nohelp )) || cases+=("-h|--help) $help; return")
-  cases+=('--) shift;__opt_args+=("$@"); break')
-  cases+=("-*) echo ${FUNCNAME[1]:-${funcstack[1]}}: unrecognized flag "\$1"; $help; return 1")
-  cases+=('*) __opt_args+=("$1")')
-  fmt 'local __opt_args=()\n'
-  (( ${#vars[@]} )) && fmt 'local %s\n%L%s=%q%I ' "${vars[@]}"
-  fmt 'while (( $# )); do case "$1" in\n%sesac; shift; done\n%L %s ;;\n' "${cases[@]}"
-  fmt 'set -- "${__opt_args[@]}"\n'
-  if (( ${#required[@]} )); then
-    fmt 'for __opt_args in %s; do\n%L%s%I ' "${required[@]}"
-    fmt ' if [ -z "${!__opt_args}" ]; then echo missing arg "$__opt_args"; %s; return 1; fi\ndone\n' "$help"
-  fi
-  fmt 'unset __opt_args\n'
-  (( nargs )) && fmt 'if (( $# )); then echo positional arguments not allowed; %s; return 1; fi;' "$help"
-}
-
 timer() { # echo the (average) elapsed system time in seconds (millisecond precision)
   eval "`opt repeat,r=1`"
   # call as `timer cmd` or as `timer; cmd1; cmd2; timer`
@@ -215,8 +175,7 @@ __minecraft-server() { ls ~/.minecraft/saves/; }
 zsh__() {
   autoload -Uz compinit
   compinit
-  emulate ksh # bash and zsh index arrays differently if KSH_ARRAYS isn't set
-  setopt promptsubst zle autocd bashrematch nolocaloptions shwordsplit
+  setopt promptsubst zle autocd nolocaloptions
   setopt appendhistory histexpiredupsfirst histignoredups noextendedhistory
   PROMPT='$(EXIT="$?" fmt[pp]="%%{"  fmt[qq]="%%}"; prompt)%# '
 }
@@ -237,47 +196,11 @@ helm__() { . <(helm completion ${SHELL##*/}); }
 inv__() { . <(inv --print-completion-script=${SHELL##*/}); }
 
 
-M() { unset -v M; [[ "$1" =~ $2 ]] && M=("${BASH_REMATCH[@]}"); } # wrapper for regex. zsh: setopt bashrematch
-
-# FMT
-# fmt() is printf(), but understands additional directives.
-# The %TXX directive, where XX is any two characters, will be replaced by a lookup into the tput() cache, $fmt[].
-# Additionally, %T is prompt aware and will escape tput() sequences when drawing the prompt.
-# The %L directive divides the pattern into two parts. The right half acts as a normal printf pattern and will be
-# repeated as necessary to consume all the arguments. Once this is done, the left half will be expanded once with the
-# output of the right half as its sole argument.
-# The %I directive indicates a literal string on its right, to the end of the pattern. This literal is used as a
-# separator whenever the pattern needs to be repeated in order to consume all the given arguments.
-# Used together `fmt '^%s$%L(%s)%I, ' a b 'c d'` prints '^(a), (b), (c d)$'
-# TODO `fmt -v VAR` pass `-v VAR` to final printf, use __local_vars to avoid collision
-# TODO allow %%T escaped %T
-# TODO directive for 256 color https://wikimho.com/us/q/unix/269077
-declare -A fmt=() # fmt is a cache of tput values so we don't constantly make subshells when formatting
-fmt() {
-  if (( $# )); then
-    (( ${#fmt} )) || fmt
-    local f="$1"; shift
-    # replace %TXX directives with cached tput codes (and prompt escapes if set)
-    while M "$f" '%T(..)'; do f="${f//${M[0]}/"${fmt[pp]}${fmt[${M[1]}]}${fmt[qq]}"}"; done
-    # match pattern for %L and %I directives
-    M "$f" "(((%%|[^%]|%[^LI])*)%L)?((%%|[^%]|%[^I])*)(%I(.*))?" || return 1
-    printf -v f "${M[7]//"%"/%%}${M[4]}" "$@"
-    printf "${M[2]:-"%s"}" "${f#"${M[7]}"}"
-  else
-    # populate cache
-    # Black Red Green Yellow blUe Magenta Cyan White
-    fmt[0]=1; local f b c=(b r g y u m c w B R G Y U M C W)
-    for f in {0..15}; do fmt[${c[$f]}-]="$(tput setaf $f)" fmt[-${c[$f]}]="$(tput setab $f)"; done
-    for f in "${c[@]}"; do for b in "${c[@]}"; do fmt[$f$b]="${fmt[${f}-]}${fmt[-$b]}"; done; done
-    fmt[--]="$(tput  sgr0)" fmt[__]="$(tput  smul)" fmt[..]="$(tput  dim)" fmt[**]="$(tput  bold)"
-    # follow printf and return 1 if no pattern is given
-    return 1
-  fi
-}
 colortest() {
   local f b c=(b r g y u m c w B R G Y U M C W)
   for f in "${c[@]}"; do for b in "${c[@]}"; do fmt "%T$f$b%s" "${1:-"##"}"; done; fmt "%T--\n"; done
 }
+
 spark() {
   # directly inspired by https://github.com/holman/spark/blob/master/spark
   # eval "$(opt wrap,scroll,overwrite? use_stdin,s sine)"
@@ -408,7 +331,7 @@ rc
 # git: integrate forgit with existing fzf completion architecture
 # term__(): [iTerm xterm] [window-dressing(title), copy-paste, scrollback, window-size]
 # help() unify bash.help(), man, info, -h, -help, --help, type, link to docs?
-# test suite? especially for bash vs zsh
+# test suite? especially for bash vs zsh https://bach.sh/
 # installer system - separate from rc() but install tools specified by rc
 # degrade/fallback system - as part of rc(), fallback to available tools if preferred versions aren't available
 # install/fallback grep=rg ls=exa find=fd https://github.com/sharkdp/fd cat=batcat vipe

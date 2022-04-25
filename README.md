@@ -36,6 +36,8 @@ $here/ricer -t dracula
 
 
 # TODO
+* ricer
+    * add {{font}}
 * git workflow
     * [forgit](https://github.com/wfxr/forgit)?
     * [git-delta](https://github.com/dandavison/delta)

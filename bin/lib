@@ -1,0 +1,179 @@
+#!/bin/bash
+# a bash library
+# import with `. "$(lib)"` if it's on your $PATH
+# also works with zsh if `emulate ksh; setopt bashrematch`
+
+# if we're not sourced, return the name of this file and exit
+# if sourced by bash, `$0=*bash`, if sourced by zsh `$0=*lib` but $BASH_SOURCE isn't set
+if [ "${0##*/}" = "lib" ] && [ -n "$BASH_SOURCE" ]; then
+    echo "$BASH_SOURCE"
+    exit
+fi
+# Sorry not sorry. Need to widen the compatibility between zsh and bash.
+if [ -n "$ZSH_VERSION" ]; then emulate ksh; setopt bashrematch nolocaloptions; fi
+
+escape_html() { local s="${*//&/&amp\;}"; s="${s//</&lt\;}"; s="${s//>/&gt\;}"; printf '%s' "${s//"\""/&quot\;}"; }
+
+#afmt() { eval "((\${#$1[@]})) && fmt '$1=(%s)\n%L\"%s\"%I, ' \"\${$1[@]}\" || fmt '$1=()\n'"; }
+aset() { eval "shift; $1=(\"\$@\")"; } # assign values to an array indirectly
+M() { unset -v "${3:-M}"; [[ "$1" =~ $2 ]] && aset "${3:-M}" "${BASH_REMATCH[@]}"; }
+
+S() { # stack semantics. push `n+=(value)` peek `S n` pop `S n -` popvar `S n var` notempty `S n -n`
+    : "$1[\${#$1[@]}-1]"; : "%s \"\${$_}\"; [ -n \"\$ZSH_VERSION\" ] && $_=() || unset $_"
+    case "$2" in '') : "printf ${_%;*}";; -n) : "((\${#$1[@]}))";; -)  : "printf $_";; *)  : "printf -v $2 $_";; esac
+    eval "$_"
+}
+
+# OPT
+# opt() generates a script that parses arguments.
+# example: `eval "$(opt x y z: job,j='a job' -d 'foo description')"`
+# in this example, $x will be set to 1 if -x is passed. Same with $y. -z must be passed and takes an argument.
+# $job will be set to its argument if --job or -j is passed, otherwise it will have the value 'a job'
+# if -h or --help is passed, 'foo description' will be used as a description in the help text.
+# if opt() is passed --nargs, positional arguments are disallowed.
+# if opt() is passed --nohelp, -h|--help flags won't be generated
+# TODO `local help="$help"` to allow message to leak in, then include the above in help
+opt() {
+  local description='generate a script that parses arguments'
+  # recurse to process our own arguments
+  if [ -- != "$1" ]; then eval "$(opt -- description,d="no description found" nargs nohelp)"; else shift; fi
+  local vars=() cases=() required=() names=() sed=''
+  # generate variable names and cases from arguments
+  sed='s/^\([^,:=]*\)/\1,\1/;s/,/|--/g;s/-\(.\)\([:=|]\|$\)/\1\2/g;s/|/ /;' # 'a,bc,d=' -> 'a -a|--bc|-d='
+  sed=$sed'/\(:\|=\)$/!{s/\([^ ]*\) \(.*\)/\1 \2) \1=1/;};' # 'a -b|-c' -> 'a -b|-c) a=1'
+  sed=$sed'/\(:\|=\)$/{s/.$/)/;s/\([^ ]*\) \(.*\)/\1 \2 shift\;\1=\$1/;};' # 'a -b|-c:' -> 'a -b|-c) shift;a=$1'
+  while M "$1" '^(.[^=:]*)(=(.*)|:)?$'; do # M (names list)(flag + value)(value)
+      v="$(sed "$sed" <<< "${M[1]}${M[2]:0:1}")" vars+=("${v%% *}" "${M[3]}") cases+=("${v#* }")
+      [ "${M[2]}" = : ] && required+=("${names[0]}")
+      shift
+  done
+  (( $# )) && printf 'malformed opt definition: "%s"\n' "$1" >&2 && return 1
+  local help="echo ${FUNCNAME[1]:-${funcstack[1]}}: $(printf '%q' "$description") >&2"
+  (( nohelp )) || cases+=("-h|--help) $help; return")
+  cases+=('--) shift;__opt_args+=("$@"); break')
+  cases+=("-*) echo ${FUNCNAME[1]:-${funcstack[1]}}: unrecognized flag "\$1"; $help; return 1")
+  cases+=('*) __opt_args+=("$1")')
+  fmt 'local __opt_args=()\n'
+  (( ${#vars[@]} )) && fmt 'local %s\n%L%s=%q%I ' "${vars[@]}"
+  fmt 'while (( $# )); do case "$1" in\n%sesac; shift; done\n%L %s ;;\n' "${cases[@]}"
+  fmt 'set -- "${__opt_args[@]}"\n'
+  if (( ${#required[@]} )); then
+    fmt 'for __opt_args in %s; do\n%L%s%I ' "${required[@]}"
+    fmt ' if [ -z "${!__opt_args}" ]; then echo missing arg "$__opt_args"; %s; return 1; fi\ndone\n' "$help"
+  fi
+  fmt 'unset __opt_args\n'
+  (( nargs )) && fmt 'if (( $# )); then echo positional arguments not allowed; %s; return 1; fi;' "$help"
+}
+
+
+# FMT
+# fmt() is printf(), but understands additional directives.
+# The %TXX directive, where XX is any two characters, will be replaced by a lookup into the tput() cache, $fmt[].
+# Additionally, %T is prompt aware and will escape tput() sequences when drawing the prompt.
+# The %L directive divides the pattern into two parts. The right half acts as a normal printf pattern and will be
+# repeated as necessary to consume all the arguments. Once this is done, the left half will be expanded once with the
+# output of the right half as its sole argument.
+# The %I directive indicates a literal string on its right, to the end of the pattern. This literal is used as a
+# separator whenever the pattern needs to be repeated in order to consume all the given arguments.
+# Used together `fmt '^%s$%L(%s)%I, ' a b 'c d'` prints '^(a), (b), (c d)$'
+# TODO `fmt -v VAR` pass `-v VAR` to final printf, use __local_vars to avoid collision
+# TODO %H directive for 256 color https://wikimho.com/us/q/unix/269077
+declare -A fmt=() # fmt is a cache of tput values so we don't constantly make subshells when formatting
+fmt() {
+  if (( $# )); then
+    (( ${#fmt} )) || fmt
+    local f="$1"; shift
+    # replace %TXX directives with cached tput codes (and prompt escapes if set)
+    while M "$f" '%T(..)'; do f="${f//${M[0]}/"${fmt[pp]}${fmt[${M[1]}]}${fmt[qq]}"}"; done
+    # match pattern for %L and %I directives
+    # TODO allow %%T escaped %T
+    M "$f" "(((%%|[^%]|%[^LI])*)%L)?((%%|[^%]|%[^I])*)(%I(.*))?" || return 1
+    printf -v f "${M[7]//"%"/%%}${M[4]}" "$@"
+    printf "${M[2]:-"%s"}" "${f#"${M[7]}"}"
+  else
+    # Black Red Green Yellow blUe Magenta Cyan White
+    fmt[0]=1; local f b c=(b r g y u m c w B R G Y U M C W)
+    for f in {0..15}; do fmt[${c[$f]}-]="$(tput setaf $f)" fmt[-${c[$f]}]="$(tput setab $f)"; done
+    for f in "${c[@]}"; do for b in "${c[@]}"; do fmt[$f$b]="${fmt[${f}-]}${fmt[-$b]}"; done; done
+    fmt[--]="$(tput  sgr0)" fmt[__]="$(tput  smul)" fmt[..]="$(tput  dim)" fmt[**]="$(tput  bold)"
+    # follow printf and return 1 if no pattern is given
+    return 1
+  fi
+}
+fmt || true # populate cache right away
+
+
+
+# MO
+mo() {
+    # http://mustache.github.io/mustache.5.html
+    # {{#var}}block{{/var}} - for each in array
+    # {{^var}}block{{/var}} - if not var, unset or var=()
+    # {{! comment }} - ignored
+    # {{&var}} - "${var[*]}"
+    # {{var}} - escape_html "${var[*]}"
+    # {{> partial }} - mo "$partial"
+    eval "`opt -d "moustache templater"`"
+    local __t __raw="$(cat "$@"; printf x)"; set --; # tokenize raw text into $@
+    while M "$__raw" '^(([^{]|\{[^{])*)\{\{([^}]*)\}\}' __t; do
+        set -- "$@" "${__t[1]}" "${__t[3]// }"; __raw="${__raw/"${__t[0]}"}"
+    done
+    set -- "$@" "${__raw%x}";
+    unset -v __t __raw # reuse __t as tag stack and __raw as body
+    while (( $# )); do
+        if (( $# % 2 )); then (( ${#__t[@]} )) && __raw+="$1" || printf '%s' "$1"; shift; continue; fi # $1 is body
+        if (( ${#__t[@]} )) && ! [[ "#^/" =~ "${1:0:1}" ]]; then __raw+="{{$1}}"; shift; continue; fi # shortciruit var
+        case "${1:0:1}" in
+            \#) ((${#__t[@]})) && __raw+="{{$1}}" && __t=("$1" "${__t[@]}") || __t=("$1") ;;
+            ^)  ((${#__t[@]})) && __raw+="{{$1}}" && __t=("$1" "${__t[@]}") || __t=("$1") ;;
+            /) # section closing tag
+                [ "${__t[0]#?}" != "${1#?}" ] && printf '%s\n' "mismatched tags '${__t[0]}' != '$1'" >&2 && return 1
+                if [ ${#__t[@]} = 1 ]; then case "${__t[0]}" in
+                        \#*) eval "for tag in \"\${${1#?}[@]}\"; do printf '%s' \"\$__raw\" | mo || return; done" ;;
+                        ^*) eval "((\${#${1#?}[@]})) || printf '%s' \"\$__raw\" | mo || return" ;;
+                    esac; __raw=''; else __raw+="{{$1}}"; fi; __t=("${__t[@]:1}") ;;
+            \>) mo -- "${1#?}" || return ;; # partial
+            !)  ;; # comment
+            \&*) eval "printf '%s' \"\${${1#&}[*]}\"" ;; # raw value
+            *) eval "escape_html \"\${$1[@]}\"" ;; # escaped value
+        esac
+        shift
+    done
+    if (( ${#__t[@]} )); then
+        fmt 'unclosed tag (%s)\n%L"%s"%I, ' "${__t[@]}" >&2
+        return 1
+    fi
+}
+return
+mo() {
+    # http://mustache.github.io/mustache.5.html
+    # {{#var}}block{{/var}} - for each in array
+    # {{^var}}block{{/var}} - if not var, unset or var=()
+    # {{! comment }} - ignored
+    # {{&var}} - "${var[*]}"
+    # {{var}} - escape_html "${var[*]}"
+    # {{> partial }} - mo "$partial"
+    eval "`opt -d "moustache templater"`"
+    local __t=() __x=() __tok='^(([^{]|\{[^{])*)\{\{([^}]*)\}\}' __raw="$(cat "$@"; printf x)"
+    while M "$__raw" "$__tok" __x; do __t+=("${__x[1]}" "${__x[3]// }"); __raw="${__raw/"${__x[0]}"}"; done
+    set -- "${__t[@]}" "${__raw%x}"; unset -v __t __raw __x __tok # reuse __t as tag stack and __raw as body
+    while (( $# )); do
+        if (( $# % 2 )); then S __t -n && __raw+="$1" || printf '%s' "$1"; shift; continue; fi # $1 is body
+        if S __t -n && ! [[ "#^/" =~ "${1:0:1}" ]]; then __raw+="{{$1}}"; shift; continue; fi # shortciruit var in sec
+        case "${1:0:1}" in
+            \#|^) S __t -n && __raw+="{{$1}}"; __t+=("$1") ;;
+            /) S __t __x; [ "${__x#?}" != "${1#?}" ] && printf 'mo: "%s" != "%s"\n' "$__x" "$1" >&2 && return 1
+                if S __t -n; then __raw+="{{$1}}"
+                else : "printf '%s' \"\$__raw\" | mo || return"
+                    case "$__x" in \#*) : "for tag in \"\${${1#?}[@]}\";do $_;done";; ^*) : "S ${1#?} -n || $_";; esac;
+                    eval "$_"; __raw='';
+                fi;;
+            \>) mo -- "${1#?}" || return ;; # partial
+            !)  ;; # comment
+            \&*) eval "printf '%s' \"\${${1#&}[*]}\"" ;; # raw value
+            *) eval "escape_html \"\${$1[@]}\"" ;; # escaped value
+        esac
+        shift
+    done
+    if (( ${#__t[@]} )); then fmt 'mo: unclosed (%s)\n%L"%s"%I, ' "${__t[@]}" >&2; return 1; fi
+}

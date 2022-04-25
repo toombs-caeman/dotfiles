@@ -163,10 +163,10 @@ colors:
     bright_foreground: '#{{color15}}'
   cursor:
     text: CellBackground
-    cursor: CellForeground
+    cursor: '#{{cursor}}'
   vi_mode_cursor:
     text: CellBackground
-    cursor: CellForeground
+    cursor: '#{{cursor}}'
   search:
     matches:
       foreground: '#{{cursor}}'
@@ -184,9 +184,6 @@ colors:
     end:
       foreground: '#{{color3}}'
       background: '#{{background}}'
-  line_indicator:
-    foreground: None
-    background: None
   selection:
     text: CellForeground
     background: '#{{cursor}}'
