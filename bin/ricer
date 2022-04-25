@@ -3,7 +3,7 @@
 theme_dir="${BASH_SOURCE%/*/*}/themes"
 template_dir="${BASH_SOURCE%/*/*}/templates"
 config() {
-    echo "theme=$theme wallpaper=$wallpaper"
+    echo "theme='$theme' wallpaper='$wallpaper'"
     # when       template        destination                        callback
     t xrdb       Xresources      ~/.Xresources                      xrdb -load ~/.Xresources
     t alacritty  alacritty.yml   ~/.alacritty.yml
@@ -22,13 +22,13 @@ ricer() {
     themes="$(
         cd "$theme_dir"
         for f in *; do 
-            printf '%s <' "${f##*/}"
+            printf '%s\001\t' "${f##*/}"
             while read line; do
                 : "${line#??}"
                 printf '\e[0;38;2;%d;%d;%dm█' "0x${line%????}" "0x${_%??}" "0x${_#??}"
             done < "$f"
-            printf '\e[m>\n'
-        done | column -t
+            printf '\e[m\n'
+        done | column -t -s $'\t'
     )"
 
     # list themes and exit
@@ -38,9 +38,9 @@ ricer() {
     [ -n "$convert" ] && theme=dracula # short circuit theme selection if we're converting a template
     if [ -n "$theme" ] || (( fzf )); then
         [ -f "$theme_dir/$theme" ] ||
-        theme="$(echo "$themes" | fzf -1 -q "$theme" --ansi | cut -d' ' -f 1)"
+        theme="$(echo "$themes" | fzf -1 -q "$theme" --ansi | cut -d $'\001' -f 1)"
     else
-        theme="$(echo "$themes"|cut -d\  -f1|shuf|head -n1)"
+        theme="$(echo "$themes" | cut -d $'\001' -f 1 | shuf | head -n1)"
     fi
     [ -n "$theme" ] || return 1
 
@@ -69,7 +69,8 @@ ricer() {
     config
 }
 
-# I took most of the themes in themes/ from [pywal](https://github.com/dylanaraps/pywal)
+# I copied almost all the themes in themes/
+# convert from [pywal](https://github.com/dylanaraps/pywal)
 # the ricer theme format is color 0 - 15, foreground, background, cursor using 6 digit hex codes. 1 color per line.
 _ricer_load_pywal_themes() {
   for f in *.json; do
@@ -78,6 +79,16 @@ _ricer_load_pywal_themes() {
   done
   rm *.json
 }
+# https://github.com/studioThirteen/Terminal-Color-Schemes/tree/master/Xresources
+_ricer_studiothirteen_xresource_themes() {
+    for f in src/*; do
+    { 
+        echo '{'
+        sed '/!/d;s/\*.\([^:]*\): *#\(.*\)/"\1":"\2",/;' "$f" | sed '$s/,//;'
+        echo '}'
+    } | jq -r "$(fmt '.%s%I,' color{0..15} foreground background cursorColor)" > dest/"${f#*/}"
+    done
+}
 
-. "${BASH_SOURCE%/*}/../rc.sh" # import opt()
+. "$(lib)" # import opt()
 ricer "$@"
