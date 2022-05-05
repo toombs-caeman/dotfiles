@@ -19,6 +19,10 @@ require() {
     has pip && sudo pip install "$(missing "$@")" && return
     return 1
 }
+# chsh -s zsh
+# https://askubuntu.com/questions/1122513/how-to-add-natural-inverted-mouse-scrolling-in-i3-window-manager
+# echo 'Option "NaturalScrolling" "True"' >> /usr/share/X11/xorg.conf.d/40-libinput.conf
+
 require zsh kak fzf chevron || return 1
 
 [ -f ~/.gitconfig ] || echo ln -s $here/git/gitconfig ~/.gitconfig

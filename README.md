@@ -33,11 +33,12 @@ printf '. %s/rc.sh' "$here" >> ~/.zshrc
 $here/ricer -t dracula
 ```
 
-
-
 # TODO
 * ricer
     * add {{font}}
+      * [nerdfonts](https://www.nerdfonts.com/)
+      * [FiraCode](https://github.com/tonsky/FiraCode)
+      * [hack](https://github.com/source-foundry/Hack)
 * git workflow
     * [forgit](https://github.com/wfxr/forgit)?
     * [git-delta](https://github.com/dandavison/delta)
@@ -49,17 +50,12 @@ $here/ricer -t dracula
       * kakoune-surround
   * vim
     * [fzf-vim](https://github.com/junegunn/fzf/blob/master/README-VIM.md)
-* font
-  * [nerdfonts](https://www.nerdfonts.com/)
-  * [FiraCode](https://github.com/tonsky/FiraCode)
-  * [hack](https://github.com/source-foundry/Hack)
 * keyboard
   * save layout
   * flash instructions
 * WM / DE
   * arrange windows
   * notifications
-    * dunst isn't configured, currently using inotify-osd
     * [notifications](http://blog.z3bra.org/2014/04/pop-it-up.html)
   * clipboard
   * status bar
@@ -80,6 +76,10 @@ $here/ricer -t dracula
   * mpd
   * mpv
   * bookmark cache
+
+# other tweaks
+* [change tty resolution](https://help.ubuntu.com/community/ChangeTTYResolution)
+* change default shell for user `chsh`
 
 # Potential new stuff
 * visualize vim keymaps by mode+leader+modifier

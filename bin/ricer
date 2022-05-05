@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# ricer         //
+#      _______ //
+#   __/  ,   ,//
+#  / , ,   ,  , \
+# \--------------/
+#  \unununununun/
+#   \__________/
+
 theme_dir="${BASH_SOURCE%/*/*}/themes"
 template_dir="${BASH_SOURCE%/*/*}/templates"
 config() {
@@ -74,7 +82,7 @@ ricer() {
 # the ricer theme format is color 0 - 15, foreground, background, cursor using 6 digit hex codes. 1 color per line.
 _ricer_load_pywal_themes() {
   for f in *.json; do
-    jq "$(fmt '(.colors|{%s}[]),(.special|{foreground,background,cursor}[])%Lcolor%s%I,' {0..15})" "$f" | \
+    jq "$(fmt 'color%s%F,%j(.colors|{%s}[]),(.special|{foreground,background,cursor}[])' {0..15})" "$f" | \
       tr -d '"#' > "${f%%.json}"
   done
   rm *.json
@@ -86,9 +94,10 @@ _ricer_studiothirteen_xresource_themes() {
         echo '{'
         sed '/!/d;s/\*.\([^:]*\): *#\(.*\)/"\1":"\2",/;' "$f" | sed '$s/,//;'
         echo '}'
-    } | jq -r "$(fmt '.%s%I,' color{0..15} foreground background cursorColor)" > dest/"${f#*/}"
+    } | jq -r "$(fmt '.%s%F,%j' color{0..15} foreground background cursorColor)" > dest/"${f#*/}"
     done
 }
 
 . "$(lib)" # import opt()
 ricer "$@"
+

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# core
+```
+main() {
+  . "$(lib)"
+  eval "$(opt -d 'a literate programming shell')"
+}
+x="$(declare -f main)"
+printf "eval '%s'" "${x//"'"/"'\"'\"'"}"
+#exit
+```
+#

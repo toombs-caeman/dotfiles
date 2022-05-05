@@ -16,6 +16,8 @@
 # (v)ariable scalar
 
 ## embedded languages
+# l - a literal string
+# i - an identifier as taken by the shell
 # f - a format as accepted by fmt (printf + extensions)
 # r - a regex as taken by =~ (and therefore M())
 # c - a command as taken by _()
@@ -38,20 +40,42 @@
 ## load/store commands
 # array exec io var
 ## stack/args manipulation
-# call dup literal next print sWap xdrop
+# call dup literal next omit print sWap
 ## default/option functions
-# j m r s
+# join map sort filter split
 
 ## unused letters
 # b g k o t u y z
 
-. "$(lib)"
+## unimplemented
+# slice zip zip_longest count reduce
+
+## string<->array[string] functions by signature
+# 1<>1 map
+# 2<>1 join
+# V<>1 format - unlike the others it can't be mapped well. because it's variadic
+# 1<>N split
+# 1<>(0|1) filter
+# N<>M<=N slice
+# N<>M<=N uniq
+# N<>N sort
+# N+M<>min(N+M)*2 zip
+# N+M<>max(N+M)*2 zip_longest
+# N<>X*Y=N group
+apop() { # usage: apop <stack_name> [<var_name>]
+    # _ DNaVA "$1" "${2:-_}"
+    _ aVA "$1" "${2:-_}" "$1"
+}
+aset() { # usage: aset <array_name> [<value> ...]
+    _ lQA "$@"
+}
 _() {
-    local _help='Usage: _ [<arg>...]
+    # code and args ($@) are always private, but $stack can be exposed for recursion.
+    local code _help='Usage: _ [<arg>...]
 
 Rationale:
     a tool to handle arrays and indirection more consistently in pure bash
-    handle common ways to load and save arrays (variable args file_lines)
+    handle common ways to load and store arrays (variable args file_lines)
     handle common array operations (slice map filter zip zip_longest sort unique concat group)
     handle common array <-> scalar operations (print count reduce split_string)
 
@@ -75,8 +99,10 @@ Command types:
     command (see `man sort`).
 
 Commands:'
-    _log() { :; }
-    local __x __y code stack=()
+    if [ '-' != "${1:0:1}" ]; then
+        _log() { :; }
+        local __x __y stack=()
+    fi
     while (($#)); do code="$1"; (($#))&&shift; _log "code='$code'"; while ((${#code})); do case "${code:0:1}" in
         A) _log "store array as $1"
             (($#)) && eval "$1=(\"\${stack[@]}\")" && shift ;;
@@ -87,11 +113,10 @@ Commands:'
         c) _log "call '${stack[@]}'. stack is replaced."
             __x=("${stack[@]}"); stack=();
             while IFS= read -r __y; do stack+=("$__y"); done < <("${__x[@]}") ;;
-        D) _log "dup arg"
-            set -- "$1" "$@";;
+        D) _log "dup arg"; set -- "$1" "$@";;
         d) _log "dup stack"
-            apeek stack __x; stack+=("$__x") ;;
-        E) _log "save state as $1"
+            _ -Vvv __x __x __x ;;
+        E) _log "store state as $1"
             # save fmt is (len(arg), code, arg..., stack...)
             eval "shift; $1=(\$# \"\${code#?}\" \"\$@\" \"\${stack[@]}\")"
             return ;;
@@ -131,7 +156,7 @@ Commands:'
             unset __x; printf -v __x %s "${stack[@]}"; stack=("$__x")
             ;;
         L) _log "load arg"
-            apop stack __x;
+            _ -V __x;
             set -- "$__x" "$@";;
         l) _log "load literal '$1'"
             (($#)) && stack+=("$1") && shift ;;
@@ -157,11 +182,11 @@ Commands:'
         N) _log "next arg"
             __x="$1"; shift; set -- "$@" "$__x" ;;
         n) _log "next stack"
-            apop stack __x; stack=("$__x" "${#stack[@]}") ;;
+            _ -V __x; stack=("$__x" "${#stack[@]}") ;;
         O) _log "omit $1"
             shift ;;
         o) _log "omit stack"
-            apop stack __x ;;
+            _ -V __x ;;
         P) _log "print arg ($#)"
             (($#)) && printf '%s\n' "$@" ;;
         p) _log "print stack (${#stack[@]})"
@@ -174,39 +199,58 @@ Commands:'
             set --;;
         R) _log "split on '$1'"
             (($#)) || continue
-            __x=("${stack[@]}"); stack=(); 
-            for item in "${__x[@]}"; do asplit stack "$1" "$item"; done
+            __x=("${stack[@]}"); stack=()
+            for __y in "${__x[@]}"; do
+                while ((${#__y})); do
+                    _ -l "${__y%%"$1"*}"
+                    __y="${__y#"$_"}"
+                    __y="${__y#"$1"}"
+                done
+            done
             shift;;
-        r) _log "fmt by '$1'"
-            # clearly fmt causes some janky behavior here
-            __x=("${stack[@]}"); stack=();
-            fmt -v stack "$1" "${__x[@]}"
-            shift;;
+        r) _log "split characters"
+            _ -R '' ;; # TODO should split a string into individual chracters
         S) _log "sort with options -$1"
             __x=("${stack[@]}"); stack=();
             while IFS= read -r -d $'\0' __y; do stack+=("$__y"); done < <(printf '%s\0' "${__x[@]}"|sort -z$1)
             shift;;
         s) _log "sort"
-            __x=("${stack[@]}"); stack=();
-            while IFS= read -r -d $'\0' __y; do stack+=("$__y"); done < <(printf '%s\0' "${__x[@]}"|sort -z) ;;
+            _ -S '' ;;
+            #__x=("${stack[@]}"); stack=();
+            #while IFS= read -r -d $'\0' __y; do stack+=("$__y"); done < <(printf '%s\0' "${__x[@]}"|sort -z) ;;
         V) _log "store var as $1"
-            (($#)) && apop stack "$1" && shift ;;
+            : "stack[\${#stack[@]}-1]"
+            (($#)) && ((${#stack[@]})) && eval "printf -v '$1' %s \"\${$_}\"; [ -n \"\$ZSH_VERSION\" ] && $_=() || unset $_" && shift ;;
         v) _log "load var $1"
             (($#)) && eval "stack+=(\"\${$1}\")" && shift ;;
         W) _log "swap args"
             __x="$1" __y="$2"; shift 2
             set -- "$__y" "$__x" "$@";;
         w) _log "swap stack"
-            apop stack __x;
-            apop stack __y
+            _ -V __x
+            _ -V __y
             stack+=("$__x" "$__y")
             ;;
-        z) _log "load stack size"
-            stack+=("${#stack[@]}") ;;
-        -) _log "ignored" ;; # ignored
-        #Z) _log "zipping $1 arrays" # TODO
+        #Y) _log "reduce by function $1"
+        #    _ -V __x
+        #    while ((${#stack[@]})); do
+        #        _ -V __y
+        #        _ iV <("$1" "$__x" "$__y") __x
+        #    done
+        #    shift ;;
+        #y) _log "map by function $1"
+        #    shift ;;
+        X) _log "move stack to args"
+            set -- "$@" "${stack[@]}"; stack=();;
+        x) _log "move args to stack"
+            stack+=("$@"); set --;;
+        #Z) _log "zip_longest $1 arrays"
         #    shift ;;
         #    #shift "$1"; shift;;
+        #z) _log "zip $1 arrays"
+        #    shift ;;
+        #    #shift "$1"; shift;;
+        -) ;; # ignored
         *) echo "_: unrecognized code '${code:0:1}'" >&2; return 1 ;;
     esac; code="${code#?}"; done; done
     ((${#stack[@]})) # set return code
@@ -218,6 +262,7 @@ Commands:'
 # _ ALa arr x arr           # arr+=('x')
 # _ VRfa v '\n' '.' v       # split a string v into an array using '\n' as a delimiter, filter empty items and store
 
-# arg=a,bc,d='e f'
-# _ VRvRdva arg = default , name x
+#arg=a,bc,d='e f'
+#_ HvRVRdVAp arg = default , name x
+#_ HdlvDlvDlap default name x
 # name=d x=(a bc d) default='e f'

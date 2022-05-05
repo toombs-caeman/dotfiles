@@ -2,6 +2,8 @@
 # Markdown Shell (mdsh)
 can we make a 'literate' bash script
 
+* each header becomes a function. functions are called in order, or can be referenced by name
+* code in fenced blocks gets concatenated.
 * fenced code blocks become functions
   * function name is taken from section header
   * use language hint as `env`
@@ -17,6 +19,13 @@ print('hello world!')
 mdsh_Python_example() {
   python <<< "print('hello world!')"
 }
+```
+## parsing
+```bash
+sed -n '/^```/,/^```/p; /^```/,/^```/!{/^#/p}' toybox/literate_programming.md
+# tokenize with M() into (name)(env)(code) triples
+M '^```(.*)'$'\n''(.*)```'
+echo "$name() { $env  \"\$@\" <<<\"$code\"; }"
 ```
 
 # Reference

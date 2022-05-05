@@ -18,8 +18,6 @@ a virtual assistant
     * specialized behavior to scrape urls in a particular folder to cache
   * youtube playlists
     * youtube-dl, and convert music playlist to audio only
-* interface
-  * discord/email bot
 * language - should be available to python and zsh while remaining human editable
   * templating
   * markdown

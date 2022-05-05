@@ -4,23 +4,15 @@
 #        ,___/\_/\ \  ~     /
 #        \     ~  \ )   XXX
 #          XXX     /    /\_/\___,
-#             \o-o/-o-o/   ~    /
-#              ) /     \    XXX
+#             \o-o/    /   ~    /
+#              \ /o-o-o\    XXX
 #             _|    / \ \_/
 #          ,-/   _  \_/   \
-#         / (   /____,__|  )
+#         / (   /_______|  )
 #        (  |_ (    )  \) _|
 #       _/ _)   \   \__/   (_
 #      (,-(,(,(,/      \,),),)
 
-# COMMENTS
-# Comments conform to the following style.
-# a function, builtin, or command 'foo' is called foo().
-# a scalar variable 'foo' is called $foo.
-# an array variable 'foo' is called $foo[].
-# a flag 'foo' is called --foo. a flag 'f' is called -f
-# Code is written in `backticks`, but $(subshells) are always preferred in real code
-# foo*() means any function whose name starts with 'foo', including foo()
 
 # DESIGN
 # When necessary, make zsh behave like bash (`emulate ksh`, `setopt BASH_REMATCH`).
@@ -39,9 +31,6 @@
 # TODO breaks if run as '. ./rc.sh'
 here() { : "${BASH_SOURCE[0]:-${(%):-%x}}"; (( $# )) && echo "${_%/*}/${1#/}" || echo "$_"; }
 
-# TODO track apt installs
-#apt() { [ "$1" = install ] && printf '%s\n' "${@:2}" >> "$(here installed.apt)"; }
-
 # TODO warn when a function is only partially defined ( like foo__bash exists but foo__zsh doesn't)
 rc=("$(here)")
 rc() {
@@ -53,20 +42,28 @@ rc() {
     export OS="$(uname -s)"
     export TERM="$TERM" # TODO consistent way to set $TERM
     export SHELL="$(ps -p $$ -o comm=)"
-    local f c
+    local f c fsetup=() fcollapse=() fnames=() fcomplete=()
+    for f in $(fls); do
+        case "$f" in
+            *__) fsetup+=("$f") ;;
+            __*) fcomplete+=("$f") ;;
+            *__*) fcollapse+=("$f"); fnames+=("${f##*__}") ;;
+        esac
+    done
+    fnames=($(printf "%s\n" "${fnames[@]}" | sort -u))
     # run setup functions (ending with __)
-    for c in $(func ls | sed -n 's/__$//p' | sort); do q ${c/__/ } && ${c}__; done
+    for f in "${fsetup[@]}"; do q ${f/__/ } && "$f"; done
     command -v __ >/dev/null && __
     # collapsing functions (dependencies then name, all separated by __)
-    for f in $(func ls | sed -n 's/^[^_].*__\(.\)/\1/p' | sort | uniq); do
-      for c in $(func ls | sed -n "s/\(.\)__$f\$/\1/p" | sort); do q ${c/__/ } && func cp "${c}__$f" "$f" && break; done
+    for f in "${fnames[@]}"; do
+        for c in $(fmt "$f$%w%s\n" "${fcollapse[@]}"); do : "${c%__*}"; q ${_/__/ } && fcp "$c" "$f" && break; done
     done
     # completions (starting with __)
     # TODO what about config sensitive completions?
     # TODO _fzf_setup_completion https://github.com/junegunn/fzf#supported-commands autogen for __*()
-    for f in $(func ls | sed -n 's/^__//p'); do
-        q bash && complete -C _rc "$f"
-        q zsh && eval ___$f'() { reply=(${(f)"$(__'$f')"}); }' && compctl -K "___$f" "$f"
+    for f in "${fcomplete[@]}"; do
+        q bash && complete -C _rc "${f##*__}"
+        q zsh && eval _$f'() { reply=(${(f)"$('$f')"}); }' && compctl -K "_$f" "${f##*__}"
     done
     return 0
   fi
@@ -106,32 +103,25 @@ q() {  # query the current os, terminal, or shell, or if commands are present in
   command -v "${q[@]:-command}" > /dev/null || return 1
 }
 
-func() { # working with shell functions
-  case "$1" in
-    ls) declare -f + || declare -F | cut -d' ' -f 3 ;;
-    cp) test -n "$(declare -f "$2")" && eval "${_/$2/$3}" ;;
-    rm) unset -f "$2" ;;
-    mv) func mv "$2" "$3"; func rm "$2" ;;
-  esac
-}
 
 timer() { # echo the (average) elapsed system time in seconds (millisecond precision)
-  eval "`opt repeat,r=1`"
   # call as `timer cmd` or as `timer; cmd1; cmd2; timer`
   # `time` is problematic since bash:time zsh:time and /usr/bin/time all have different behavior
   local ts=($(date +%s%N))
   if (( $# )); then
+    eval "`opt repeat,r=1`"
     while (( repeat-- > 0 )); do
-      "$@"
+      eval "$@"
       ts+=($(date +%s%N))
     done
-    fmt "scale=6;o=$ts;%s;t/c\n%Ln=%s;x=(n-o)/10^9;t+=x;c+=1; o=n;" "${ts[@]:1}" | bc >&2
+    fmt "n=%s;x=(n-o)/10^9;t+=x;c+=1; o=n;%F%jscale=6;o=$ts;%s;t/c\n" "${ts[@]:1}" | bc >&2
   else
     if [ -z "$timer" ]; then timer=$ts; else bc <<< "scale=6;($ts-$timer)/10^9"; timer=; fi
   fi
 }
 
 # zsh: $path is an alias for $PATH, so don't use it as a variable
+path() { (( $# )) || _ DNvDNRxLJ PATH : "$@"; while (( $# )); do export PATH="$PATH:$(cd "$1" && pwd)"; shift; done; }
 path() { (( $# )) || tr : '\n' <<< "$PATH"; while (( $# )); do export PATH="$PATH:$(cd "$1" && pwd)"; shift; done; }
 
 # thanks to https://unix.stackexchange.com/a/453170
@@ -201,36 +191,6 @@ colortest() {
   for f in "${c[@]}"; do for b in "${c[@]}"; do fmt "%T$f$b%s" "${1:-"##"}"; done; fmt "%T--\n"; done
 }
 
-spark() {
-  # directly inspired by https://github.com/holman/spark/blob/master/spark
-  # eval "$(opt wrap,scroll,overwrite? use_stdin,s sine)"
-  local use_stdin n min='2^99' max='-2^99' ticks=('▁' '▂' '▃' '▄' '▅' '▆' '▇' '█')
-  if [ '-' == "$1" ]; then
-    use_stdin=1 min=${2:-$min} max=${3:-$max}
-  fi
-  {
-    printf "z=$max\na=$min\n define l (n) {\n if (n<a) a=n; if (n>z) z=n; }\n" # adjust limits
-    printf "define q (n) {\n x=l(n); if (a == z) return (3); return (7.999 * (n-a)/(z-a)); }\n" # quantize input
-    if (( use_stdin )); then
-      while read n; do printf 'q(%s)\n' "$n"; done
-    else
-      printf 'x=l(%f)\n' "${@//,}"
-      printf 'q(%f)\n' "${@//,}"
-    fi
-    # check with `bc -s`
-  } | bc | { while read n; do printf "%s" "${ticks[$n]}"; done; }
-}
-sine() { bc -l <<< "while(1){s(x++/3);}"; }
-zsh__rate() { local n; while read -ku0 n; do printf '%s' "$n"; sleep "$1"; done; }
-bash__rate() { local n; while read -sn 1 n; do printf '%s' "$n"; sleep "$1"; done; }
-# try `sine | spark - -1 1 | rate 0.1`
-scroll_line() {
-  : # scroll a line instead of wrapping around when printing
-}
-heartbeat_line() {
-   :  # overwrite the beginning of a line when wrapping
-}
-
 prompt() {
   # for section ideas see: https://liquidprompt.readthedocs.io/en/stable/functions/data.html
   [ -n "$VIRTUAL_ENV" ] && fmt '%Tg-(%s)' "${VIRTUAL_ENV##*/}"
@@ -250,7 +210,7 @@ location() { # if in a git repo print like `toplevel(*master↓2↑1):sub(9ab999
   left="$( git -C "$C" rev-list --left-only  --count remotes/$remote/$branch...$branch)"
   right="$(git -C "$C" rev-list --right-only --count remotes/$remote/$branch...$branch)"
   fmt "%T--%s(" "${C##*/}"
-  test -n "$(git -C "$C" status --porcelain | grep -v '^??')"  && fmt '%Tr-*' || printf "${_:+*}"
+  test -n "$(git -C "$C" status --porcelain | grep -v '^??')"  && fmt '%Tr-%s' '*' || printf "${_:+*}"
   fmt '%Tg-%s' "$branch"
   (( left )) && fmt '%Tu-↓%s' "$left"  # branch is behind by left
   (( right )) && fmt '%Tu-↑%s' "$right" # branch is ahead  by right
@@ -298,21 +258,9 @@ __() {
   set -o vi # enable vi-style line editing
   VIRTUAL_ENV_DISABLE_PROMPT=yes # don't let virtualenv do weird stuff to the prompt
   export FZF_DEFAULT_OPTS='--color=16'  # use ansi colors so we follow the theme
-  export EDITOR="$(command -v vi vim nvim | tail -n1)"
-  export PAGER="less"
-  export LESS="FXr"
-  export VISUAL=$EDITOR
-  alias vi="$EDITOR"
-  alias wget='wget -c'
-  alias mkdir='mkdir -p'
-  alias cp="cp -i"
-  alias du='du -hs'
-  alias df='df -h'
-  alias la='ls -A'
-  alias ll='ls -l'
-  alias sl='ls'
-  alias ls='ls -F --color=auto'
-  fmt # populate tput cache
+  export EDITOR="$(command -v vi vim nvim | tail -n1)" PAGER="less" LESS="FXr" VISUAL=$EDITOR
+  alias vi="$EDITOR" wget='wget -c' mkdir='mkdir -p' cp="cp -i" du='du -hs' df='df -h'
+  alias la='ls -A' ll='ls -l' sl='ls' ls='ls -F --color=auto'
   rc "$(here include/fzf_complete.bash)" fzf bash
   rc "$(here include/fzf_complete.zsh)" fzf zsh
   path "$(here bin)"
@@ -337,3 +285,4 @@ rc
 # install/fallback grep=rg ls=exa find=fd https://github.com/sharkdp/fd cat=batcat vipe
 # art
 # https://マリウス.com/command-line/
+# input syntax highlighting https://github.com/akinomyoga/ble.sh https://github.com/zsh-users/zsh-syntax-highlighting
