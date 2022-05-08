@@ -19,6 +19,7 @@ config() {
     t i3-msg     i3config.sh     ~/.i3/config                       i3-msg restart >/dev/null
     t nvim       nvim.vim        ~/.config/nvim/init.vim
     t nvim       plug.vim        ~/.config/nvim/autoload/plug.vim   nvim +PlugInstall '+qall!'
+    t nvim       colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
     # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
     # firefox: enable toolkit.legacyUserProfileCustomizations.stylesheets
     # : ~/.mozilla/firefox/*.default/chrome # expand glob pattern

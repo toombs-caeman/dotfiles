@@ -226,7 +226,7 @@ trace_pid () {
     trace_pid $(ps -h -o ppid -p ${1:-$$} 2> /dev/null)
 }
 
-nix__open() { xdg-open "$1"; }
+nix__open() { xdg-open "$1" & disown; }
 mac__open() { if [ -e "$1" ]; then command open "$@"; else command open -a "$@"; fi; }
 
 mac__beep() { osascript -e 'beep 1'; }
@@ -243,6 +243,24 @@ nix__speak() {
   #spd-say "$*";
 }
 
+get() {
+    local url="${1}"
+    # XXX could trim '.git' from name here
+    if M "${url}" "([^/]*)/([^/.]*)(\.git)?$"; then
+        local parent="${M[1]}"
+        local repo="${M[1]}/${M[2]}"
+        echo "clone to $repo ?"
+        echo "ctrl-c to cancel"
+        if read; then
+            mkdir -p ~/my/"$parent"
+            git clone --depth 1 -- "${url}" ~/my/"$repo"
+            cd ~/my/"$repo"
+        fi
+    else
+        echo "couldn't parse url '$url'"
+    fi
+}
+
 #            _
 #           /(}
 #      _.___/ \ _.
@@ -257,7 +275,7 @@ nix__speak() {
 __() {
   set -o vi # enable vi-style line editing
   VIRTUAL_ENV_DISABLE_PROMPT=yes # don't let virtualenv do weird stuff to the prompt
-  export FZF_DEFAULT_OPTS='--color=16'  # use ansi colors so we follow the theme
+  export FZF_DEFAULT_OPTS='--color=16 --bind=alt-h:backward-char,alt-j:down,alt-k:up,alt-l:forward-char'
   export EDITOR="$(command -v vi vim nvim | tail -n1)" PAGER="less" LESS="FXr" VISUAL=$EDITOR
   alias vi="$EDITOR" wget='wget -c' mkdir='mkdir -p' cp="cp -i" du='du -hs' df='df -h'
   alias la='ls -A' ll='ls -l' sl='ls' ls='ls -F --color=auto'
