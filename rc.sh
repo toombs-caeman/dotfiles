@@ -278,7 +278,7 @@ __() {
   export FZF_DEFAULT_OPTS='--color=16 --bind=alt-h:backward-char,alt-j:down,alt-k:up,alt-l:forward-char'
   export EDITOR="$(command -v vi vim nvim | tail -n1)" PAGER="less" LESS="FXr" VISUAL=$EDITOR
   alias vi="$EDITOR" wget='wget -c' mkdir='mkdir -p' cp="cp -i" du='du -hs' df='df -h'
-  alias la='ls -A' ll='ls -l' sl='ls' ls='ls -F --color=auto'
+  alias la='ls -A' ll='ls -lh' sl='ls' ls='ls -F --color=auto'
   rc "$(here include/fzf_complete.bash)" fzf bash
   rc "$(here include/fzf_complete.zsh)" fzf zsh
   path "$(here bin)"

@@ -176,6 +176,7 @@ bindsym $mod+v --release exec --no-startup-id copypasta v
 
 # Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec --no-startup-id picom -b
 exec_always --no-startup-id feh --bg-fill '{{wallpaper}}' --no-fehbg --image-bg '#{{background}}'
 exec --no-startup-id nm-applet
 exec --no-startup-id i3-msg 'exec /snap/bin/firefox'
