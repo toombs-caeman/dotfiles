@@ -33,12 +33,30 @@ printf '. %s/rc.sh' "$here" >> ~/.zshrc
 $here/ricer -t dracula
 ```
 
+* /
+    * install - script for new computers with dotfiles
+    * bin/
+        * rc - source in shell
+        * updaterc - update system templates
+        * lib - shell library
+        * blog
+    * static/ - static web resources, images etc.
+    * raw/ - web content rendered with `blog`
+        * index.html
+        * bin/index.html
+        * static/index.html
+        * templates/index.html
+        * themes/index.html
+        * toybox/index.html
+    * templates/ - system and web templates
+    * themes/ - ricer themes
+    * toybox/ - random half-baked stuff
+
 # TODO
-* ricer
-    * add {{font}}
-      * [nerdfonts](https://www.nerdfonts.com/)
-      * [FiraCode](https://github.com/tonsky/FiraCode)
-      * [hack](https://github.com/source-foundry/Hack)
+* ricer add {{font}}
+    * [nerdfonts](https://www.nerdfonts.com/)
+    * [FiraCode](https://github.com/tonsky/FiraCode)
+    * [hack](https://github.com/source-foundry/Hack)
 * git workflow
     * [forgit](https://github.com/wfxr/forgit)?
     * [git-delta](https://github.com/dandavison/delta)
