@@ -29,7 +29,7 @@ bindsym $mod+Shift+q kill
 bindsym $mod+Ctrl+q --release exec --no-startup-id xkill
 
 # start program launcher
-bindsym $mod+space exec "alacritty -t launcher -e launch"
+bindsym $mod+space exec "i3-sensible-terminal -T launcher -e launch"
 for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 25 ppt, move absolute position center
 
 # screenshots
@@ -60,6 +60,8 @@ bindsym $mod+Shift+k move up
 bindsym $mod+Shift+l move right
 
 workspace_auto_back_and_forth yes
+bindsym $mod+Tab workspace back_and_forth
+
 bindsym $mod+1 workspace 1
 bindsym $mod+2 workspace 2
 bindsym $mod+3 workspace 3
@@ -81,8 +83,11 @@ bindsym $mod+Shift+8 move container to workspace 8; workspace 8
 bindsym $mod+Shift+9 move container to workspace 9; workspace 9
 
 # bind volume keys to change master volume
-bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset -c 2 'Master' 3%+
-bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset -c 2 'Master' 3%-
+bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset -c 0 'Master' 3%+
+bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset -c 0 'Master' 3%-
+bindsym XF86AudioMute exec --no-startup-id amixer sset -c 0 'Master' toggle
+bindsym XF86MonBrightnessUp exec --no-startup-id brightness 10000
+bindsym XF86MonBrightnessDown exec --no-startup-id brightness -10000
 
 # Open specific applications in floating mode
 for_window [class="alsamixer"] floating enable border normal
@@ -179,5 +184,10 @@ exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id picom -b
 exec_always --no-startup-id feh --bg-fill '{{wallpaper}}' --no-fehbg --image-bg '#{{background}}'
 exec --no-startup-id nm-applet
-exec --no-startup-id i3-msg 'exec /snap/bin/firefox'
-exec --no-startup-id i3-msg 'exec /usr/games/steam -silent'
+exec --no-startup-id i3-msg 'exec firefox'
+exec --no-startup-id i3-msg 'exec steam -silent'
+
+# XXX one per line
+# on firefox, map alt- t w to ctrl keys, as part of wink
+# laptop volume keys
+# $mod+Tab to flip between workspaces

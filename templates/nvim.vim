@@ -3,7 +3,6 @@ set nocompatible
 " plugins [vim-plug](https://github.com/junegunn/vim-plug)
 call plug#begin()
 Plug 'airblade/vim-gitgutter'           " show modified lines left of numbers
-" TODO learn/configure netrw instead
 Plug 'preservim/nerdtree'               " file system explore
 Plug 'Xuyuanp/nerdtree-git-plugin'      " show git status in NERDTree
 Plug 'junegunn/fzf'                     " basic fzf support
@@ -64,10 +63,6 @@ set softtabstop=4           " see multiple spaces as tabstops so <BS> does the r
 " sys
 set mouse=a                 " enable moving the cursor with a mouse click
 set clipboard=unnamedplus   " use system clipboard copy paste
-" let the normal Ctrl-c/Ctrl-v copy/paste *mostly* work
-nno <C-c> y
-vno <C-c> y
-ino <C-v> <Cmd>set paste<bar> exe "normal! Pl"<bar>set nopaste<CR>
 
 
 " keys
@@ -258,14 +253,11 @@ fu! S116(...) " called for 't' text object
         aug S116 | au! | aug END
         " don't use F here since it it could span multiple lines
         " try vi<`<eyvi<\<ESC>
-        echom "wut"
-        echom "??"
         " TODO fails with single letter tag??? like <p>
         exe "normal! vi<`<eyvi<l\<ESC>\"1p`]a</>\<ESC>P"
         call inputrestore()
     endif
 endfu
-ino kk []()<Left><Left><Left>
 ino kk <Cmd>call MdLink()<CR>
 fu! MdLink(...)
     if ! a:0
@@ -309,6 +301,48 @@ fu! S99() " called for textobj (c)omment
     " do comment
 endfu
 
+ono ii <Cmd>call Indent(0)<CR>
+ono ai <Cmd>call Indent(1)<CR>
+vno ii <Cmd>call Indent(0)<CR>
+vno ai <Cmd>call Indent(1)<CR>
+fu! Indent(around) " I105
+    " align mark `< and `>
+    if match(mode(), 'o\|x') != -1
+        normal! gv`[o`]
+    endif
+    let l:begin = getpos("`<")[1]
+    let l:end   = getpos("`>")[1]
+    let l:indent = len(matchstr(getline(l:begin), '^ *'))
+    if a:around
+
+endfu
+fu! IndentLevel(line)
+    if empty(a:line)
+        return -1
+    endif
+    len(matchlist(a:line, '\(^[\t ]*\)[^\t ]')[1])
+endfu
+
+" digraphs
+" take a look at :digraphs for handling apl input
+" join
+dig ji 10781 j] 10197 j[ 10198 jo 10199
+" open circle arrows
+dig <Q 8634 >Q 8635
+dig := 8788 =: 8789
+
+" compress digraphs after the fact
+nn < <Cmd> exe "normal! diW"<bar>exe "normal! a\<C-k>".@"<CR>
+
+no 0 <Cmd>if col('.') - 1<bar>exe "normal! 0"<bar>else<bar> exe "normal! $"<bar>endif<CR>
+
+fu! S105() " called for textobj (i)ndent
+    let l:correct = ''
+    if visualmode() != <C-v>
+        let l:correct = '\<C-v>'
+    endif
+    exe 'normal! '.l:correct.'0I\<tab>'
+endfu
 " highlight hex color codes with that color
 " mostly for editing ricer themes
 fu! Colorify()
@@ -335,7 +369,7 @@ endfu
 "
 
 " file navigation
-" if going to netrw, can we still get git integration?
+" learn/configure netrw instead can we still get git integration?
 " cd NERDTree along with self or rather wouldn't it be better to move self along with a terminal cd?
 " unify fzf 'open in split/vsplit' with nerdtree/netrw keybindings
 " use b:root=directory?
@@ -345,6 +379,8 @@ endfu
 " shortcut Ctrl+/ to toggle comment with Surround and ic/ac
 
 " sys integration
+" au CursorHold try :wa?
+" map <A-r> exe '!ricer' | source $MYVIMRC
 " copy and paste
 " no <C-v> <Cmd>set paste<CR>p<Cmd>set nopaste<CR>
 "   we can still send <C-c> to terminal, so no tmap
@@ -382,8 +418,17 @@ endfu
 " what does the dracula theme actually get us https://github.com/dracula/vim/blob/master/autoload/dracula.vim
 "   set termguicolors, but use colorscheme based on ansi codes?
 
+" markdown support
+" fold on headers/lists
+" change/renumber lists (~)
+" toggle checklists
+" indent text object
+let g:markdown_folding = 1
 " misc
 " write to readonly file https://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-trick-work
 " '<,'>p without changing clipboard contents?
 " https://github.com/Konfekt/vim-CtrlXA
 " custom start page https://github.com/mhinz/vim-startify
+" bionic reading mode? https://bionic-reading.com/
+" let 'gf' open urls in browser
+" alter url-click behavior to open in firefox

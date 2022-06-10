@@ -12,14 +12,17 @@ theme_dir="${BASH_SOURCE%/*/*}/themes"
 template_dir="${BASH_SOURCE%/*/*}/templates"
 config() {
     echo "theme='$theme' wallpaper='$wallpaper'"
-    # when       template        destination                        callback
-    t xrdb       Xresources      ~/.Xresources                      xrdb -load ~/.Xresources
-    t alacritty  alacritty.yml   ~/.alacritty.yml
-    t i3-msg     i3status.conf   ~/.config/i3status/config
-    t i3-msg     i3config.sh     ~/.i3/config                       i3-msg restart >/dev/null
-    t nvim       nvim.vim        ~/.config/nvim/init.vim
-    t nvim       plug.vim        ~/.config/nvim/autoload/plug.vim   nvim +PlugInstall '+qall!'
-    t nvim       colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
+    # when      template        destination                         callback
+    t xrdb      Xresources      ~/.Xresources                       xrdb -load ~/.Xresources
+    t fc-list   fonts.conf      ~/.config/fontconfig/fonts.conf
+    # libinput  libinput.conf   /etc/X11/xorg.conf.d/30-touchpad.conf
+    t alacritty alacritty.yml   ~/.alacritty.yml
+    t kitty     kitty.conf      ~/.config/kitty/kitty.conf
+    t i3-msg    i3status.conf   ~/.config/i3status/config
+    t i3-msg    i3config.sh     ~/.i3/config                        i3-msg restart >/dev/null
+    t nvim      nvim.vim        ~/.config/nvim/init.vim
+    t nvim      plug.vim        ~/.config/nvim/autoload/plug.vim    nvim +PlugInstall '+qall!'
+    t nvim      colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
     # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
     # firefox: enable toolkit.legacyUserProfileCustomizations.stylesheets
     # : ~/.mozilla/firefox/*.default/chrome # expand glob pattern
