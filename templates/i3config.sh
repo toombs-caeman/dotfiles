@@ -83,9 +83,9 @@ bindsym $mod+Shift+8 move container to workspace 8; workspace 8
 bindsym $mod+Shift+9 move container to workspace 9; workspace 9
 
 # bind volume keys to change master volume
-bindsym XF86AudioRaiseVolume exec --no-startup-id amixer sset -c 0 'Master' 3%+
-bindsym XF86AudioLowerVolume exec --no-startup-id amixer sset -c 0 'Master' 3%-
-bindsym XF86AudioMute exec --no-startup-id amixer sset -c 0 'Master' toggle
+bindsym XF86AudioRaiseVolume exec --no-startup-id volume 3%+
+bindsym XF86AudioLowerVolume exec --no-startup-id volume 3%-
+bindsym XF86AudioMute exec --no-startup-id volume toggle
 bindsym XF86MonBrightnessUp exec --no-startup-id brightness 10000
 bindsym XF86MonBrightnessDown exec --no-startup-id brightness -10000
 

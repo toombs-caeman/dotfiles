@@ -55,6 +55,7 @@ elixir
 
 # novel ideas?
 * embed sqlite in the language
+* afford efficient 'array of structs'<->'struct of arrays' memory packing.
 * if pair expects an expression but gets a newline, whitespace become significant like python.
   the resulting block has type block.
 blocks are implicitly a function of zero arguments, but also evaluate when cast to another type.
@@ -68,6 +69,7 @@ values and expressions
 * there are three types of expressions which are not values: blocks, functions, operators
     * blocks take zero arguments
     * functions and blocks
+* use python's taxonomy of [collections](https://docs.python.org/3/library/collections.abc.html#collections-abstract-base-classes)
 
 # meta-syntax v0.0
 define foreign function interface (ffi).

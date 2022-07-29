@@ -45,6 +45,7 @@ set list                    " indicate hidden text
 set listchars+=precedes:<,extends:>
 set nowrap                  " don't wrap lines
 syntax on                   " syntax highlighting
+set foldlevelstart=99       " start with all folds open
 
 " smooth scroll commands, start with defaults
 let g:smoothie_remapped_commands = smoothie#default_commands + smoothie#experimental_commands + [ '{', '}' ]
@@ -258,7 +259,7 @@ fu! S116(...) " called for 't' text object
         call inputrestore()
     endif
 endfu
-ino kk <Cmd>call MdLink()<CR>
+" ino kk <Cmd>call MdLink()<CR>
 fu! MdLink(...)
     if ! a:0
         call inputsave()

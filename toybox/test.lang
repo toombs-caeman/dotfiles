@@ -4,7 +4,7 @@
 ## numbers
 1       # 1     integers are numbers
 1.2     # 1.2   floats/doubles/etc are also numbers. there is generally no distinction.
-/0      # /0    infinity. this is a number literal, not a divide by zero.
+/0      # /0    infinity. this is a number literal, not a divide by zero. '/ 0' is different
 0xa     # 10    hex numbers ok
 
 # unary math operators
@@ -52,9 +52,6 @@ _ -1.2  # -2    floor (so _/0 is the largest integer)
 'strings use single quotes only'
 'strings can' + ' be appended'
 'you can escape \'single quotes\'' + '\n newlines\n' + 'and \\ backslashes'
-
-# range iterator
-# heres a few concepts at once
 
 # lists
 # lists contain values, separated by commas.

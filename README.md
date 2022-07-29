@@ -70,6 +70,8 @@ a grab bag of stuff that personalizes my computers
 
 
 # Potential new stuff
+* a 'media repository' for stuff that doesn't fit in git well?
+    * images, video, audio
 * visualize vim keymaps by mode+leader+modifier
     * https://www.asciiart.eu/computers/keyboards
     * `vim -e +"redir>>/dev/stdout | map | redir END" -scq`
@@ -93,7 +95,7 @@ a grab bag of stuff that personalizes my computers
       * more than a consistent format, it's more important to have a consistent data query language
         * [dasel](https://github.com/TomWright/dasel) 
         * [gron](https://github.com/tomnomnom/gron) for grepping json
-    * a modern (incompatible) ncurses [notcurses](https://github.com/dankamongmen/notcurses)
+    * a modern (incompatible) ncurses [notcurses](https://github.com/dankamongmen/notcurses) [site](https://notcurses.com/)
 * bookmark / cache / rss / scraper tool
     * merge and manage bookmarks and cached content
         * maybe just use [buku](https://github.com/jarun/buku)

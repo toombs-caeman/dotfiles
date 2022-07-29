@@ -12,6 +12,7 @@ if command -v apt; then
     sudo apt upgrade
     INSTALL='sudo apt install '
     PACKAGES+=' i3 picom'
+    # need to hand install fira-code nerdfont https://www.nerdfonts.com/font-downloads
 fi
 if command -v pacman; then
     # for manjaro-i3 
@@ -26,11 +27,12 @@ fi
 if true; then
     # battery check?
 fi
-PACKAGES+=' git firefox zsh neovim fzf feh'
+PACKAGES+=' git firefox zsh neovim fzf feh kitty'
 eval "$INSTALL $PACKAGES"
 sudo chsh -s "$(which zsh)" "$(whoami)"
 # sudo ln -s libinput.conf
 # sudo ln -s gitconfig
+sudo ln -s /usr/bin/x-terminal-emulator "$(which kitty)"
 
 
 # setup dotfiles

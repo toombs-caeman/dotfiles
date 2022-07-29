@@ -25,8 +25,8 @@ config() {
     t nvim      colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
     # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
     # firefox: enable toolkit.legacyUserProfileCustomizations.stylesheets
-    # : ~/.mozilla/firefox/*.default/chrome # expand glob pattern
-    # t firefox   userChrome.css   "$_/userChrome.css"
+    : ~/.mozilla/firefox/*.default/chrome # expand glob pattern
+    t firefox   userChrome.css   "$_/userChrome.css"
 }
 t() { command -v "$1" >/dev/null && mkdir -p "${3%/*}" && sed "$sed" <"$template_dir/$2" >"$3"&&(($#>3)) && "${@:4}"; }
 ricer() {

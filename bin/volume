@@ -1,0 +1,4 @@
+#!/bin/bash
+
+amixer sset -c 0 'Master' "$@"
+amixer sset -c 2 'Master' "$@"
