@@ -1,0 +1,12 @@
+#!/bin/bash
+if (($#)); then
+    mpc clear
+    mpc add /
+    mpc repeat on
+    mpc random on
+else
+    next="$(mpc ls | fzf --color=16 --reverse)"
+    if [[ -n "$next" ]]; then
+        mpc insert "$next"; mpc next
+    fi
+fi

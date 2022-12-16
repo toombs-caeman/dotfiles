@@ -89,18 +89,19 @@ rrc() {
 
 q() {  # query the current os, terminal, or shell, or if commands are present in $PATH
     local os term shell q=()
-    while (( $# )); do case "$1" in
+    while (( $# )); do 
         # TODO add local/remote special case to handle ssh/mosh/rrc
         # TODO add xterm-256color special case
-        mac)    os=Darwin ;; nix)   os=Linux  ;;
-        iterm)  term=iterm;; xterm) term=xterm;;
-        zsh)    shell=zsh ;; bash)  shell=bash;;
-        *) q+=("$1") ;;
-    esac
-    shift
-done
-[ "$OS" = "${os:-$OS}" ] && [ "$TERM" = "${term:-$TERM}" ] && [ "${SHELL##*/}" = "${shell:-${SHELL##*/}}" ] &&
-    command -v "${q[@]:-command}" > /dev/null || return 1
+        case "$1" in
+            mac)    os=Darwin ;; nix)   os=Linux  ;;
+            iterm)  term=iterm;; xterm) term=xterm;;
+            zsh)    shell=zsh ;; bash)  shell=bash;;
+            *) q+=("$1") ;;
+        esac
+        shift
+    done
+    [ "$OS" = "${os:-$OS}" ] && [ "$TERM" = "${term:-$TERM}" ] && [ "${SHELL##*/}" = "${shell:-${SHELL##*/}}" ] &&
+        command -v "${q[@]:-command}" > /dev/null || return 1
 }
 
 
@@ -169,11 +170,6 @@ gg() {
         shift
     done
 }
-#gg() {
-#    # goto project (if arg given), git root or home
-#    test -d "${1:-$(git rev-parse --show-toplevel 2>/dev/null || echo ~)}" || : "$(projects | grep "$_$" | head -n1 )"
-#    cd "$_"
-#}
 __gg() { projects | grep -o '[^/]*$'; }
 projects() { find "$DOTROOT"/* -maxdepth 5 -type d -name '.git' -prune 2>/dev/null | sed 's,^\(.*\)/.git,\1,' ; }
 get() {
@@ -340,8 +336,8 @@ rc
 # ascii art credit https://ascii.co.uk/art/cerberus https://ascii.co.uk/art/sphinx
 
 # TODO - one per line
-# detect when in nvim, and nvim and don't open nested editors, split insteam
-# detect nvim, disable vi-mode line editing?
+# detect when in nvim, and nvim and don't open nested editors, split instead
+# detect nvim, disable vi-mode line editing, and goto terminal normal
 # don't parse ls http://mywiki.wooledge.org/ParsingLs
 # git: use diff3 https://blog.nilbus.com/take-the-pain-out-of-git-conflict-resolution-use-diff3/ https://blog.nilbus.com/take-the-pain-out-of-git-conflict-resolution-use-diff3/
 # git: integrate forgit with existing fzf completion architecture
@@ -365,5 +361,6 @@ journ() {
     # edit a buffer with cal output, an extracted todo list, and space for the current journal,
     # but parse buffer before writing to dedupe the todos, and send the rest to the current journal file.
     # integrate with calendar.txt and todo.txt and push notification system.
+    :
 }
 #

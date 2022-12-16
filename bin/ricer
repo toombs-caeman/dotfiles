@@ -23,6 +23,8 @@ config() {
     t nvim      nvim.vim        ~/.config/nvim/init.vim
     t nvim      plug.vim        ~/.config/nvim/autoload/plug.vim    nvim +PlugInstall '+qall!'
     t nvim      colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
+    t picom     picom.conf      ~/.config/picom.conf
+    t mpd       mpd.conf        ~/.mpdconf  systemctl --user restart mpd.service
     # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
     # firefox: enable toolkit.legacyUserProfileCustomizations.stylesheets
     : ~/.mozilla/firefox/*.default/chrome # expand glob pattern

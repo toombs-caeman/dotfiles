@@ -89,6 +89,12 @@ bindsym XF86AudioMute exec --no-startup-id volume toggle
 bindsym XF86MonBrightnessUp exec --no-startup-id brightness 10000
 bindsym XF86MonBrightnessDown exec --no-startup-id brightness -10000
 
+# mpd
+bindsym $mod+p exec --no-startup-id mpc toggle
+bindsym $mod+n exec --no-startup-id mpc next
+bindsym $mod+Shift+n exec "i3-sensible-terminal -T launcher -e muse"
+exec_always --no-startup-id muse init
+
 # Open specific applications in floating mode
 for_window [class="alsamixer"] floating enable border normal
 for_window [class="Clipgrab"] floating enable border normal
@@ -114,7 +120,7 @@ set $mode_system (l)ock, (e)xit, (r)eboot, (s)hutdown
 mode "$mode_system" {
     bindsym $mod+0 mode "default", exec --no-startup-id xautolock -locknow
     bindsym l mode "default", exec --no-startup-id xautolock -locknow
-    bindsym e mode "default", exec --no-startup-id i3-nagbar -t warning -m '' -b 'Exit i3' 'i3-msg exit'
+    bindsym e mode "default", exec --no-startup-id i3-msg exit
     bindsym r mode "default", exec --no-startup-id i3-nagbar -t warning -m '' -b 'Reboot' 'reboot'
     bindsym s mode "default", exec --no-startup-id i3-nagbar -t warning -m '' -b 'Shutdown' 'shutdown now'
 
@@ -141,7 +147,7 @@ mode "resize" {
 # Start i3bar to display a workspace bar (plus the system information i3status if available)
 bar {
     i3bar_command i3bar
-    status_command i3status
+    status_command mpdbar
     position top
 
 ## please set your primary output first. Example: 'xrandr --output eDP1 --primary'
@@ -187,7 +193,11 @@ exec --no-startup-id nm-applet
 exec --no-startup-id i3-msg 'exec firefox'
 exec --no-startup-id i3-msg 'exec steam -silent'
 
+# this may throw an error if using i3 (not i3-gaps)
+gaps inner 5
+smart_gaps on
 # XXX one per line
 # on firefox, map alt- t w to ctrl keys, as part of wink
 # laptop volume keys
 # $mod+Tab to flip between workspaces
+

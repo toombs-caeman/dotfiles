@@ -2,23 +2,31 @@ set nocompatible
 
 " plugins [vim-plug](https://github.com/junegunn/vim-plug)
 call plug#begin()
-Plug 'airblade/vim-gitgutter'           " show modified lines left of numbers
 Plug 'preservim/nerdtree'               " file system explore
 Plug 'Xuyuanp/nerdtree-git-plugin'      " show git status in NERDTree
+Plug 'tpope/vim-fugitive'               " working with git
+Plug 'airblade/vim-gitgutter'           " show modified lines left of numbers
+"
 Plug 'junegunn/fzf'                     " basic fzf support
 Plug 'junegunn/fzf.vim'                 " fzf for vim objects
-" TODO Plug 'tpope/vim-fugitive'        " working with git
-" TODO https://github.com/tpope/vim-unimpaired
-" https://github.com/tpope/vim-eunuch
-" https://github.com/pechorin/any-jump.vim
-" https://github.com/yegappan/mru
-" TODO https://vimawesome.com/plugin/syntastic
-" https://github.com/dense-analysis/ale
+
+" https://github.com/tpope/vim-eunuch   " unix command integration, cp mv rm
+
 Plug 'dracula/vim', { 'as': 'dracula' } " colorscheme
+
 Plug 'wellle/targets.vim'               " a wide range of new text objects
 Plug 'kana/vim-textobj-user'            " textobj base library
 Plug 'D4KU/vim-textobj-comment'         " textobj comment
 Plug 'toombs-caeman/vim-smoothie'       " smooth scrolling, fork of 'psliwka/vim-smoothie'
+
+" ide features language support
+Plug 'neoclide/coc.nvim', {'branch': 'release'} " code completion, linting, etc
+" https://ctags.io/                     " universal ctags
+" https://github.com/preservim/tagbar   " file structure overview
+
+" language support
+Plug 'rust-lang/rust.vim'               " rust syntax and stuff, integrates with syntastic
+Plug 'habamax/vim-godot'                " godot integration
 call plug#end()
 
 " status line
@@ -34,16 +42,16 @@ set incsearch               " Do incremental searching
 nno <ESC><ESC> <Cmd>noh<CR>
 
 " style
-colo dracula                " set colorscheme
+colo dracula                " set colorscheme (dracula is managed by ricer)
 set tgc                     " use 24-bit colors
 set number                  " add line numbers
 set showmatch               " show matching brackets
-set cc=120                  " highlight column 120
+" set cc=120                  " highlight column 120
 set scrolloff=5             " Show a few lines of context around the cursor
 set sidescrolloff=10        " in all directions
 set list                    " indicate hidden text
 set listchars+=precedes:<,extends:>
-set nowrap                  " don't wrap lines
+set wrap                    " wrap lines
 syntax on                   " syntax highlighting
 set foldlevelstart=99       " start with all folds open
 
@@ -141,6 +149,35 @@ call s:A('b', 'Buffers', 'e', 'Files', 'g', 'GFiles?', 'd', 'NERDTreeToggle')
 " toggle nerdtree with <A-d>, even when focused on nerdtree
 let NERDTreeMapQuit='A-d'
 
+" CoC
+let g:coc_global_extensions = ['coc-rust-analyzer', 'coc-pyright', 'coc-sh', 'coc-html', 'coc-go', 'coc-glslx']
+call coc#config('suggest.autoTrigger', 'trigger')  " don't suggest anything until I hit <tab>
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+
+" Make <CR> to accept selected completion item or notify coc.nvim to format
+" <C-g>u breaks current undo, please make your own choice.
+inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+" rename symbol
+nmap <A-r> <Plug>(coc-rename)
+" go to definition
+nmap <silent> <A-w> <Plug>(coc-definition)
+nnoremap <silent> <A-q> :call ShowDocumentation()<CR>
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
 
 
 " grow or shrink selection symmetrically
@@ -158,6 +195,15 @@ aug bruh
     au FileType *sh ino <buffer> va "${[@]}"<Left><Left><Left><Left><Left>
 aug END
 
+" CoC text objects
+xmap if <Plug>(coc-funcobj-i)
+omap if <Plug>(coc-funcobj-i)
+xmap af <Plug>(coc-funcobj-a)
+omap af <Plug>(coc-funcobj-a)
+xmap ic <Plug>(coc-classobj-i)
+omap ic <Plug>(coc-classobj-i)
+xmap ac <Plug>(coc-classobj-a)
+omap ac <Plug>(coc-classobj-a)
 "" (s)urround inspired by [surround-vim](https://github.com/tpope/vim-surround)
 " also big ups to [operator-user](https://github.com/kana/vim-operator-user)
 " and [textobj-user](https://github.com/kana/vim-textobj-user)
@@ -433,3 +479,4 @@ let g:markdown_folding = 1
 " bionic reading mode? https://bionic-reading.com/
 " let 'gf' open urls in browser
 " alter url-click behavior to open in firefox
+" remap alt-n to ctrl-\ctrl-n so we can get to terminal-normal mode

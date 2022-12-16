@@ -1,61 +1,84 @@
 #!/bin/sh
-
-DOTROOT=~/my
 # try to be idempotent
 # fail if any command fails
-set -e
-PACKAGES=''
-# update package list and packages
-if command -v apt; then
-    # for ubuntu
-    sudo apt update
-    sudo apt upgrade
-    INSTALL='sudo apt install '
-    PACKAGES+=' i3 picom'
-    # need to hand install fira-code nerdfont https://www.nerdfonts.com/font-downloads
-fi
-if command -v pacman; then
-    # for manjaro-i3 
+
+install() { yay -S --needed "$@"; }
+s_sys() {
+    # based on [endeavour](https://endeavouros.com/latest-release/)
+    # select the i3 option (it is actually i3-gaps)
     sudo pacman -Syu
-    INSTALL='sudo pacman -S --needed '
-    PACKAGES+=' yay'
-    # yay -S --needed
-    EXTRA='nerd-font-fira-code'
-fi
+    # sudo pacman -S --needed yay i3-gaps i3status i3lock picom
+    install  xautolock yay ripgrep xclip ttf-firacode-nerd git firefox zsh neovim fzf feh kitty
+    sudo chsh -s "$(which zsh)" "$(whoami)"
+    timedatectl set-ntp yes
+    # needed for nvim integrations, sadly
+    install nodejs npm xclip
+    install python python-pip
 
-# laptop settings, what condition to check?
-if true; then
-    # battery check?
-fi
-PACKAGES+=' git firefox zsh neovim fzf feh kitty'
-eval "$INSTALL $PACKAGES"
-sudo chsh -s "$(which zsh)" "$(whoami)"
-# sudo ln -s libinput.conf
-# sudo ln -s gitconfig
-sudo ln -s /usr/bin/x-terminal-emulator "$(which kitty)"
+    # reverse the default scroll direction
+    sudo ln -fs "$(git rev-parse --show-toplevel)/templates/libinput.conf" /usr/share/X11/xorg.conf.d/99-libinput.conf
+    # let our i3config refer to a generic emulator, but actually use kitty
+    sudo ln -fs "$(which kitty)" /usr/bin/x-terminal-emulator
+    sudo ln -fs "$(git rev-parse --show-toplevel)/git/gitconfig" ~/.gitconfig
 
+    # media
+    install blender krita godot lmms ardour
 
-# setup dotfiles
-mkdir -p $DOTROOT/toombs-caeman
-git -C $DOTROOT/toombs-caeman clone https://github.com/toombs-caeman/dotfiles
-git -C $DOTROOT/toombs-caeman/dotfiles remote set-url origin git@github.com:toombs-caeman/dotfiles.git
-# TODO idempotent add to file? maybe add comment line as marker?
-echo "PATH=\"\$PATH:$DOTROOT/toombs-caeman/dotfiles/bin\"" >> ~/.profile
-echo ". $DOTROOT/toombs-caeman/dotfiles/rc.sh" >> ~/.bashrc
-echo ". $DOTROOT/toombs-caeman/dotfiles/rc.sh" > ~/.zshrc
-. ~/.profile
+    # rust language
+    # install toolchain installer
+    install rustup
+    # install default toolchain
+    rustup install default stable
+    
+    # android studio
+    install android-studio
 
-# get a background image
-WDIR=~/Pictures/Wallpapers
-mkdir -p "$WDIR"
-# TODO this is glitchy as fuck, from https://onlinepngtools.com/generate-1x1-png
-echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2NgYGD4DwABBAEAwS2OUAAAAABJRU5ErkJggg==" | base64 -d > "$WDIR/pixel.png"
+    # audio
+    install mpd mpc ffmpeg youtube-dl picard rsgain-git
+    systemctl --user enable mpd.service
+    systemctl --user start mpd.service
+}
+s_games() {
+    # proton-ge fixes some wine video codec problems
+    # beataroni is a beatsaber mod loader, need chroma, mapping-extensions and noodle mod
+    install steam proton-ge-custom-bin beataroni-bin
+    echo 'need to install mods chroma, mapping-extensions, noodle'
+    /opt/beataroni-bin/Beataroni
+}
 
-# run usual reconfig
-ricer -t dracula
-logout
+s_dot() {
+    # TODO git calls need to be idempotent
+    DOTROOT=~/my
+    # setup dotfiles
+    mkdir -p $DOTROOT/toombs-caeman
+    git -C $DOTROOT/toombs-caeman clone https://github.com/toombs-caeman/dotfiles
+    git -C $DOTROOT/toombs-caeman/dotfiles remote set-url origin git@github.com:toombs-caeman/dotfiles.git
+    echo "PATH=\"\$PATH:$DOTROOT/toombs-caeman/dotfiles/bin\"" >> ~/.zprofile
+    echo ". $DOTROOT/toombs-caeman/dotfiles/rc.sh" >> ~/.bashrc
+    echo ". $DOTROOT/toombs-caeman/dotfiles/rc.sh" > ~/.zshrc
+    . ~/.profile
 
+    # get a background image
+    # TODO just include one rather than this mess
+    WDIR=~/Pictures/Wallpapers
+    mkdir -p "$WDIR"
+    echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2NgYGD4DwABBAEAwS2OUAAAAABJRU5ErkJggg==" | base64 -d > "$WDIR/pixel.png"
+    # TODO this is glitchy as fuck, from https://onlinepngtools.com/generate-1x1-png
+    # run usual reconfig
+    ricer -t spacedust2
+}
+
+s_grub() {
+# [change tty resolution](https://superuser.com/questions/526757/how-to-change-the-resolution-of-the-tty-on-arch-linux)
+    # replace with ${resolution}x32
+    #GRUB_GFXMODE=1024x768x32
+    sudo sed -i 's/^GRUB_GFXMODE.*$/GRUB_GFXMODE=1024x768x32/' /etc/default/grub
+    # remove grub menu timer when booting normally
+    sudo sed -i 's/^GRUB_TIMEOUT_STYLE.*$/GRUB_TIMEOUT_STYLE=hidden/' /etc/default/grub
+    # apply changes
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
+}
 # XXX
 # can we install ublock origin from the commandline?
-# fonts? get FiraCode Nerd Font
-# change tty resolution [change tty resolution](https://help.ubuntu.com/community/ChangeTTYResolution)
+
+

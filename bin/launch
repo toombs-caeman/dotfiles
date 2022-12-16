@@ -1,12 +1,16 @@
 #!/bin/bash
-# use fzf to select a command. If we're not sure that it's supposed to be a GUI, run it in a terminal
-# thanks to https://askubuntu.com/a/1091249
+# use fzf to launch a command through i3.
 
-test -n "$(compgen -c | sort -ru | fzf --color=16 --reverse)" || exit
-i3-msg exec "$_" >/dev/null 
-exit
-find {/usr,~/.local}/share/applications -name '*.desktop' -print0 | \
-    xargs -0 grep -i -l "Terminal=False"| \
-    xargs sed -nE 's,^Exec=([^ ]*/)*([^/ ]*).*$,\2,p' | \
-    grep -q "$_" || : "alacritty -e /bin/bash -ic '$_'"
-i3-msg exec "$_" >/dev/null 
+# history file
+h=~/.launch
+# have the user select an option from history, or use the entered query if there's no match
+readarray -t result <<< "$(fzf --color=16 --reverse --print-query -e < $h)"
+cmd="${result[${#result[@]}-1]}"
+# exit if they didn't make a selection
+[ ! "$cmd" ] && exit
+# tell i3 to run the command
+i3-msg exec "$cmd" >/dev/null
+# update the history, move the chosen command to the front.
+readarray -t history < $h
+echo "$cmd" > $h
+for x in "${history[@]}"; do [[ "$x" != "$cmd" ]] && echo "$x" >> $h; done

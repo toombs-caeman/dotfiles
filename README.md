@@ -1,5 +1,12 @@
 a grab bag of stuff that personalizes my computers
 
+# general bent
+I use i3-gaps and neovim heavily on some arch derivative.
+
+# keymaps
+semantically i3 and vim have a bit of overlap in the 'arranging tiles' department so i3 gets the Meta key and vim gets the alt key,
+but I try to give keys the same semantic meaning.
+
 # Principles
 * simplicity is a feature
     * simplicity is robustly encapsulated complexity, not a lack of features
@@ -41,10 +48,6 @@ a grab bag of stuff that personalizes my computers
     * toybox/ - random half-baked stuff
 
 # TODO
-* git workflow
-    * [forgit](https://github.com/wfxr/forgit)?
-    * [git-delta](https://github.com/dandavison/delta)
-    * fugitive
 * keyboard
   * save layout
   * flash instructions
@@ -62,14 +65,19 @@ a grab bag of stuff that personalizes my computers
 * backup utility
   * [restic](https://restic.net/)
   * [rsync](https://rsync.samba.org/)
+  * needs bi-directional notifications in case something breaks
+    * source and sink need to notify if no backup or ack for N days
+    * sink needs to notify if drive has failed, or has many bad sectors (maybe smartmontools)
+    * very occassionally, notify that everything is working
 * media
   * mpd - needs configuration template
-  * mpv
   * mpc
   * bookmark cache
 
 
 # Potential new stuff
+* [mosh](https://mosh.org/) or [eternal terminal](https://eternalterminal.dev/)
+    * rrc
 * a 'media repository' for stuff that doesn't fit in git well?
     * images, video, audio
 * visualize vim keymaps by mode+leader+modifier
@@ -123,5 +131,21 @@ a grab bag of stuff that personalizes my computers
 * [moreutils vipe](https://joeyh.name/code/moreutils/) 
 * detect headphone plugin and button presses
     * [ref](https://unix.stackexchange.com/questions/25776/detecting-headphone-connection-disconnection-in-linux)
-* email as a transport protocol
+    * [mpd_sima](https://kaliko.me/mpd-sima/)
+* email/rss as a transport protocol
+    * [social media on top of rss](https://news.ycombinator.com/item?id=33975082)
 
+* git stuff
+    * [git appraise](https://github.com/google/git-appraise)
+    * [git note](https://git-scm.com/docs/git-notes)
+    * [forgit](https://github.com/wfxr/forgit)?
+    * [git-delta](https://github.com/dandavison/delta)
+    * wysiwyg web editor that uses a git/markdown backend for documentation
+        * [footnotes](https://www.monde-diplomatique.fr/2021/01/PIGEAUD/62633)
+
+* just like how kde and gnome have their 'system settings' which shows graphically the different capabilities of the computer, I'd like to piece together a TUI
+    * nmtui
+    * alsamixer
+    * bluetuith?
+    * brightness, (simple) volume
+    * pactl - change sound sink, pavucontrol
