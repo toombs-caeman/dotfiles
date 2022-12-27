@@ -2,5 +2,5 @@
 i3status | while :
 do
     read line || break
-    echo "$([[ "$(mpc status '%state%' 2>/dev/null)" == playing ]] && mpc current)$line"
+    echo "$([[ "$(mpc status '%state%' 2>/dev/null)" == playing ]] && mpc current) $line"
 done

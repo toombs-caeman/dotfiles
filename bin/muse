@@ -1,12 +1,38 @@
 #!/bin/bash
+report_kitty() {
+    # extract cursor position
+    IFS=';' read -sdR -p $'\E[6n' ROW COL;
+    #tput lines
+    {
+        mpc readpicture "$(mpc -f %file% current)" | kitty +kitten icat --align left --scale-up --place "8x8@0x$((${ROW#*[}-1))"
+        # idk man, this does something when the cursor is near the bottom
+        tput cud 3
+        tput cuu 3
+        mpc -f '
+         %title%
+         %album%
+         %artist%' current
+    } 2>/dev/null
+}
+report_notify() {
+    tmp="$(mktemp)"
+    mpc readpicture "$(mpc -f %file% current 2>/dev/null)" 2>/dev/null > "$tmp"
+    notify-send -i "$tmp" "$(mpc -f "%title%\n%album%\n%artist%" current)"
+    rm "$tmp"
+}
 if (($#)); then
     mpc clear
     mpc add /
     mpc repeat on
     mpc random on
 else
+    #report_kitty
+    #report_notify
     next="$(mpc ls | fzf --color=16 --reverse)"
     if [[ -n "$next" ]]; then
         mpc insert "$next"; mpc next
     fi
 fi
+exit
+
+. "$(lib)" # import lib

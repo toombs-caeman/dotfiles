@@ -35,6 +35,8 @@ fi
 
 escape_html() { local s="${*//&/&amp\;}"; s="${s//</&lt\;}"; s="${s//>/&gt\;}"; printf '%s' "${s//"\""/&quot\;}"; }
 
+# pop <array> <var>
+# pop the last value of an array, optionally to var
 pop() { : "$1[-1]"; eval "printf ${2:+-v} $2 %s \"\${$_}\"; [ -n \"\$ZSH_VERSION\" ] && $_=() || unset -v $_"; }
 
 func() { # working with shell functions
@@ -112,10 +114,13 @@ fmt() {
         # Black Red Green Yellow blUe Magenta Cyan White
         declare -Ag fmt=()
         fmt[--]="$(tput sgr0)"; local f b c=(b r g y u m c w B R G Y U M C W) dat=()
-        fmt -v dat "%T--%J" "$(printf '%s\nsgr0\n' seta{f,b}\ {0..15} smul dim bold | tput -S)"
+        fmt -v dat "%T--%J" "$(printf '%s\nsgr0\n' seta{f,b}\ {0..15} smul dim bold cuu1 cud1 cub1 cuf1 | tput -S)"
         for f in {0..15}; do fmt[${c[$f]}-]="${dat[$f]}" fmt[-${c[$f]}]="${dat[$f+16]}"; done
         for f in "${c[@]}"; do for b in "${c[@]}"; do fmt[$f$b]="${fmt[${f}-]}${fmt[-$b]}"; done; done
+        #  underline dim bold
         fmt[__]="${dat[32]}" fmt[..]="${dat[33]}" fmt[**]="${dat[34]}"
+        # cursor codes: move one up, down, left, or right
+        fmt[u1]="${dat[35]}" fmt[d1]="${dat[36]}" fmt[l1]="${dat[37]}" fmt[r1]="${dat[38]}"
         return
     fi
     local __ # use as reply
@@ -139,13 +144,19 @@ _fmt() {
         return
     fi
     # match any character, but not an empty string. if there's an unescaped section flag, only match up to there.
-    local section flag flags='wWjJMFS'
+    local section flag flags='rwWjJMFS'
     local getsection="^(([^%]|%[^$flags])*)((^|[^%])%((%%)*)([$flags]))?"
     while [[ "$spec" =~ $getsection ]]; do
         section="${BASH_REMATCH[1]}${BASH_REMATCH[4]}${BASH_REMATCH[5]}" flag="${BASH_REMATCH[7]}"
         spec="${spec#"${BASH_REMATCH[0]}"}"
         #echo "flag='$flag' section='$section' remainder='$spec'"
         case "$flag" in
+            r) # repeat
+                local _ x=()
+                printf -v y '%*s' "$section"
+                y="${y// /y }"
+                while (($#)); do for _ in $y; do x+=("$1"); done; shift; done
+                set -- "${x[@]}" ;;
             w|W) # filter
                 [ "$flag" = w ]; local invert=$? x=()
                 while (($#)); do [[ $1 =~ $section ]]; [ $invert = $? ] && x+=("$1"); shift; done
@@ -241,4 +252,56 @@ mo() {
         fmt '"%s"%F, %junclosed tag (%s)\n' "${__t[@]}" >&2
         return 1
     fi
+}
+
+# TUI?
+
+# CURSOR
+# read cursor position
+puc=(0 0)
+puc() { local _; echo -ne $'\E[6n'; read -s -d\[ _; IFS=';' read -sdR puc[0] puc[1]; puc[0]=$((puc[0]-1)); puc[1]=$((puc[1]-1)); }
+# cursor stack
+pushc() { puc; puc+=("${puc[@]:0:2}"); }
+popc() { pop puc puc[1]; pop puc puc[0]; tput cup "${puc[@]:0:2}"; }
+
+# BOX DRAWING
+boxchar=( \
+    ' ' '╵' '╹' ' ' '╶' '└' '┖' '╙' '╺' '┕' '┗' ' ' ' ' '╘' ' ' '╚' \
+    '╷' '│' '╿' ' ' '┌' '├' '┞' ' ' '┍' '┝' '┡' ' ' '╒' '╞' ' ' ' ' \
+    '╻' '╽' '┃' ' ' '┎' '┟' '┠' ' ' '┏' '┢' '┣' ' ' ' ' ' ' ' ' ' ' \
+    ' ' ' ' ' ' '║' '╓' ' ' ' ' '╟' ' ' ' ' ' ' ' ' '╔' ' ' ' ' '╠' \
+    '╴' '┘' '┚' '╜' '─' '┴' '┸' '╨' '╼' '┶' '┺' ' ' ' ' ' ' ' ' ' ' \
+    '┐' '┤' '┦' ' ' '┬' '┼' '╀' ' ' '┮' '┾' '╄' ' ' ' ' ' ' ' ' ' ' \
+    '┒' '┧' '┨' ' ' '┰' '╁' '╂' ' ' '┲' '╆' '╊' ' ' ' ' ' ' ' ' ' ' \
+    '╖' ' ' ' ' '╢' '╥' ' ' ' ' '╫' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' \
+    '╸' '┙' '┛' ' ' '╾' '┵' '┹' ' ' '━' '┷' '┻' ' ' ' ' ' ' ' ' ' ' \
+    '┑' '┥' '┩' ' ' '┭' '┽' '╃' ' ' '┯' '┿' '╇' ' ' ' ' ' ' ' ' ' ' \
+    '┓' '┪' '┫' ' ' '┱' '╅' '╉' ' ' '┳' '╈' '╋' ' ' ' ' ' ' ' ' ' ' \
+    ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' \
+    ' ' '╛' ' ' '╝' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '═' '╧' ' ' '╩' \
+    '╕' '╡' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '╪' ' ' ' ' \
+    ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' \
+    '╗' ' ' ' ' '╣' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '╦' ' ' ' ' ' ' '╬')
+boxchar() {
+    # <top> <right> <bottom> <left> <var>
+    # empty=0 line=1 bold=2 double=3
+    # [box characters](https://en.wikipedia.org/wiki/Box-drawing_character)
+    printf ${5:+-v} $5 "${boxchar[$(($1+4*$2+16*$3+64*$4))]}"
+}
+box() { pushc; tput cup "$(($1+$3))" "$2"; _box "${@:3}"; popc; }
+# box <sx> <sy> <style>
+_box() {
+    local vc hc
+    boxchar "$3" 0 "$3" 0 vc
+    boxchar 0 "$3" 0 "$3" hc
+    pushc # save the position of the bottom left corner
+    boxchar "$3" "$3" 0 0 # draw bottom left corner
+    fmt "$(($1-1))%r%Tu1%Tl1%s%j%s%Tu1%Tl1" "$vc" # draw left line (moving up)
+    boxchar 0 "$3" "$3" 0 # draw top left corner
+    fmt "$(($2-1))%r" "$hc" # draw top line
+    boxchar 0 0 "$3" "$3" # draw top right corner
+    popc # back down to the bottom left
+    fmt "$(($2-1))%r%j%Tr1%s" "$hc" # draw bottom line
+    boxchar "$3" 0 0 "$3" # draw bottom right corner
+    fmt "$(($1-1))%r%Tu1%Tl1%s" "$vc" # draw right line (moving up)
 }

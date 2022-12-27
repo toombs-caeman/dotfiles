@@ -1,3 +1,34 @@
+# optimization modes
+0. run as a repl with no attempt at using restrictive primitives
+1. compile, but do not use restrictive primitives
+2. compile, derive restrictive primitives
+3. compile, fail on ambiguous primitives
+
+# type heirarchy
+low-level types
+* num - generic number
+    * int
+        * {i,u}{16,32,64}
+        * {i,u}size
+    * float
+        * f{16,32,64}
+* string - pythonic immutable strings
+    * arr[char]
+* iterable - generic iterable
+    * array - immutable, uniform type
+    * vector - 
+* collection
+    * set
+    * dict
+        * namespace
+    * tuple - immutable, 
+* ref - rustic pointer
+    * raw pointer
+* producer
+    * function
+        * FFI
+    * coroutine
+        * remote call
 join python sql and apl in an unholy union
 allow dense array syntax but encourage pythonic style
 allow persistence and strong consistency guarantees by embedding a sqlite database
@@ -50,6 +81,7 @@ bash et al.
 python
 * allow deep destructured assignment
 * whitespace significant
+* slice syntax
 elixir
 * assignment is actually pattern matching
 
@@ -60,6 +92,9 @@ elixir
   the resulting block has type block.
 blocks are implicitly a function of zero arguments, but also evaluate when cast to another type.
 unless the receiving function calls for a block.
+* language primitives exposing heap/stack differences, or other low level concepts should not be 'default'. The default numeric type should be bignum, but let `u32` be specified. default sequence type should be a vector (variable size/type), but allow array (const size, uniform type) be specified.
+* separate language into high and low level primitives, high level primitives are expressible multiple ways using low level primitives, chosen by static analysis and optimization level (for example [] would mean 'any sequence' unless given an explicit annotation, depending on usage it could compile to array or a vector).
+* high level types are collections of traits, any low level structure which implements those traits may be used at compile time
 
 # semantics
 values and expressions
@@ -224,6 +259,7 @@ higher order functions
 * map/reduce/filter
 * groupby
 * partial
+
 
 
 ## set

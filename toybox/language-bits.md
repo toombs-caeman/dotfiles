@@ -10,6 +10,9 @@ This is again distinct from the mechanics, the way concepts are represented and 
 the medium is the message
 syntax affects the way you can use and reason about a language,
 so it's unreasonable to separate a language from its syntax
+## what is the foreign function interface (FFI)
+* can functions easily be implemented in C/rust
+what does it look like to call an external program?
 
 # tooling and ecosystem
 ## installation / updating / versioning

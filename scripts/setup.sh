@@ -37,6 +37,10 @@ s_sys() {
     install mpd mpc ffmpeg youtube-dl picard rsgain-git
     systemctl --user enable mpd.service
     systemctl --user start mpd.service
+    #pactl list short sink # list soundcards
+    #pactl set-default-sink alsa_output.pci-0000_28_00.3.analog-stereo
+    
+
 }
 s_games() {
     # proton-ge fixes some wine video codec problems
@@ -44,6 +48,8 @@ s_games() {
     install steam proton-ge-custom-bin beataroni-bin
     echo 'need to install mods chroma, mapping-extensions, noodle'
     /opt/beataroni-bin/Beataroni
+    # 3d printing
+    install openscad-git
 }
 
 s_dot() {

@@ -178,7 +178,13 @@ function! ShowDocumentation()
     call feedkeys('K', 'in')
   endif
 endfunction
+nmap <expr> <A-f> CocActionAsync('format')
+xmap <expr> <A-f> CocActionAsync('format')
 
+" rust.vim
+" open cargo in a new terminal split. Doing it this way ensures that we enter
+" terminal mode rather than staying in normal
+let g:cargo_shell_command_runner = 'w|sp term://'
 
 " grow or shrink selection symmetrically
 vno H holo
@@ -191,8 +197,8 @@ aug bruh
     au VimResized * winc =                             " equalize split size when terminal resizes
     au BufWinEnter,WinEnter term://* startinsert       " insert when entering a terminal
     au TermOpen * setlocal nonumber norelativenumber   " don't show numbers for terminals
-    au FileType *sh ino <buffer> vv "${}"<Left><Left>
-    au FileType *sh ino <buffer> va "${[@]}"<Left><Left><Left><Left><Left>
+    " au FileType *sh ino <buffer> vv "${}"<Left><Left>
+    " au FileType *sh ino <buffer> va "${[@]}"<Left><Left><Left><Left><Left>
 aug END
 
 " CoC text objects

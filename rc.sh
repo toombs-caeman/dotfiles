@@ -222,11 +222,11 @@ zsh__() {
     compinit
     setopt promptsubst zle autocd nolocaloptions
     setopt appendhistory histexpiredupsfirst histignoredups noextendedhistory
-    PROMPT='$(EXIT="$?" fmt[pp]="%%{"  fmt[qq]="%%}"; prompt)%# '
 }
 bash__() {
-    PS1='$(   EXIT="$?" fmt[pp]="\001" fmt[qq]="\002";prompt)\$ '
     shopt -s expand_aliases checkwinsize autocd
+    # activate preexec for bash only
+    trap '[ -n "$precmd" ] || precmd=$SECONDS' DEBUG
     if ! shopt -oq posix; then
         if [ -f /usr/share/bash-completion/bash_completion ]; then
             . /usr/share/bash-completion/bash_completion
@@ -235,6 +235,30 @@ bash__() {
         fi
     fi
 }
+
+prompt() {
+    # for section ideas see: https://liquidprompt.readthedocs.io/en/stable/functions/data.html
+
+    # show 'HH:MM:SS' of runtime if a command took 5 or more seconds
+    ((tdelta >= 5)) && fmt '%Ty-%02d%T--%F:%j%s ' $((tdelta/3600)) $((tdelta%3600/60)) $((tdelta%60))
+    # show any active virtual-env
+    [ -n "$VIRTUAL_ENV" ] && fmt '%Tg-(%s)' "${VIRTUAL_ENV##*/}"
+    # show kubernetes environment: context and namespace
+    command -v kubectl >/dev/null && fmt '%Tu-(%s⎈%s)' $(kubectl config get-contexts | grep '^\*' | tr -s ' ' | cut -d' ' -f 2,5)
+    # show git-relative directory
+    location 2>/dev/null
+    # show return code if nonzero
+    (( EXIT )) && fmt '%Tr- %s%T--' "$EXIT"
+}
+
+PROMPT_COMMAND='precmd "\001" "\002" "\$"'
+precmd() { 
+    local EXIT="$?" tdelta=$((SECONDS-${precmd:-$SECONDS}));
+    PS1="$(fmt[pp]="${1:-%%{}" fmt[qq]="${2:-%%\}}"; prompt)${3:-%#}"
+    precmd=''
+}
+preexec() { precmd=$SECONDS; }
+
 kubectl__() { . <(kubectl completion ${SHELL##*/}); }
 eksctl__() { . <(eksctl completion ${SHELL##*/}); }
 helm__() { . <(helm completion ${SHELL##*/}); }
@@ -246,18 +270,9 @@ colortest() {
     for f in "${c[@]}"; do for b in "${c[@]}"; do fmt "%T$f$b%s" "${1:-"##"}"; done; fmt "%T--\n"; done
 }
 
-prompt() {
-    # for section ideas see: https://liquidprompt.readthedocs.io/en/stable/functions/data.html
-    [ -n "$VIRTUAL_ENV" ] && fmt '%Tg-(%s)' "${VIRTUAL_ENV##*/}"
-    command -v kubectl >/dev/null && fmt '%Tu-(%s⎈%s)' $(k8s_ctx_ns)
-    location 2>/dev/null
-    (( EXIT )) && fmt '%Tr- %s%T--' "$EXIT"
-}
-
-k8s_ctx_ns() { kubectl config get-contexts | grep '^\*' | tr -s ' ' | cut -d' ' -f 2,5; } # context and namespace
 location() { # if in a git repo print like `toplevel(*master↓2↑1):sub(9ab9999):/dir/path` else `~/working/dir`
     local C="$(git -C "$1" rev-parse --show-toplevel)" remote branch left right
-    if [ -z "$C" ]; then [ -n "$1" ] || fmt '%T--%s' "${PWD//#${HOME}/"~"}"; return; fi
+    if [ -z "$C" ]; then [ -n "$1" ] || fmt '%T--%s' "${PWD/#"${HOME}"/"~"}"; return; fi
     location "$C/.."  # recurse up the file tree
     remote="$(git -C "$C" remote | head -n1)" # lets hope that they only have one remote, probably 'origin'
     branch="$(git -C "$C" rev-parse --abbrev-ref HEAD)"
@@ -285,7 +300,8 @@ nix__open() { xdg-open "$1" & disown; }
 mac__open() { if [ -e "$1" ]; then command open "$@"; else command open -a "$@"; fi; }
 
 mac__beep() { osascript -e 'beep 1'; }
-nix__beep() { paplay /usr/share/sounds/Yaru/stereo/bell.oga; }
+#nix__beep() { paplay /usr/share/sounds/Yaru/stereo/bell.oga; }
+nix__beep() { paplay /usr/share/sounds/freedesktop/stereo/complete.oga; }
 
 mac__notify() { osascript -e "display notification \"${1:-"Done"}\""; }
 nix__notify() { notify-send "$*"; }
@@ -294,7 +310,8 @@ mac__speak() { say "$*"; }
 nix__speak() {
     # https://askubuntu.com/questions/53896/natural-sounding-text-to-speech
     # packages: festival festvox-us-slt-hts
-    festival -b "(voice_cmu_us_slt_arctic_hts)" "(SayText \"$*\")"
+    # install festival festival-us
+    festival -b "(SayText \"$*\")"
     #spd-say "$*";
 }
 
@@ -336,6 +353,7 @@ rc
 # ascii art credit https://ascii.co.uk/art/cerberus https://ascii.co.uk/art/sphinx
 
 # TODO - one per line
+# add execution time to prompt if it's over some threshold
 # detect when in nvim, and nvim and don't open nested editors, split instead
 # detect nvim, disable vi-mode line editing, and goto terminal normal
 # don't parse ls http://mywiki.wooledge.org/ParsingLs
@@ -352,15 +370,5 @@ rc
 # input syntax highlighting https://github.com/akinomyoga/ble.sh https://github.com/zsh-users/zsh-syntax-highlighting
 # replace ~/my with $DOTROOT
 # as part of human data-formats [todo.txt](https://github.com/todotxt/todo.txt) and [cal.txt](https://terokarvinen.com/2021/calendar-txt/)
-journ=~/journal
-journ() {
-    # create journal entries based on a date in a directory.
-    # create a markup like syntax to create todos and stuff in the journal.
-    # combine with `cal` output.
-    # allow editing yesterday's journal with option `-1d` or `-1` or tomorrow's journal with +1
-    # edit a buffer with cal output, an extracted todo list, and space for the current journal,
-    # but parse buffer before writing to dedupe the todos, and send the rest to the current journal file.
-    # integrate with calendar.txt and todo.txt and push notification system.
-    :
-}
 #
+icat() { kitty +kitten icat "$@"; }
