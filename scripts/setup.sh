@@ -19,7 +19,6 @@ s_sys() {
     sudo ln -fs "$(git rev-parse --show-toplevel)/templates/libinput.conf" /usr/share/X11/xorg.conf.d/99-libinput.conf
     # let our i3config refer to a generic emulator, but actually use kitty
     sudo ln -fs "$(which kitty)" /usr/bin/x-terminal-emulator
-    sudo ln -fs "$(git rev-parse --show-toplevel)/git/gitconfig" ~/.gitconfig
 
     # media
     install blender krita godot lmms ardour
