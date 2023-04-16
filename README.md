@@ -27,6 +27,17 @@ but I try to give keys the same semantic meaning.
         * what happened and what's about to happen (history and completion)
         * who, what, where, when, why (user, command output, directory, timestamp, comments)
 
+# Installation
+* create install media
+    * [Download arch](https://archlinux.org/download/)
+    * flash to media `dd if=/path/to/iso of=/dev/sdX bs=4M`
+* base install
+    * [archinstall?](https://wiki.archlinux.org/title/Archinstall)
+    * `sudo pacman -S --needed git`
+    * `mkdir -p ~/my/toombs-caeman/; cd "$_"`
+    * `git clone git@github.com:toombs-caeman/dotfiles.git`
+    * source and run `scripts/setup.sh`
+
 # New structure
 * /
     * install - script for new computers with dotfiles

@@ -96,7 +96,7 @@ xgetkeys() {
     done >> ./readc.sh
     echo 'esac; }' >> ./readc.sh
 }
-#time xgetkeys
+load_layout whitefox; xgetkeys
 
 . ./readc.sh
 #echo "${#caps[@]}"
@@ -129,10 +129,8 @@ typewriter() {
     sleep 3
     reset
 }
-typewriter "look at me, typing stuff." "  --bruh"
-exit
 showkeys() {
-    load_layout qwerty
+    load_layout whitefox
     init
     printkeys
     while true; do
@@ -144,7 +142,7 @@ showkeys() {
             input+=("$key")
             clear
             printkeys ${input[@]//+/ }
-            echo "${input[@]}"
+            echo "input ${#input[@]}: ${input[@]}"
             tput cup 0 0
         else input=(); fi
     done

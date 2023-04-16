@@ -5,10 +5,10 @@
 install() { yay -S --needed "$@"; }
 s_sys() {
     # based on [endeavour](https://endeavouros.com/latest-release/)
-    # select the i3 option (it is actually i3-gaps)
+    # select the i3 option
     sudo pacman -Syu
-    # sudo pacman -S --needed yay i3-gaps i3status i3lock picom
-    install  xautolock yay ripgrep xclip ttf-firacode-nerd git firefox zsh neovim fzf feh kitty
+    # sudo pacman -S --needed yay i3-wm i3status i3lock picom
+    install  xautolock yay ripgrep xclip ttf-firacode-nerd git firefox zsh neovim fzf bat feh kitty
     sudo chsh -s "$(which zsh)" "$(whoami)"
     timedatectl set-ntp yes
     # needed for nvim integrations, sadly

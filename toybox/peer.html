@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- https://peerjs.com -->
+    <!-- https://fate-srd.com/fate-core -->
+    <!-- https://github.com/CodeSeven/toastr -->
+    <!-- https://jquery.com/download/ -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<style>
+.column {
+  float: left;
+  width: 50%;
+}
+
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+/* .roll should come before ladder classes for precedence on transition to behave correctly */
+.roll { transition: all 3s; }
+.Legendary {background-color:purple; transition: all 0s; }
+.Epic {background-color:violet; transition: all 0s; }
+.Fantastic {background-color:orange; transition: all 0s; }
+.Superb {background-color:springgreen; transition: all 0s; }
+.Great {background-color:seagreen; transition: all 0s; }
+.Good {background-color:teal; transition: all 0s; }
+.Fair {background-color:steelblue; transition: all 0s; }
+.Average {background-color:powderblue; transition: all 0s; }
+.Mediocre {background-color:lemonchiffon; transition: all 0s; }
+.Poor { background-color:crimson; transition: all 0s;  }
+.Terrible { background-color:darkred; transition: all 0s; }
+@keyframes fadeout { to {background-color:white;} }
+</style>
+</head>
+<body>
+<script src="https://unpkg.com/peerjs@1.3.2/dist/peerjs.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script>
+    class Quorum {
+        self = new Peer();
+        others = {}
+        handlers = {
+            // sanitize incoming value to disallow functions
+            'prop': (target, prop, value) => $(target).prop(prop, String(value)),
+            'attr': (target, attr, value) => $(target).attr(attr, String(value)),
+            'connection':(conn)=> null,
+            'advertisement': (...peers) => peers.forEach(p => this.connect(p)),
+        }
+        constructor() {
+            var q = this
+            this.self.on('connection', function(conn) { q.connect(conn); });
+        }
+        connect(id) {
+            var conn;
+            // could receive a string id or a connection object as an argument
+            if (typeof id === "string") {
+                // don't connect to self, or if already connected
+                if (id == this.self.id || id in this.others) return;
+                conn = this.self.connect(id);
+            } else {
+                conn = id;
+                id = conn.peer;
+            };
+            var q = this;
+            conn.on('open', function () {
+                console.log(`connected to ${id}`);
+                // keep track of open connections
+                q.others[conn.peer] = conn;
+                // use this.handlers to dispatch incoming data
+                conn.on('data', (data)=> q.handle(data));
+                conn.on('close', () => q.close(this.peer));
+                // backpropogate the rest of the quorum
+                conn.send({'event':'advertisement', 'args':Object.keys(q.others)});
+                // allow callback when a connection is formed
+                q.handlers['connection'](conn);
+            });
+        };
+        close(id) { q.handlers['close'](id); delete this.others[id]; };
+        ready(f) { this.self.on('open', f); }
+        broadcast(event, ...data) {
+            const x = { 'event': event, 'args':data };
+            // broadcast data to all peers
+            console.log(`broadcasting ${event} event.`);
+            for (const i in this.others) { this.others[i].send(x); };
+        };
+        handle(event, f=null) {
+            if (f == null) {
+                console.log(`received ${event['event']} event: ${JSON.stringify(event['args'])}`);
+                // dispatch event to handlers
+                this.handlers[event['event']](...event['args']);
+            } else {
+                // register event handlers
+                this.handlers[event] = f;
+            }
+        };
+        attr(s, a, rs=null, ra=null) {
+            var q = this;
+            $(s).change(function() {
+                q.broadcast('attr', rs?rs:s, ra?ra:a, $(this).attr(a));
+            });
+        };
+        prop(s, p, rs=null, rp=null) {
+            var q = this
+            $(s).change(function() {
+                q.broadcast('prop', rs?rs:s, rp?rp:p, $(this).prop(p));
+            });
+        };
+        text(s, r=null) { this.prop(s, 'textContent', r); }
+        val(s, r=null) { this.prop(s, 'value', r); }
+        vt(s, r) { this.prop(s, 'value', r, 'textContent'); }
+        tv(s, r) { this.prop(s, 'textContent', r, 'value'); }
+    };
+
+    const q = new Quorum();
+    $(function() {
+        q.ready(function(id) {
+            if (window.location.hash) {
+                console.log(`trying to connect to existing session ${window.location.hash}`)
+                // the hash starts with '#', so substring that
+                q.connect(window.location.hash.substring(1))
+            }
+            // set the url to contain our id
+            window.location.hash = id;
+            // advertise our name to the peers
+            q.vt("#name", `#${id} .name`);
+            $('#roll').parent('tr').attr('id', id)
+        });
+        // add a row in the player table whenever we get a new connection
+        q.handle('connection', function(conn) {
+            $("#players tr:last").after(`<tr id=${conn.peer}><td class="name"></td><td class="roll">0</td></tr>`);
+            // trigger an update to sync initial values
+            $("#name").change()
+        });
+        // remove row from the player table if we lose the connection
+        q.handle('close', function(id) {
+            var tr =$(`#${id}`)
+            console.log(`lost connection to player ${tr.children('.name').text()}, id: ${id}`)
+            tr.remove();
+        });
+        // this lets us send the url to someone and they can paste it to connect
+        $("#connect").click(function () {
+            q.connect($("#peer-url").val().split('#').at(-1))
+        });
+
+        // click a row on the ladder to roll with that as a modifier
+        $("#ladder").delegate("tr", "click", function() {
+            // roll 4 fudge dice and sum the result with a modifier
+            var value = Array.from({length: 4}, () => Math.floor(Math.random()*3)-1).reduce((x,y)=>x+y, Number($(this).find('td:first').text()))
+            var cls = $(this).find('td:last').text()
+            q.broadcast('roll', q.self.id, cls, value);
+            rollAnimation(q.self.id, cls, value);
+        });
+        q.handle('roll', rollAnimation);
+        // colorize the ladder
+        $("#ladder tr").each(function (_) {
+            $(this).addClass($(this).children("td:last").text())
+        });
+        // copy the url to the clipboard
+        $('.clipboard').click( function() {
+            navigator.clipboard.writeText(window.location.href);
+            toastr.success('copied url');
+        });
+    });
+    function rollAnimation(id, cls, value) {
+        var $cell = $(`#${id} .roll`)
+        $cell.text(value);
+        $cell.addClass(cls);
+        setTimeout(function (){ $cell.removeClass(cls)}, 500);
+    }
+
+</script>
+
+<label for="connect">Connect to lobby:</label>
+<input type="text" id="peer-url" size="10"></input>
+<button id="connect">Connect</button>
+<button class="clipboard">copy link</button>
+<hr>
+<div class="row">
+    <div class="column">
+        <table id="ladder">
+            <tbody>
+                <tr> <td>+8</td> <td>Legendary</td> </tr>
+                <tr> <td>+7</td> <td>Epic</td> </tr>
+                <tr> <td>+6</td> <td>Fantastic</td> </tr>
+                <tr> <td>+5</td> <td>Superb</td> </tr>
+                <tr> <td>+4</td> <td>Great</td> </tr>
+                <tr> <td>+3</td> <td>Good</td> </tr>
+                <tr> <td>+2</td> <td>Fair</td> </tr>
+                <tr> <td>+1</td> <td>Average</td> </tr>
+                <tr> <td>+0</td> <td>Mediocre</td> </tr>
+                <tr> <td>-1</td> <td>Poor</td> </tr>
+                <tr> <td>-2</td> <td>Terrible</td> </tr>
+            </tbody>
+        </table>
+ </div>
+ <div class="column">
+     <table id="players">
+         <tr><th>Name</th><th>roll</th></tr>
+         <tr><td class="name"><input id="name" type="text" size="10" placeholder="Your Name Here"></input></td><td id="roll" class="roll">0</td></tr>
+     </table>
+
+ </div>
+</div>
+<!--
+    features:
+        * ladder + rolling
+        * give self name, update dynamically
+        * join room by connecting to anyone in the room
+    stretch:
+        * character sheets - save characters in local cache
+        * initiative (physical and mental), to auto order the lobby
+        * dm view
+
+        * 
+-->
+</body>
+</html>

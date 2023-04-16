@@ -27,6 +27,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'} " code completion, linting, etc
 " language support
 Plug 'rust-lang/rust.vim'               " rust syntax and stuff, integrates with syntastic
 Plug 'habamax/vim-godot'                " godot integration
+Plug 'tikhomirov/vim-glsl'              " glsl shaders
 call plug#end()
 
 " status line

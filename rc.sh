@@ -205,16 +205,48 @@ venv() {
 __venv() { ls ~/my/venv/; }
 
 minecraft-server() {
-eval "`opt port,p=25565 ip_file,ip,i=$HOME/.minecraft_server.ip -d "start a minecraft server"`"
-local old_ip="$(cat "$ip_file")"
-curl https://ipinfo.io/ip 2>/dev/null > "$ip_file"
-if [ "$(cat "$ip_file")" != "$old_ip" ]; then
-    echo "The new address is $(cat "$ip_file")"; return 1
-else
-    sudo docker run -p $port:25565 -v "$HOME/.minecraft/saves/$1":/data/world -e EULA=TRUE itzg/minecraft-server
-fi
+    eval "`opt port,p=25565 ip_file,ip,i=$HOME/.minecraft_server.ip -d "start a minecraft server"`"
+    local old_ip="$(cat "$ip_file")"
+    curl https://ipinfo.io/ip 2>/dev/null > "$ip_file"
+    if [ "$(cat "$ip_file")" != "$old_ip" ]; then
+        echo "The new address is $(cat "$ip_file")"; return 1
+    else
+        sudo docker run -p $port:25565 -v "$HOME/.minecraft/saves/$1":/data/world -e EULA=TRUE itzg/minecraft-server
+    fi
 }
 __minecraft-server() { ls ~/.minecraft/saves/; }
+
+fe() {
+    # interactively edit a stream with fzf
+    # inspired by https://github.com/DanielFGray/fzf-scripts/blob/master/fzrepl
+    local ret in hist=~/.fe_history
+
+    # don't run without a base command, for safety
+    # instead, show what the last command executed was
+    if (( ! $# )); then tail -n 1 "$hist"; return $?; fi
+
+    # make sure the query affects results
+    if [[ "$*" != *'{q}'* ]]; then set -- "$@" '{q}'; fi
+    # store input
+    in="$(mktemp)"
+    cat > "$in"
+    fzf \
+        --history="$hist" \
+        --layout=reverse-list \
+        --phony \
+        --prompt "$1 " \
+        --bind  "start:reload:$* < '$in'" \
+        --bind "change:reload:$* < '$in'" \
+        --multi \
+        --bind "enter:select-all+accept+transform-query:printf %s \"$*\"" \
+        < "$in"
+    ret="$?"
+    rm "$in"
+    return "$ret"
+}
+ff() { fe grep "$@"; }
+fs() { fe sed "$@"; }
+fq() { fe jq "$@"; }
 
 zsh__() {
     setopt noshglob # hack to handle error 'compinit:141: parse error: ...' in some zsh versions
@@ -254,7 +286,7 @@ prompt() {
 PROMPT_COMMAND='precmd "\001" "\002" "\$"'
 precmd() { 
     local EXIT="$?" tdelta=$((SECONDS-${precmd:-$SECONDS}));
-    PS1="$(fmt[pp]="${1:-%%{}" fmt[qq]="${2:-%%\}}"; prompt)${3:-%#}"
+    PS1="$(fmt[pp]="${1:-%%{}" fmt[qq]="${2:-%%\}}"; prompt)${3:-%#} "
     precmd=''
 }
 preexec() { precmd=$SECONDS; }

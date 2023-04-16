@@ -1,0 +1,6 @@
+# rearrange the pages of a pdf to make signatures for binding
+
+# requires package texlive-core for pdfbook2
+# 5 sheets of paper in a signature hold 10 pages
+# print on us-letter (8.5x11)
+pdfbook2 --paper=letter --signature=10 "$@"
