@@ -14,61 +14,12 @@
 #      (,-(,(,(,/      \,),),)
 
 
-# DESIGN
-# When necessary, make zsh behave like bash (`emulate ksh`, `setopt BASH_REMATCH`).
-# if foo() needs to persist state or return multiple values, it should use $foo[].
-# foo() helper functions should start with '_foo'.
-# in this file, functions are defined only and then configured with rc()
-# rc() handles *__*() specially. *__*() names are a list of dependencies then a name, separated by '__'
-# dependency resolution is determined by q(). The type of function is determined by the following cases
-# *__() are setup functions. foo__bar__() is run by rc() if `q foo bar`. __() is always run
-# __*() are completion functions. __foo() prints a list of newline separated completion options for foo()
-# *__*() are considered collapsing functions. rc() copies foo__bar__baz() to baz() if `q foo bar`
-
-
 . "$(lib)" # import lib
+
 # print absolute paths as if the argument is always relative to the directory of this file
 # TODO breaks if run as '. ./rc.sh'
 here() { : "${BASH_SOURCE[0]:-${(%):-%x}}"; (( $# )) && echo "${_%/*}/${1#/}" || echo "$_"; }
 
-# TODO warn when a function is only partially defined ( like foo__bash exists but foo__zsh doesn't)
-rc=("$(here)")
-rc() {
-    if (( $# )); then
-        rc+=("$*")
-        q "${@:2}" && . "$1"
-    else
-        # set data for q() special cases
-        export OS="$(uname -s)"
-        export TERM="$TERM" # TODO consistent way to set $TERM
-        export SHELL="$(ps -p $$ -o comm=)"
-        local f c fsetup=() fcollapse=() fnames=() fcomplete=()
-        for f in $(fls); do
-            case "$f" in
-                *__) fsetup+=("$f") ;;
-                __*) fcomplete+=("$f") ;;
-                *__*) fcollapse+=("$f"); fnames+=("${f##*__}") ;;
-            esac
-        done
-        fnames=($(printf "%s\n" "${fnames[@]}" | sort -u))
-        # run setup functions (ending with __)
-        for f in "${fsetup[@]}"; do q ${f/__/ } && "$f"; done
-        command -v __ >/dev/null && __
-        # collapsing functions (dependencies then name, all separated by __)
-        for f in "${fnames[@]}"; do
-            for c in $(fmt "$f$%w%s\n" "${fcollapse[@]}"); do : "${c%__*}"; q ${_/__/ } && fcp "$c" "$f" && break; done
-        done
-        # completions (starting with __)
-        # TODO what about config sensitive completions?
-        # TODO _fzf_setup_completion https://github.com/junegunn/fzf#supported-commands autogen for __*()
-        for f in "${fcomplete[@]}"; do
-            q bash && complete -C _rc "${f##*__}"
-            q zsh && eval _$f'() { reply=(${(f)"$('$f')"}); }' && compctl -K "_$f" "${f##*__}"
-        done
-        return 0
-    fi
-}
-_rc() { local IFS=$'\n'; compgen -W "$(__$1)" "$2"; }
 
 rrc() {
     # send this config file over to remote connection
@@ -85,23 +36,6 @@ rrc() {
     # sed ...: strip comments, leading whitespace and empty lines from rc files
     # base64: encode the file to avoid weird quoting issues, then decode it on the other side
     $SSH "$@" "$CMD <(base64 -d <<<$(sed 's/^ *//;s/  *#.*$//;s/^#.*$//;/^$/d' "${rc[@]}" | base64 -w0))"
-}
-
-q() {  # query the current os, terminal, or shell, or if commands are present in $PATH
-    local os term shell q=()
-    while (( $# )); do 
-        # TODO add local/remote special case to handle ssh/mosh/rrc
-        # TODO add xterm-256color special case
-        case "$1" in
-            mac)    os=Darwin ;; nix)   os=Linux  ;;
-            iterm)  term=iterm;; xterm) term=xterm;;
-            zsh)    shell=zsh ;; bash)  shell=bash;;
-            *) q+=("$1") ;;
-        esac
-        shift
-    done
-    [ "$OS" = "${os:-$OS}" ] && [ "$TERM" = "${term:-$TERM}" ] && [ "${SHELL##*/}" = "${shell:-${SHELL##*/}}" ] &&
-        command -v "${q[@]:-command}" > /dev/null || return 1
 }
 
 
@@ -122,11 +56,8 @@ timer() { # echo the (average) elapsed system time in seconds (millisecond preci
 }
 
 # zsh: $path is an alias for $PATH, so don't use it as a variable
-path() { (( $# )) || tr : '\n' <<< "$PATH"; while (( $# )); do export PATH="$PATH:$(cd "$1" && pwd)"; shift; done; }
+path() { (($#)) || fmt ':%J%s\n' "$PATH"; while (($#)); do export PATH="$PATH:$(cd "$1" && pwd)"; shift; done; }
 
-# thanks to https://unix.stackexchange.com/a/453170
-zsh__log() { printf '%s %s\n' "${funcfiletrace[0]%:*}:${funcstack[1]}:${funcfiletrace[0]##*:}" "$*" >&2; }
-bash__log() { printf '%s %s\n' "${BASH_SOURCE[1]}:${FUNCNAME[1]}:${BASH_LINENO[0]}" "$*" >&2; }
 
 DOTROOT=~/my
 gg() {
@@ -170,30 +101,30 @@ gg() {
         shift
     done
 }
-__gg() { projects | grep -o '[^/]*$'; }
-projects() { find "$DOTROOT"/* -maxdepth 5 -type d -name '.git' -prune 2>/dev/null | sed 's,^\(.*\)/.git,\1,' ; }
+__gg() { fmt '([^/]*)$%M%1ms\n' "$DOTROOT"/*/*; }
+# TODO remove
+projects() { fmt '%s\n' "$DOTROOT"/*/*; }
 get() {
-    # check to see if 
-    local url="${1}"
-    if M "${url}" "([^/]*)/([^/]*)$"; then
+    local url="$1"
+    if M "$url" "([^/]*)/([^/]*)$"; then
         local parent="${M[1]}"
         local repo="${M[1]}/${M[2]%.git}"
         echo "clone to $repo ?"
         echo "ctrl-c to cancel"
         if read; then
-            mkdir -p ~/my/"$parent"
-            git clone --depth 1 -- "${url}" ~/my/"$repo"
-            cd ~/my/"$repo"
+            mkdir -p "$DOTROOT/$parent"
+            git clone --depth 1 -- "${url}" "$DOTROOT/$repo"
+            cd "$DOTROOT/$repo"
         fi
     else
         echo "couldn't parse url '$url'"
     fi
 }
 
-venv() { if [ -n "$1" ]; then . ~/my/venv/$1/bin/activate; else [ -n "$VIRTUAL_ENV" ] && deactivate; fi; }
+venv() { if [ -n "$1" ]; then . "$DOTROOT/venv/$1/bin/activate"; else [ -n "$VIRTUAL_ENV" ] && deactivate; fi; }
 venv() {
     [ -n "$VIRTUAL_ENV" ] && deactivate;
-    local d=~/my/venv/
+    local d="$DOTROOT/venv/"
     if [ -n "$1" ]; then
         if [ ! -d "$d$1" ]; then
             printf '%s' "?? virtualenv $d$@"; read
@@ -202,7 +133,7 @@ venv() {
         . $d$1/bin/activate
     fi
 }
-__venv() { ls ~/my/venv/; }
+__venv() { ls "$DOTROOT/venv/"; }
 
 minecraft-server() {
     eval "`opt port,p=25565 ip_file,ip,i=$HOME/.minecraft_server.ip -d "start a minecraft server"`"
@@ -270,6 +201,7 @@ bash__() {
 
 prompt() {
     # for section ideas see: https://liquidprompt.readthedocs.io/en/stable/functions/data.html
+    # aws, terraform, node
 
     # show 'HH:MM:SS' of runtime if a command took 5 or more seconds
     ((tdelta >= 5)) && fmt '%Ty-%02d%T--%F:%j%s ' $((tdelta/3600)) $((tdelta%3600/60)) $((tdelta%60))
@@ -303,21 +235,38 @@ colortest() {
 }
 
 location() { # if in a git repo print like `toplevel(*master↓2↑1):sub(9ab9999):/dir/path` else `~/working/dir`
-    local C="$(git -C "$1" rev-parse --show-toplevel)" remote branch left right
+    local C="$(git -C "$1" rev-parse --show-toplevel)" remote branch
     if [ -z "$C" ]; then [ -n "$1" ] || fmt '%T--%s' "${PWD/#"${HOME}"/"~"}"; return; fi
     location "$C/.."  # recurse up the file tree
     remote="$(git -C "$C" remote | head -n1)" # lets hope that they only have one remote, probably 'origin'
-    branch="$(git -C "$C" rev-parse --abbrev-ref HEAD)"
-    branch="${branch:-$(git -C "$C" rev-parse --short HEAD)}"
-    left="$( git -C "$C" rev-list --left-only  --count remotes/$remote/$branch...$branch)"
-    right="$(git -C "$C" rev-list --right-only --count remotes/$remote/$branch...$branch)"
+    : "$(git -C "$C" rev-parse --abbrev-ref HEAD)"; branch="${_:-$(git -C "$C" rev-parse --short HEAD)}"
     fmt "%T--%s(" "${C##*/}"
-    test -n "$(git -C "$C" status --porcelain | grep -v '^??')"  && fmt '%Tr-%s' '*' || printf "${_:+*}"
+    # TODO this is intended to print a red star when there are modifications
+    #       and a white star when there are untracked files (but no modifications)
+    : "$(git -C "$C" status --porcelain | grep -v '^??')"; [[ -n "$_" ]] && fmt '%Tr-%s' '*' || printf "${_:+*}"
     fmt '%Tg-%s' "$branch"
-    (( left )) && fmt '%Tu-↓%s' "$left"  # branch is behind by left
-    (( right )) && fmt '%Tu-↑%s' "$right" # branch is ahead  by right
+    : "$( git -C "$C" rev-list --left-only  --count remotes/$remote/$branch...$branch)"; ((_)) && fmt '%Tu-↓%s' "$_"  # branch is behind by left
+    : "$(git -C "$C" rev-list --right-only --count remotes/$remote/$branch...$branch)"; ((_)) && fmt '%Tu-↑%s' "$_" # branch is ahead  by right
+    [[ "$(git rev-parse --is-shallow-repository)" == true ]] && fmt '%Tu-√' '' # repo is shallow
     git rev-parse $remote/$branch >/dev/null || fmt '%Tu-L' # branch has no remote branch
     fmt '%T--):%s/' "${PWD//"$C"}"
+}
+
+
+
+location() { # if in a git repo print like `toplevel(*master↓2↑1):sub(9ab9999):/dir/path` else `~/working/dir`
+    local C="$(git -C "$1" rev-parse --show-toplevel)"
+    if [ -z "$C" ]; then [ -n "$1" ] || fmt '%T--%s' "${PWD/#"${HOME}"/"~"}"; return; fi
+    location "$C/.."
+    local remote="$(git -C "$C" remote | head -n1)" branch L R mod="$(git -C "$C" status --porcelain)" s l
+    remote # lets hope that they only have one remote, probably 'origin'
+    : "$(git -C "$C" rev-parse --abbrev-ref HEAD)"; branch="${_:-$(git -C "$C" rev-parse --short HEAD)}"
+    git rev-parse $remote/$branch >/dev/null || l='L'
+    : "$(git -C "$C" rev-list --left-only  --count remotes/$remote/$branch...$branch)"; ((_)) && L="↓$_"
+    : "$(git -C "$C" rev-list --right-only --count remotes/$remote/$branch...$branch)"; ((_)) && R="↑$_"
+    [[ "$(git rev-parse --is-shallow-repository)" == true ]] && s='√'
+    fmt -v _ $'\n''%J^[^?]%w' "$mod" && mod="${mod:+%Tr-*}" || mod="${mod:+*}"
+    fmt "%T--%s($mod%Tg-%s%Tu-$L$R$s$l%T--):%s/" "${C##*/}" "$branch" "${PWD//"$C"}"
 }
 
 # TODO use fzf_complete here instead
@@ -353,6 +302,22 @@ fonts() {
         fc-match "$family"
     done
 }
+icat() { kitty +kitten icat "$@"; }
+
+gtd=~/Documents/inbox.md
+gtd() {
+    gg gtd
+    #git pull 2>/dev/null >&2
+    "$EDITOR" 'inbox.md' 'next.md' 'wait.md' 'tick.md'
+    git add .
+    git commit -m "$(date +"%Y-%m-%d %T")" 2>/dev/null >&2
+    #git push 2>/dev/null >&2
+    cd -
+}
+gtd() {
+    (($#)) && printf '%s\n' "$*" >> "$gtd" || "$EDITOR" "$gtd"
+}
+alias g=gtd
 
 #            _
 #           /(}
@@ -375,6 +340,7 @@ __() {
     rc "$(here include/fzf_complete.bash)" fzf bash
     rc "$(here include/fzf_complete.zsh)" fzf zsh
     path "$(here bin)"
+    path ~/.local/bin
     # enable history
     HISTSIZE=100000000
     SAVEHIST=100000000
@@ -403,4 +369,3 @@ rc
 # replace ~/my with $DOTROOT
 # as part of human data-formats [todo.txt](https://github.com/todotxt/todo.txt) and [cal.txt](https://terokarvinen.com/2021/calendar-txt/)
 #
-icat() { kitty +kitten icat "$@"; }

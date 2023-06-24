@@ -1,5 +1,5 @@
 #!/bin/bash
-# a bash library
+# a bash and zsh library
 #|  .__.
 #|  (o,o)
 #|  /)__)      v
@@ -8,20 +8,40 @@
 #            )
 #            ^
 
+## USAGE
 # import with `. "$(lib)"` if it's on your $PATH
-# also works with zsh if `emulate ksh; setopt bashrematch`, which it will set if sourced.
+# read test_*() functions for examples
 
-# COMMENTS
+##COMMENTS
 # Comments conform to the following style.
 # a function, builtin, or command 'foo' is called foo().
 # a scalar variable 'foo' is called $foo.
 # an array variable 'foo' is called $foo[].
 # a flag 'foo' is called --foo. a flag 'f' is called -f
-# Code is written in `backticks`, but $(subshells) are always preferred in real code
+# Code fragments are written in `backticks`, but $(subshells) are always preferred in real code
 # foo*() means any function whose name starts with 'foo', including foo()
 
+## DESIGN
+# if foo() needs to persist state or return an array, it will use $foo or $foo[].
+# foo() may have helper functions _foo*()
+# _*() functions aren't intended to be called directly.
+#
+# __*() are completion functions that should prints a list of newline separated completion options.
+# for example __foo() provides completions for foo()
+#
+# *__() are context specific setup functions. context is determined by q()
+# for example bash__fzf__() is run if the current shell is bash and fzf is installed
+# __() is always run
+#
+# other functions that contain '__' are considered alternative implementations.
+# for example bash__log() implements log() when the current shell is bash.
+#
+# run rc() to re-initialize underscore functions
+#
+# test_*() are test cases for this library.
+# run tests in bash and zsh with lib_test()
 
-# Sorry not sorry. Need to widen the compatibility between zsh and bash.
+
 if [ -n "$ZSH_VERSION" ]; then
     emulate ksh; setopt bashrematch nolocaloptions
 else
@@ -33,29 +53,126 @@ else
     fi
 fi
 
+
+## RC
+rc() {
+    # source a file if the context matches
+    if (( $# )); then q "${@:2}" && . "$1"; return $?; fi
+    # set data for q() special cases
+    # TODO find consistent way to set $TERM
+    export OS="$(uname -s)" TERM="$TERM" SHELL="$(ps -p $$ -o comm=)"
+    local fs=($(fun ls)) setup comp alt f x
+    fmt -V fs '__%w'                   # filter only names containing '__'
+    fmt -v setup '__$%w' "${fs[@]}"    # when*__()
+    fmt -v comp '^__.%w' "${fs[@]}"     # __*fun()
+    fmt -v alt '^__%W__$%W' "${fs[@]}" # when*__*fun()
+    #fmt -V fs '^.*__(.*)$%M%1ms%Fu%S'  # fun() select only the last section of the name, then sort unique
+    for f in "${setup[@]}"; do q ${f/__/ } && "$f"; done
+    for f in "${alt[@]}"; do x="${f%__*}"; q ${x/__/ } && fun cp "$f" "${f#*__}"; done
+    # TODO what about config sensitive completions?
+    # TODO _fzf_setup_completion https://github.com/junegunn/fzf#supported-commands autogen for __*()
+    for f in "${comp[@]}"; do
+        q bash && complete -C _rc "${f##*__}"
+        q zsh && eval _$f'() { reply=(${(f)"$('$f')"}); }' && compctl -K "_$f" "${f##*__}"
+    done
+    return 0
+}
+_rc() { local IFS=$'\n'; compgen -W "$(__$1)" "$2"; }
+q() {  # query the current os, terminal, or shell, or if commands are present in $PATH
+    local os term shell q=()
+    while (( $# )); do
+        # TODO add local/remote special case to handle ssh/mosh/rrc
+        # TODO add xterm-256color special case
+        case "$1" in
+            mac)    os=Darwin ;; nix)   os=Linux  ;;
+            iterm)  term=iterm;; xterm) term=xterm;;
+            zsh)    shell=zsh ;; bash)  shell=bash;;
+            *) q+=("$1") ;;
+        esac
+        shift
+    done
+    [ "$OS" = "${os:-$OS}" ] && [ "$TERM" = "${term:-$TERM}" ] && [ "${SHELL##*/}" = "${shell:-${SHELL##*/}}" ] &&
+        command -v "${q[@]:-command}" > /dev/null || return 1
+}
+
+## LOGGING
+zsh__log() { printf '%s %s\n' "${funcfiletrace[0]%:*}:${funcstack[1]}:${funcfiletrace[0]##*:}" "$*" >&2; }
+bash__log() { printf '%s %s\n' "${BASH_SOURCE[1]}:${FUNCNAME[1]}:${BASH_LINENO[0]}" "$*" >&2; }
+
+## TEST
+# this is a mini test framework that runs tests in both bash and zsh
+# functions test_*() are unit tests
+# tests are also defined for the library itself
+# TODO nicer reporting, be silent and collect stdout/stderr until something goes wrong
+lib_test() { for shell in bash zsh; do echo $'\n'"$shell"; "$shell" -c '. "$(lib)"; _lib_test'; done; echo; }
+_lib_test() { for tc in $(fun ls|grep -o 'test_[^ ]*$'); do "$tc"; done; }
+fail() { echo "FAIL ${funcstack[${2:-1}]}${FUNCNAME[${2:-1}]}: ${BASH_LINENO[$((${2:-1}-1))]} ${1:-just aint right}"; }
+assert() {
+    eval "set -- \"\$@\" \${#$1[@]}"
+    eval "(( $3 > \${#$2[@]} ))" && fail 'output array too short' 2
+    eval "(( $3 < \${#$2[@]} ))" && fail 'output array too long' 2
+    local __
+    for ((__=0; __ < $3; __++)); do
+        eval "[[ \"\${$1[$__]}\" != \"\${$2[$__]}\" ]] && fail \"idx $__: '\${$1[$__]}' != '\${$2[$__]}'\" 2" && return;
+    done
+}
+
+
 escape_html() { local s="${*//&/&amp\;}"; s="${s//</&lt\;}"; s="${s//>/&gt\;}"; printf '%s' "${s//"\""/&quot\;}"; }
 
-# pop <array> <var>
-# pop the last value of an array, optionally to var
-pop() { : "$1[-1]"; eval "printf ${2:+-v} $2 %s \"\${$_}\"; [ -n \"\$ZSH_VERSION\" ] && $_=() || unset -v $_"; }
+# pop <array> [<var>]
+# pop the last value of an array, optionally store to var. return 1 if array is empty
+# this mirrors `array+=("$var")` as push
+#pop() { : "$1[-1]"; eval "((\${#$1[@]}))||return 1; printf ${2:+-v} $2 %s \"\${$_}\"; [ -n \"\$ZSH_VERSION\" ] && $_=() || unset -v $_"; }
+zsh__pop() {  ((${#${(P)1}[@]}))||return 1; printf ${2:+-v} $2 %s "${${(P)1}[-1]}"; eval "$1[-1]=()"; }
+bash__pop() { : "$1[-1]"; printf ${2:+-v} $2 %s "${!_}" 2>/dev/null || return 1; unset -v "$1[-1]"; }
 
-func() { # working with shell functions
+defer=()
+defer() {
+    local x; printf -v x '%q ' "$@"
+    defer+=("$x")
+    # TODO detect if there's alreay a trap on exit and keep it on the stack (unless it's `_defer`)
+    trap "_defer" EXIT
+}
+_defer() {
+    local x
+    while pop defer x; do eval "$x"; done
+}
+
+fun() { # working with shell functions
   case "$1" in
     ls) declare -f + || declare -F | cut -d' ' -f 3 ;;
     cp) test -n "$(declare -f "$2")" && eval "${_/$2/$3}" ;;
     rm) unset -f "$2" ;;
-    mv) func cp "$2" "$3"; func rm "$2" ;;
+    mv) fun cp "$2" "$3"; fun rm "$2" ;;
+    *) echo "unrecognized method '$1'" >&2; return 1 ;;
   esac
 }
-# FUNCTION
-fls() { declare -f + || declare -F | cut -d' ' -f 3 ; }
-fcp() { test -n "$(declare -f "$1")" && eval "${_/$1/$2}" ; }
-frm() { unset -f "$1"; }
-fmv() { fcp "$1" "$2"; frm "$1"; }
 
+# M <text> <pattern> [<match var=M>]
 M() { unset -v "${3:-M}"; [[ "$1" =~ $2 ]] && eval "${3:-M}=(\"\${BASH_REMATCH[@]}\")"; }
+# TODO memo() to add memoization
+# TODO performance test named capture groups
+# this is equivalent to M() above, but supports perl style named capture groups
+# the blog repo contains a memo-ized version
+M() { # <text> <pattern> [<match var=M>]
+    unset -v "${3:-M}"
+    set -- "$1" "$2" '\(\?P<([^>]*)>' "${3:-M}=(\"\${BASH_REMATCH[@]}\")"
+    while [[ "$2" =~ $3 ]] ; do
+        : "${2%%"${BASH_REMATCH[0]}"*}"; : "${_//'\('/}"; : "${_//[^(]/}"
+        set -- "$1" "${2//"${BASH_REMATCH[0]}"/(}" "${@:3}" "${BASH_REMATCH[1]}=\"\${BASH_REMATCH[$((${#_} + 1))]}\""
+    done
+    [[ "$1" =~ $2 ]] || return 1
+    shift 3
+    while (($#)); do eval "$1"; shift; done
+}
+#N 'abx(y' 'b((?P<x>.)\((?P<y>.?))' V
+#M '<p .class>' '<(?P<x>[[:alnum:]]+)(?P<raw_attr>([^>]?[^->])*)(?P<line>-?)>' V
+#printf '%s\n' "${V[@]}"
+
 
 # OPT
+# TODO this was probably a bad idea
 # opt() generates a script that parses arguments.
 # example: `eval "$(opt x y z: job,j='a job' -d 'foo description')"`
 # in this example, $x will be set to 1 if -x is passed. Same with $y. -z must be passed and takes an argument.
@@ -71,6 +188,7 @@ opt() {
   if [ -- != "$1" ]; then eval "$(opt -- description,d="no description found" nargs nohelp)"; else shift; fi
   local vars=() cases=() required=() names=() sed=''
   # generate variable names and cases from arguments
+  # TODO eval "y=({$x})"
   sed='s/^\([^,:=]*\)/\1,\1/;s/,/|--/g;s/-\(.\)\([:=|]\|$\)/\1\2/g;s/|/ /;' # 'a,bc,d=' -> 'a -a|--bc|-d='
   sed=$sed'/\(:\|=\)$/!{s/\([^ ]*\) \(.*\)/\1 \2) \1=1/;};' # 'a -b|-c' -> 'a -b|-c) a=1'
   sed=$sed'/\(:\|=\)$/{s/.$/)/;s/\([^ ]*\) \(.*\)/\1 \2 shift\;\1=\$1/;};' # 'a -b|-c:' -> 'a -b|-c) shift;a=$1'
@@ -100,15 +218,77 @@ opt() {
   (( nargs )) && printf 'if (( $# )); then echo positional arguments not allowed; %s; return 1; fi;' "$help"
 }
 
-fmt() {
-    # -v output var
-    # -V use var as in and output
-    # %T tput cache
+
+test_fmt_F() {
+    fmt -v r '%s %s%F(%s)' {1..7}
+    e=('(1 2)' '(3 4)' '(5 6)' '(7 )')
+    assert e r
+    fmt -v r '%s%.0s' {1..7}
+    e=('1' '3' '5' '7')
+    assert e r
+}
+test_fmt_jJ() {
+    fmt -v r '"%s"%F, %j' {1..3}
+    e=('"1", "2", "3"')
+    assert e r
+    fmt -V r ', %J'
+    e=('"1"' '"2"' '"3"')
+    assert e r
+    fmt -v r '%J' 'abc'
+    e=(a b c)
+    assert e r
+}
+test_fmt_wW() {
+    fmt -v r 'x%w' {1..3}{x,y}
+    e=(1x 2x 3x)
+    assert e r
+    fmt -v r 'x%W' {1..3}{x,y}
+    e=(1y 2y 3y)
+    assert e r
+}
+test_fmt_r() {
+    fmt -v r '3%r' 1 2
+    e=(1 1 1 2 2 2)
+    assert e r
+}
+test_fmt_R() {
+    fmt -v r '%R' {1..5}
+    e=({5..1})
+    assert e r
+}
+# TODO count occurrences of literal
+# TODO test %% escaping
+test_fmt_Z() {
+    r=(1 3 5 2 4 6)
+    fmt -V r '2%Z'
+    e=({1..6})
+    assert e r
+}
+test_fmt_MF() {
+    fmt -v r '([0-9]+)%M%1ms' xx{1..3}0y a b
+    e=({1..3}0 a b)
+    assert e r
+}
+test_fmt_SuS() {
+    fmt -v r '%S' 4 3 5 3
+    e=(3 3 4 5)
+    assert e r
+    fmt -v r 'u%S' 4 3 5 3
+    e=(3 4 5)
+    assert e r
+}
+
+fmt() { # [-v <out_var> | -V <in_out_var>] <pattern> [<value1> <value2> ...]
+    # %T.. tput cache
     # %w/%W where/filter_out (where)
     # %F format, assumed final
     # %j/%J join/split
-    # %M match (must be followed by %F
+    # %M match (must be followed by %F)
     # %S sort with flags
+    if [[ -n "$ZSH_VERSION" && ! -o ksharrays ]]; then
+        # for some reason, if this is called within a completion function then these options need to be re-set
+        emulate ksh; setopt bashrematch;
+    fi
     if ! (($#)); then
         # update cache
         # Black Red Green Yellow blUe Magenta Cyan White
@@ -143,14 +323,23 @@ _fmt() {
         printf -v __ "$spec"
         return
     fi
-    # match any character, but not an empty string. if there's an unescaped section flag, only match up to there.
-    local section flag flags='rwWjJMFS'
-    local getsection="^(([^%]|%[^$flags])*)((^|[^%])%((%%)*)([$flags]))?"
-    while [[ "$spec" =~ $getsection ]]; do
-        section="${BASH_REMATCH[1]}${BASH_REMATCH[4]}${BASH_REMATCH[5]}" flag="${BASH_REMATCH[7]}"
-        spec="${spec#"${BASH_REMATCH[0]}"}"
-        #echo "flag='$flag' section='$section' remainder='$spec'"
+    local getsection="(^|[^%])(%([rRwWjJMFSZ]))"
+    while [[ -n "$spec" ]]; do
+        if [[ "$spec" =~ $getsection ]]; then
+            section="${spec%%"${BASH_REMATCH[0]}"*}${BASH_REMATCH[1]}"
+            spec="${spec#*"${BASH_REMATCH[0]}"}"
+            flag="${BASH_REMATCH[3]}"
+        else
+            section="$spec"
+            spec=''
+            flag="F"
+        fi
+        #echo ">$section<>$flag<>$spec<"
         case "$flag" in
+            R) # reverse
+                local x=()
+                eval 'x=("${(Oa)@}")' 2>/dev/null || while (($#)); do x=("$1" "${x[@]}"); shift; done
+                set -- "${x[@]}" ;;
             r) # repeat
                 local _ x=()
                 printf -v y '%*s' "$section"
@@ -178,28 +367,52 @@ _fmt() {
                 x=(); while IFS= read -r -d $'\0' y; do x+=("$y"); done < <(printf '%s\0' "$@"|sort -z$section)
                 set -- "${x[@]}" ;;
             M) # match
-                unset -v BASH_REMATCH
-                [[ "$spec" =~ $getsection ]] || echo "match fail"
-                local mformat="${BASH_REMATCH[1]}${BASH_REMATCH[4]}${BASH_REMATCH[5]}"
-                #flag="${BASH_REMATCH[6]}"
-                spec="${spec#"${BASH_REMATCH[0]}"}"
+                local pattern="$section"
+                if [[ "$spec" =~ $getsection ]]; then
+                    section="${spec%%"${BASH_REMATCH[0]}"*}${BASH_REMATCH[1]}"
+                    spec="${spec#*"${BASH_REMATCH[0]}"}"
+                    flag="${BASH_REMATCH[3]}"
+                else
+                    section="$spec"
+                    spec=''
+                    flag="F"
+                fi
+                #echo "!$section<>$flag<>$spec<"
+                # TODO if flag isn't empty or F, then spec is malformed
                 x=()
-                while [[ "$mformat" =~ %([0-9]*)m ]]; do
-                    x+="${BASH_REMATCH[1]:-0}"
-                    mformat="${mformat/"${BASH_REMATCH[0]}"/%}"
+                while [[ "$section" =~ %([0-9]*)m ]]; do
+                    x+=("${BASH_REMATCH[1]:-0}")
+                    section="${section/"${BASH_REMATCH[0]}"/%}"
                 done
-                #echo "mformat='$mformat' x='${x[@]}'"
                 local args=("$@") a i
                 for ((a=0; a<${#args[@]}; a++)); do
-                    if [[ "${args[$a]}" =~ ${section} ]]; then
+                    if [[ "${args[$a]}" =~ $pattern ]]; then
                         y=(); for i in ${x[@]}; do y+="${BASH_REMATCH[$i]}"; done
-                        printf -v args[$a] "$mformat" "${y[@]}"
+                        printf -v args[$a] "$section" "${y[@]}"
                     fi
                 done
                 set -- "${args[@]}" ;;
+            Z) # zip
+                # TODO this works as intended, but it's a bit obscure??
+                local input=("$@") output=()
+                local sx="${section:-2}"
+                local sy=$(($#/sx))
+                local x y
+                for ((y=0; y < sy; y++)); do
+                    for ((x=0; x < sx; x++)); do
+                        #echo "output[$((sx*y+x))]='${input[$((sy*x+y))]}'"
+                        output[$((sx*y+x))]="${input[$((sy*x+y))]}"
+                    done
+                done
+                set -- "${output[@]}" ;;
             *) # format, assumed if final flag isn't given
                 [ -n "$section" ] || break
-                unset -v y; x=(); for y in "$@"; do printf -v y "$section" "$y"; x+=("$y"); done
+                x=()
+                if [ -n "$ZSH_VERSION" ]; then
+                    printf -v x "$section" "$@"
+                else
+                    mapfile -d '' x < <(printf "$section\0" "$@")
+                fi
                 set -- "${x[@]}" ;;
         esac
     done
@@ -208,100 +421,6 @@ _fmt() {
 
 # populate cache right away if we need to.
 # we won't if this file gets sourced multiple times
-if !  (( ${#fmt[@]} )); then
-    fmt
-fi
+if ! ((${#fmt[@]})); then fmt; fi
 
-
-# MO
-mo() {
-    # http://mustache.github.io/mustache.5.html
-    # {{#var}}block{{/var}} - for each in array
-    # {{^var}}block{{/var}} - if not var, unset or var=()
-    # {{! comment }} - ignored
-    # {{&var}} - "${var[*]}"
-    # {{var}} - escape_html "${var[*]}"
-    # {{> partial }} - mo "$partial"
-    eval "`opt -d "moustache templater"`"
-    local __t __raw="$(cat "$@"; printf x)"; set --; # tokenize raw text into $@
-    while M "$__raw" '^(([^{]|\{[^{])*)\{\{([^}]*)\}\}' __t; do
-        set -- "$@" "${__t[1]}" "${__t[3]// }"; __raw="${__raw/"${__t[0]}"}"
-    done
-    set -- "$@" "${__raw%x}";
-    unset -v __t __raw # reuse __t as tag stack and __raw as body
-    while (( $# )); do
-        if (( $# % 2 )); then (( ${#__t[@]} )) && __raw+="$1" || printf '%s' "$1"; shift; continue; fi # $1 is body
-        if (( ${#__t[@]} )) && ! [[ "#^/" =~ "${1:0:1}" ]]; then __raw+="{{$1}}"; shift; continue; fi # shortciruit var
-        case "${1:0:1}" in
-            \#) ((${#__t[@]})) && __raw+="{{$1}}" && __t=("$1" "${__t[@]}") || __t=("$1") ;;
-            ^)  ((${#__t[@]})) && __raw+="{{$1}}" && __t=("$1" "${__t[@]}") || __t=("$1") ;;
-            /) # section closing tag
-                [ "${__t[0]#?}" != "${1#?}" ] && printf '%s\n' "mismatched tags '${__t[0]}' != '$1'" >&2 && return 1
-                if [ ${#__t[@]} = 1 ]; then case "${__t[0]}" in
-                        \#*) eval "for tag in \"\${${1#?}[@]}\"; do printf '%s' \"\$__raw\" | mo || return; done" ;;
-                        ^*) eval "((\${#${1#?}[@]})) || printf '%s' \"\$__raw\" | mo || return" ;;
-                    esac; __raw=''; else __raw+="{{$1}}"; fi; __t=("${__t[@]:1}") ;;
-            \>) mo -- "${1#?}" || return ;; # partial
-            !)  ;; # comment
-            \&*) eval "printf '%s' \"\${${1#&}[*]}\"" ;; # raw value
-            *) eval "escape_html \"\${$1[@]}\"" ;; # escaped value
-        esac
-        shift
-    done
-    if (( ${#__t[@]} )); then
-        fmt '"%s"%F, %junclosed tag (%s)\n' "${__t[@]}" >&2
-        return 1
-    fi
-}
-
-# TUI?
-
-# CURSOR
-# read cursor position
-puc=(0 0)
-puc() { local _; echo -ne $'\E[6n'; read -s -d\[ _; IFS=';' read -sdR puc[0] puc[1]; puc[0]=$((puc[0]-1)); puc[1]=$((puc[1]-1)); }
-# cursor stack
-pushc() { puc; puc+=("${puc[@]:0:2}"); }
-popc() { pop puc puc[1]; pop puc puc[0]; tput cup "${puc[@]:0:2}"; }
-
-# BOX DRAWING
-boxchar=( \
-    ' ' '╵' '╹' ' ' '╶' '└' '┖' '╙' '╺' '┕' '┗' ' ' ' ' '╘' ' ' '╚' \
-    '╷' '│' '╿' ' ' '┌' '├' '┞' ' ' '┍' '┝' '┡' ' ' '╒' '╞' ' ' ' ' \
-    '╻' '╽' '┃' ' ' '┎' '┟' '┠' ' ' '┏' '┢' '┣' ' ' ' ' ' ' ' ' ' ' \
-    ' ' ' ' ' ' '║' '╓' ' ' ' ' '╟' ' ' ' ' ' ' ' ' '╔' ' ' ' ' '╠' \
-    '╴' '┘' '┚' '╜' '─' '┴' '┸' '╨' '╼' '┶' '┺' ' ' ' ' ' ' ' ' ' ' \
-    '┐' '┤' '┦' ' ' '┬' '┼' '╀' ' ' '┮' '┾' '╄' ' ' ' ' ' ' ' ' ' ' \
-    '┒' '┧' '┨' ' ' '┰' '╁' '╂' ' ' '┲' '╆' '╊' ' ' ' ' ' ' ' ' ' ' \
-    '╖' ' ' ' ' '╢' '╥' ' ' ' ' '╫' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' \
-    '╸' '┙' '┛' ' ' '╾' '┵' '┹' ' ' '━' '┷' '┻' ' ' ' ' ' ' ' ' ' ' \
-    '┑' '┥' '┩' ' ' '┭' '┽' '╃' ' ' '┯' '┿' '╇' ' ' ' ' ' ' ' ' ' ' \
-    '┓' '┪' '┫' ' ' '┱' '╅' '╉' ' ' '┳' '╈' '╋' ' ' ' ' ' ' ' ' ' ' \
-    ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' \
-    ' ' '╛' ' ' '╝' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '═' '╧' ' ' '╩' \
-    '╕' '╡' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '╪' ' ' ' ' \
-    ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' ' \
-    '╗' ' ' ' ' '╣' ' ' ' ' ' ' ' ' ' ' ' ' ' ' '╦' ' ' ' ' ' ' '╬')
-boxchar() {
-    # <top> <right> <bottom> <left> <var>
-    # empty=0 line=1 bold=2 double=3
-    # [box characters](https://en.wikipedia.org/wiki/Box-drawing_character)
-    printf ${5:+-v} $5 "${boxchar[$(($1+4*$2+16*$3+64*$4))]}"
-}
-box() { pushc; tput cup "$(($1+$3))" "$2"; _box "${@:3}"; popc; }
-# box <sx> <sy> <style>
-_box() {
-    local vc hc
-    boxchar "$3" 0 "$3" 0 vc
-    boxchar 0 "$3" 0 "$3" hc
-    pushc # save the position of the bottom left corner
-    boxchar "$3" "$3" 0 0 # draw bottom left corner
-    fmt "$(($1-1))%r%Tu1%Tl1%s%j%s%Tu1%Tl1" "$vc" # draw left line (moving up)
-    boxchar 0 "$3" "$3" 0 # draw top left corner
-    fmt "$(($2-1))%r" "$hc" # draw top line
-    boxchar 0 0 "$3" "$3" # draw top right corner
-    popc # back down to the bottom left
-    fmt "$(($2-1))%r%j%Tr1%s" "$hc" # draw bottom line
-    boxchar "$3" 0 0 "$3" # draw bottom right corner
-    fmt "$(($1-1))%r%Tu1%Tl1%s" "$vc" # draw right line (moving up)
-}
+rc

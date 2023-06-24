@@ -121,8 +121,8 @@ mode "$mode_system" {
     bindsym $mod+0 mode "default", exec --no-startup-id xautolock -locknow
     bindsym l mode "default", exec --no-startup-id xautolock -locknow
     bindsym e mode "default", exec --no-startup-id i3-msg exit
-    bindsym r mode "default", exec --no-startup-id i3-nagbar -t warning -m '' -b 'Reboot' 'reboot'
-    bindsym s mode "default", exec --no-startup-id i3-nagbar -t warning -m '' -b 'Shutdown' 'shutdown now'
+    bindsym r mode "default", exec --no-startup-id reboot now
+    bindsym r mode "default", exec --no-startup-id shutdown now
 
     # exit system mode: "Enter" or "Escape"
     bindsym Return mode "default"
@@ -186,6 +186,7 @@ bindsym $mod+c --release exec --no-startup-id copypasta c
 bindsym $mod+v --release exec --no-startup-id copypasta v
 
 # Autostart applications
+exec --no-startup-id /usr/bin/transmission-daemon
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id picom -b
 exec_always --no-startup-id feh --bg-fill '{{wallpaper}}' --no-fehbg --image-bg '#{{background}}'
