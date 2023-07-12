@@ -14,33 +14,14 @@ class match:
 
 class Grammar:
     def __init__(self):
-        def start(text: str, i:int = 0) -> match | None:
-            print('must define starting rule')
-        self.rules = { 'start': start, }
-        self.impls = {
-                'literal': lambda m:m.text[m.start:m.end],
-                None: lambda m:m.children,
-        }
+        self.rules = {}
         self.nodes = {}
 
-    def rule(self, truename, *patterns):
-        A = l(*patterns) if len(patterns) == 1 else pe_seq(*patterns)
-        self.rules[truename] = lambda text, i=0, _=None:A(text, i, truename)
-        self.rules[truename].__name__ = truename
+    def node(self, node, *patterns):
+        A = literal.wrap(*patterns) if len(patterns) == 1 else pe_seq(*patterns)
+        self.nodes[node.__name__] = node
+        self.rules[node.__name__] = A
 
-    def node(self, *patterns):
-        A = l(*patterns) if len(patterns) == 1 else pe_seq(*patterns)
-        def nd(n):
-            self.nodes[n.__name__] = n
-            self.rules[n.__name__] = A
-            return n
-        return nd
-
-    def impl(self, name, f=None):
-        if f is None:
-            return lambda fn:self.impl(name, fn)
-        self.impls[name] = f
-        return f
     def parse(self, text):
         if (x := self.rules['start'](text, 0)) is None:
             print('no match')
@@ -48,6 +29,7 @@ class Grammar:
         if x.start != 0 or x.end != len(text):
             print("didn't match whole input")
         return x
+
     def eval(self, tm: (match | str | None)):
         def eval_(m):
             nc = []
@@ -74,138 +56,233 @@ g = Grammar()
 
 def cache(f):
     cache = {'':'', 0: None}
-    def C(text, i=0, name=None):
+    def C(self,text, i=0, name=None):
         if (text != cache['']):
             cache.clear()
             cache[''] = text
         if i not in cache.keys():
-            cache[i] = f(text, i, name)
+            cache[i] = f(self, text, i, name)
         return cache[i]
     return C
 
-def l(pattern):
-    if isinstance(pattern, str):
-        @cache
-        def literal(text,i=0, name=None):
-            if text.startswith(pattern, i):
-                return match(text, i, i+len(pattern), [], name or 'literal')
-        return literal
-    return pattern
 
 class Node:
-    pass
+    def __call__(self, text, i=0, name=None):
+        raise NotImplemented
 
-#@g.node(g('pe_term'), pe_rep(' '), '/', pe_rep(' '), g('pe'))
-#class pe_or(Node):
-#    def __init__(self, *patterns):
-#        if patterns:
-#            @cache
-#            def o(text, i=0, name=None):
-#                for pattern in map(l, patterns):
-#                    if (x := pattern(text, i, name)) is not None:
-#                        return x
-#            self.parse = o
-#        else:
-#            @cache
-#            def O(text, i=0, name=None):
-#                if i < len(text):
-#                    return match(text, i, i+1, [], name)
-#            self.parse = O
+class literal(Node):
+    def __init__(self, pattern):
+        self.pattern = pattern
 
+    @staticmethod
+    def wrap(v):
+        if isinstance(v, str):
+            return literal(v)
+        return v
 
-def pe_or(*patterns):
-    if patterns:
-        @cache
-        def o(text, i=0, name=None):
-            for pattern in map(l, patterns):
-                if (x := pattern(text, i, name)) is not None:
-                    return x
-        return o
     @cache
-    def O(text, i=0, name=None):
-        if i < len(text):
-            return match(text, i, i+1, [], name)
-    return O
+    def __call__(self, text, i=0, name=None):
+        if text.startswith(self.pattern, i):
+            return match(text, i, i+len(self.pattern), [], name)
 
 
-def pe_seq(*patterns):
+class pe_seq(Node):
+    def __init__(self, *patterns):
+        self.patterns = tuple(map(literal.wrap, patterns))
+
     @cache
-    def A(text, i=0, name=None):
+    def __call__(self, text, i=0, name=None):
         start = i
         children = []
-        for pattern in map(l, patterns):
+        for pattern in self.patterns:
             if (x := pattern(text, i)) is None:
                 return None
             children.append(x)
             i = x.end
-        m = match(text, start, i, children, name)
-        #print(f'{name}: {text[start:i]!r}')
+        return match(text, start, i, children, name)
 
-        return m
-    return A
+class pe_one(Node):
+    """one or more"""
+    def __init__(self, *patterns):
+        self.pattern = pe_seq(*patterns, pe_rep(*patterns))
 
-def pe_rep(*patterns):
-    """zero or more"""
-    A = pe_seq(*patterns)
     @cache
-    def Z(text, i=0, name=None):
+    def __call__(self, text, i=0, name=None):
+        return self.pattern(text, i, name)
+
+class pe_opt(Node):
+    """zero or one"""
+    def __init__(self, *patterns):
+        self.pattern = pe_seq(*patterns)
+    @cache
+    def __call__(self, text, i=0, name=None):
+        if (x := self.pattern(text, i, name)) is None:
+            return match(text, i, i, [], name)
+        return x
+
+class pe_rep(Node):
+    """zero or more"""
+    def __init__(self, *patterns):
+        self.A = pe_seq(*patterns)
+    @cache
+    def __call__(self, text, i=0, name=None):
         start = i
         children = []
-        while x := A(text, i):
+        while x := self.A(text, i):
             children.append(x)
             i = x.end
         return match(text, start, i, children, name)
-    return Z
 
-def pe_opt(*patterns):
-    """zero or one"""
-    A = pe_seq(*patterns)
+
+class pe_or(Node):
+    def __init__(self, *patterns):
+        self.patterns = tuple(map(literal.wrap, patterns))
+
     @cache
-    def Z1(text, i=0, name=None):
-        if (x := A(text, i, name)) is None:
-            return match(text, i, i, [], name)
-        return x
-    return Z1
-
-def pe_cc(cc):
-    """character class"""
-    def CC(text, i=0, name=None):
-        if i < len(text) and text[i] in cc:
-            return match(text, i, i+1, [], name)
-    return CC
-
-def pe_icc(cc):
-    """inverted character class"""
-    def ICC(text, i=0, name=None):
-        if i >= len(text) or text[i] not in cc:
-            return match(text, i, i+1, [], name)
-    return ICC
+    def __call__(self, text, i=0, name=None):
+        for pattern in self.patterns:
+            if (x := pattern(text, i, name)) is not None:
+                return x
+        if not self.patterns:
+            if i < len(text):
+                return match(text, i, i+1, [], name)
 
 
-def pe_one(*patterns):
-    """one or more"""
-    return pe_seq(*patterns, pe_rep(*patterns))
-
-def pe_not(pattern):
+class pe_not(Node):
     """negative lookahead"""
-    @cache
-    def N(text, i=0, name=None):
-        if not l(pattern)(text, i):
-            return match(text,i,i,[],name)
-    return N
+    def __init__(self, pattern):
+        self.pattern = literal.wrap(pattern)
 
-def pe_and(pattern):
+    @cache
+    def __call__(self, text, i=0, name=None):
+        if not self.pattern(text, i):
+            return match(text,i,i,[],name)
+
+
+class pe_and(Node):
     """lookahead"""
-    pattern = l(pattern)
+    def __init__(self, pattern):
+        self.pattern = literal.wrap(pattern)
+
     @cache
-    def N(text, i=0, name=None):
-        if pattern(text, i):
+    def __call__(self, text, i=0, name=None):
+        if self.pattern(text, i):
             return match(text,i,i,[],name)
-    return N
 
-digit = pe_or(*'0123456789')
-alpha = pe_or(*map(chr,(*range(ord('a'),ord('z')+1),*range(ord('A'),ord('Z')+1))))
+class pe_icc(Node):
+    """inverted character class"""
+    def __init__(self, cc):
+        self.cc = cc
+    def __call__(self, text, i=0, name=None):
+        if i >= len(text) or text[i] not in self.cc:
+            return match(text, i, i+1, [], name)
 
+class pe_cc(Node):
+    """character class"""
+    def __init__(self, cc):
+        self.cc = cc
+    def __call__(self, text, i=0, name=None):
+        if i < len(text) and text[i] in self.cc:
+            return match(text, i, i+1, [], name)
+
+
+class string(Node):
+    pass
+
+# # pe_term: https://en.wikipedia.org/wiki/Parsing_expression_grammar#Indirect_left_recursion
+class pe_term(Node):
+    pass
+
+class pe_sym(Node):
+    pass
+
+class update_grammar(Node):
+    pass
+
+class start(Node):
+    pass
+class statement(Node):
+    pass
+class pe_statement(Node):
+    pass
+alpha = pe_cc('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_')
+digit = pe_cc('0123456789')
+
+# start :: statement? ('\n' statement?)*
+g.node(start, pe_opt(g('statement')), pe_rep('\n', pe_opt(g('statement'))))
+# statement :: parse / update_grammar
+g.node(statement, pe_or(g('pe_statement'), g('update_grammar')))
+# update_grammar :: 'update_grammar'
+g.node(update_grammar, 'update_grammar')
+# parse :: ' '* pe_sym ' '* '::' ' '* pe
+g.node(pe_statement, g('pe_sym'), pe_rep(' '), '::', pe_rep(' '), g('pe'))
+# pe_seq :: pe_term ' '+ pe
+g.node(pe_seq, g('pe_term'), pe_one(' '), g('pe'))
+# pe_opt :: pe_term '?'
+g.node(pe_opt, g('pe_term'), '?')
+# pe_rep :: pe_term '*'
+g.node(pe_rep, g('pe_term'), '*')
+# pe_one :: pe_term '+'
+g.node(pe_one, g('pe_term'), '+')
+# pe_or  :: pe_term ' '* '/' ' '* pe
+g.node(pe_or, g('pe_term'), pe_rep(' '), '/', pe_rep(' '), g('pe'))
+# pe_and :: '&' pe
+g.node(pe_and, '&', g('pe'))
+# pe_not :: '!' pe
+g.node(pe_not, '!', g('pe'))
+# pe_icc :: '[' ']'? [^]]* ']'
+g.node(pe_icc, '[^', pe_opt(']'), pe_rep(pe_icc(']')), ']')
+# pe_cc :: '[' ']'? [^]]* ']'
+g.node(pe_cc, '[', pe_opt(']'), pe_rep(pe_icc(']')), ']')
+# string :: ( '"' ([^"]/'\\"')* '"') / ("'" ([^']/"\\'")* "'")
+g.node(string, pe_or(
+    pe_seq('"', pe_rep(pe_or(pe_icc('"'), r'\"')), '"'),
+    pe_seq("'", pe_rep(pe_or(pe_icc("'"), r"\'")), "'")
+))
+# pe_term :: '(' pe ')' / pe_sym / string / pe_cc
+g.node(pe_term, pe_or(
+    pe_seq('(',g('pe'),')'),g('pe_sym'),g('string'),g('pe_cc')
+))
+# pe_sym  :: [a-zA-Z_]+
+g.node(pe_sym, pe_one(alpha))
+
+
+
+peg="""
+start :: statement? ('\n' statement?)*
+statement :: parse / update_grammar
+update_grammar :: 'update_grammar'
+parse :: ' '* pe_sym ' '* '::' ' '* pe
+pe      :: pe_or/pe_seq/pe_and/pe_not/pe_opt/pe_rep/pe_one/pe_term
+pe_or  :: pe_term ' '* '/' ' '* pe
+pe_seq :: pe_term ' '+ pe
+pe_and :: '&' pe
+pe_not :: '!' pe
+pe_opt :: pe_term '?'
+pe_rep :: pe_term '*'
+pe_one :: pe_term '+'
+pe_term :: '(' pe ')' / pe_sym / string / pe_cc
+pe_sym  :: [a-zA-Z_]+
+string :: ( '"' ([^"]/'\\"')* '"') / ("'" ([^']/"\\'")* "'")
+pe_cc :: '[' '^'? ']'? [^]]* ']'
+"""
+
+peg="""
+update_grammar
+this :: that*
+that :: he / she
+update_grammar
+"""
+peg = """
+Expr    :: Sum
+Sum     :: Product (('+' / '-') Product)*
+Product :: Power (('*' / '/') Power)*
+Power   :: Value ('^' Power)?
+Value   :: [0-9]+ / '(' Expr ')'
+"""
+print(repr(g.parse(peg)))
+#pp(g.parse(peg).arr())
+exit()
 g = Grammar()
 g.rule('start',    g('expr'))
 g.rule('expr',    g('sum'))
@@ -233,72 +310,3 @@ g.impl('int', lambda m:int(m.text[m.start:m.end]))
 g.impl('digit', lambda m:m.text[m.start:m.end])
 
 #print(g.eval('67+8*(7-3)'))
-
-g = Grammar()
-# start :: statement? ('\n' statement?)*
-g.rule('start', pe_opt(g('statement')), pe_rep('\n', pe_opt(g('statement'))))
-# statement :: parse / update_grammar
-g.rule('statement', pe_or(g('parse'), g('update_grammar')))
-# update_grammar :: 'update_grammar'
-g.rule('update_grammar', 'update_grammar')
-# parse :: ' '* pe_sym ' '* '::' ' '* pe
-g.rule('parse',pe_rep(' '),g('pe_sym'),pe_rep(' '),'::',pe_rep(' '),g('pe'))
-# pe      :: pe_or / pe_seq / pe_look / pe_count / pe_term
-g.rule('pe',pe_or(*map(g,'pe_or/pe_seq/pe_look/pe_count/pe_term'.split('/'))))
-# pe_or  :: pe_term ' '* '/' ' '* pe
-g.rule('pe_or', g('pe_term'), pe_rep(' '), '/', pe_rep(' '), g('pe'))
-# pe_seq :: pe_term ' '+ pe
-g.rule('pe_seq', g('pe_term'), pe_one(' '), g('pe'))
-# pe_look :: [&!] pe
-g.rule('pe_look', pe_cc('&!'), g('pe'))
-# pe_count :: pe_term [?*+]
-g.rule('pe_count', g('pe_term'), pe_cc('?*+'))
-# # pe_term: https://en.wikipedia.org/wiki/Parsing_expression_grammar#Indirect_left_recursion
-# pe_term :: '(' pe ')' / pe_sym / string / pe_cc
-g.rule('pe_term',pe_or(pe_seq('(',g('pe'),')'),g('pe_sym'),g('string'),g('pe_cc')))
-# pe_sym  :: [a-zA-Z_]+
-alpha = ''.join(map(
-    chr,
-    (*range(ord('a'),ord('z')+1),*range(ord('A'),ord('Z')+1))
-)) + '_'
-g.rule('pe_sym', pe_one(pe_cc(alpha)))
-# string :: ( '"' ([^"]/'\\"')* '"') / ("'" ([^']/"\\'")* "'")
-g.rule('string', pe_or(
-    pe_seq('"', pe_rep(pe_or(pe_icc('"'), r'\"')), '"'),
-    pe_seq("'", pe_rep(pe_or(pe_icc("'"), r"\'")), "'")
-))
-# pe_cc :: '[' '^'? ']'? [^]]* ']'
-g.rule('pe_cc', '[', pe_opt('^'), pe_opt(']'), pe_rep(pe_icc(']')), ']')
-
-
-peg="""
-start :: statement? ('\n' statement?)*
-statement :: parse / update_grammar
-update_grammar :: 'update_grammar'
-parse :: ' '* pe_sym ' '* '::' ' '* pe
-pe      :: pe_or / pe_seq / pe_look / pe_count / pe_term
-pe_or  :: pe_term ' '* '/' ' '* pe
-pe_seq :: pe_term ' '+ pe
-pe_look :: [&!] pe
-pe_count :: pe_term [?*+]
-pe_term :: '(' pe ')' / pe_sym / string / pe_cc
-pe_sym  :: [a-zA-Z_]+
-string :: ( '"' ([^"]/'\\"')* '"') / ("'" ([^']/"\\'")* "'")
-pe_cc :: '[' '^'? ']'? [^]]* ']'
-"""
-
-peg="""
-update_grammar
-this :: that*
-that :: he / she
-update_grammar
-"""
-peg = """
-Expr    :: Sum
-Sum     :: Product (('+' / '-') Product)*
-Product :: Power (('*' / '/') Power)*
-Power   :: Value ('^' Power)?
-Value   :: [0-9]+ / '(' Expr ')'
-"""
-print(repr(g.parse(peg)))
-#pp(g.parse(peg).arr())

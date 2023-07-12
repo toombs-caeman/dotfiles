@@ -1,3 +1,23 @@
+# name options
+* [ayeaye](https://subnautica.fandom.com/wiki/Eyeye)
+* [minima](https://github.com/TheRealMichaelWang/minima)
+# minimal viable interpreter
+* parsing source to ast
+* inline ffi for implementing 'builtins'
+* 'main()' to evaluate ast
+* name resolution
+    * scoping, garbage collection, var lifetimes
+* backing store/serialization? for communicating between foreign functions?
+* binary data format? 'native' types
+
+* name define grammar version by hash of parsing expressings
+    * 'use <grammar>' directive for loading grammar by hash
+
+* inline snapshot testing
+* can name everything, don't have to name anything
+    * DeBrujin naming 
+
+
 # optimization modes
 0. run as a repl with no attempt at using restrictive primitives
 1. compile, but do not use restrictive primitives
