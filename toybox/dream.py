@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from dataclasses import dataclass
-from typing import Callable
 from pprint import pprint as pp
 # https://blog.bruce-hill.com/packrat-parsing-from-scratch
 # https://en.wikipedia.org/wiki/Parsing_expression_grammar
@@ -41,13 +40,13 @@ class match:
                     else:
                         args.extend(m.ast(_include))
         # collapse sequential strings
-        x = []
-        for a in args:
-            if isinstance(a, str) and x and isinstance(x[-1], str):
-                x[-1]+=a
-            else:
-                x.append(a)
-        args = x
+        #x = []
+        #for a in args:
+        #    if isinstance(a, str) and x and isinstance(x[-1], str):
+        #        x[-1]+=a
+        #    else:
+        #        x.append(a)
+        #args = x
 
         if self.ast_name:
             return [self.ast_name, *args]
@@ -90,7 +89,8 @@ class s:
         for p in self:
             if (x := p(t, i)) is None:
                 return None
-            c.append(x)
+            if x.stop > x.start:
+                c.append(x)
             i = x.stop
         return match(s,i,c)
     def __repr__(self):
@@ -255,19 +255,19 @@ Num<- %([0-9]+ ('.' [0-9]+)?)
 g['main']   = g['Expr'], g['EndOfFile']
 # priority low to high
 priority = [
-        [g['%Add'], g['%Sub']],
-        [g['%Mul'], g['%Div']],
-        g['%Pow'],
+        [g['Add'], g['Sub']],
+        [g['Mul'], g['Div']],
+        g['Pow'],
         g['Group'],
-        g['%Num']]
-g['Expr']  = priority[0:]
+        g['Num']]
+g['%Expr']  = priority[0:]
 g['%Add']  = priority[1:], g['PLUS'],  priority[0:]
 g['%Sub']  = priority[1:], g['MINUS'], priority[0:]
 g['%Mul']  = priority[2:], g['STAR'],  priority[1:]
 g['%Div']  = priority[2:], g['SLASH'], priority[1:]
 g['%Pow']  = priority[3:], g['CARAT'], priority[2:]
 g['Group'] = g['OPEN'], g['Expr'], g['CLOSE']
-g['%Num']  = is_arg(p(c('0-9')), q('.',c('0-9'))), g['Spacing']
+g['%Num']  = is_arg(q('-'), p(c('0-9')), q('.',c('0-9'))), g['Spacing']
 g['STAR']  = '*', g['Spacing']
 g['PLUS']  = '+', g['Spacing']
 g['CARAT'] = '^', g['Spacing']
@@ -280,9 +280,9 @@ g['EndOfFile'] = n(dot)
 #print(repr(g))
 #tree = g('1.2*34+5')
 #tree = g['Mul']('1^2.3*4')
-t = '1.2+3*4^(7.8-5)*6'
+t = '1.2  +  3*4^4-5*6'
 #t = '1.2+3*4-5'
-tree = g(t)
+tree = g(t) and None
 if tree is None:
     print('no match')
 else:
@@ -331,15 +331,15 @@ EndOfFile <- !.
 # TODO 'priority' construct
 """
 g = Grammar()
-g['main'] = g['Spacing'], p(is_arg(g['Definition'])), g['EndOfFile']
+g['%main'] = g['Spacing'], p(is_arg(g['Definition'])), g['EndOfFile']
 g['%Definition'] = g['%Identifier'], g['LEFTARROW'], g['%Expression']
 priority = [
-        g['%Choice'],
-        g['%Sequence'],
-        [g['%ZeroOrOne'], g['%ZeroOrMore'], g['%OneOrMore']],
-        [g['%Lookahead'], g['%NotLookahead'], g['%Argument']],
-        g['%Primary']]
-g['Expression']  = priority[0:]
+        g['Choice'],
+        g['Sequence'],
+        [g['ZeroOrOne'], g['ZeroOrMore'], g['OneOrMore']],
+        [g['Lookahead'], g['NotLookahead'], g['Argument']],
+        g['Primary']]
+g['Expression']  = priority
 g['%Choice']     = priority[1:], p(g['SLASH'], priority[1:])
 g['%Sequence']   = priority[2:], p(priority[2:])
 g['%ZeroOrOne']  = priority[3:], g['QUESTION']
@@ -359,10 +359,10 @@ g['%Identifier'] = is_arg(g['IdentStart'], z(g['IdentCont'])), g['Spacing']
 g['IdentStart'] = is_arg(c('a-zA-Z_'))
 g['IdentCont'] = is_arg([g['IdentStart'], c('0-9')])
 i, ii = c("'"), c('"')
-g['%Literal'] = [(i, is_arg(z(n(i),  g['Char'])), i,  g['Spacing']),
-                (ii, is_arg(z(n(ii), g['Char'])), ii, g['Spacing'])]
-g['%Class'] = '[', is_arg(z(n(']'), g['Range'])), ']', g['Spacing']
-g['%Range'] = is_arg([(g['Char'], '-', g['Char']), g['Char']])
+g['%Literal'] = [(i, z(n(i),  g['%Char']), i,  g['Spacing']),
+                (ii, z(n(ii), g['%Char']), ii, g['Spacing'])]
+g['%Class'] = '[', z(n(']'), [g['%Range'],g['%Char']]),']', g['Spacing']
+g['%Range'] = g['%Char'], '-', g['%Char']
 bond = c('0-7')
 g['Char'] = is_arg([('\\', c("nrt'\"[]\\")),
              ('\\', c('0-2'), bond, bond),
@@ -388,5 +388,47 @@ g['EndOfFile'] = n(dot)
 #print(repr(g) == peg)
 tree = g(peg)
 pp(tree.ast())
-#pp(g['Identifier']('hanky\n').ast())
+#pp(g['Expression']('hanky\n').ast())
 #print(peg[tree.start:tree.stop])
+class Interpreter(dict):
+    def __call__(self, ast):
+        match ast:
+            case list():
+                return self.__getattribute__(ast[0])(*ast[1:])
+            case _:
+                return ast
+    def main(self, *expr):
+        for e in expr:
+            self(e)
+    def Definition(self, i, a):
+        self[''.join(i[1:])] = self(a)
+    def Choice(self, *a):
+        return c(self(x) for x in a)
+    def Sequence(self, *a):
+        return s(self(x) for x in a)
+    def ZeroOrOne(self, *a):
+        return q(self(x) for x in a)
+    def ZeroOrMore(self, *a):
+        return z(self(x) for x in a)
+    def OneOrMore(self, *a):
+        return p(self(x) for x in a)
+    def Lookahead(self, *x):
+        return a(self(v) for v in x)
+    def NotLookahead(self, *a):
+        return n(*a)
+    def Argument(self, a):
+        return is_arg(self(a))
+    def Identifier(self, *a:str):
+        return self[''.join(a)]
+    def Literal(self, *c:str):
+        return string(''.join(c))
+    def Class(self, *x):
+        return c(''.join(self(c) for c in x))
+    def Range(self, start:str, stop:str):
+        return ''.join(chr(x) for x in range(ord(start), ord(stop)+1))
+    def DOT(self, *_):
+        return dot
+i = Interpreter()
+a = g['Class']('[0-8]').ast()
+i(tree.ast())
+pp(i)

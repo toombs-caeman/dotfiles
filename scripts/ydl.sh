@@ -9,4 +9,4 @@ dl() {
 
 dl "https://www.youtube.com/playlist?list=PLxDIiiSm-a3At4CdKRAVc884mrKA5p4Oz" # music
 dl "https://www.youtube.com/playlist?list=PLxDIiiSm-a3AtUoK-z0ggkx0N7kmqBCEc" # albums
-rsgain easy "$m"
+mp3gain $m/*.mp3

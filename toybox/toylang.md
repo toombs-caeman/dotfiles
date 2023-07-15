@@ -16,7 +16,14 @@
 * inline snapshot testing
 * can name everything, don't have to name anything
     * DeBrujin naming 
+    * [name resolution](https://willcrichton.net/notes/specificity-programming-languages/)
+* reversible parse expressions?
 
+
+* unify PEG and regex 
+
+* representing state machines such that transition diagrams can be automatically generated, and properties statically analyzed?
+* 'return a mutation object' as a model for 'pure' functions with the program state as input, and a new state as output. (equivalent to transactions?)
 
 # optimization modes
 0. run as a repl with no attempt at using restrictive primitives

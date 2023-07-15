@@ -160,3 +160,5 @@ but I try to give keys the same semantic meaning.
     * bluetuith?
     * brightness, (simple) volume
     * pactl - change sound sink, pavucontrol
+
+* https://news.ycombinator.com/item?id=36461102

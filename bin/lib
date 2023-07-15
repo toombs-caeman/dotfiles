@@ -72,12 +72,12 @@ rc() {
     # TODO what about config sensitive completions?
     # TODO _fzf_setup_completion https://github.com/junegunn/fzf#supported-commands autogen for __*()
     for f in "${comp[@]}"; do
-        q bash && complete -C _rc "${f##*__}"
-        q zsh && eval _$f'() { reply=(${(f)"$('$f')"}); }' && compctl -K "_$f" "${f##*__}"
+        q bash && complete -F _rc "${f##*__}"
+        q zsh && eval _$f'() { emulate ksh; reply=(${(f)"$('$f')"}); }' && compctl -K "_$f" "${f##*__}"
     done
     return 0
 }
-_rc() { local IFS=$'\n'; compgen -W "$(__$1)" "$2"; }
+_rc() { local words=("${COMP_WORDS[@]}") CURRENT="$((COMP_CWORD + 1))"; COMPREPLY=($(compgen -W "$(__$1)" "$2")); }
 q() {  # query the current os, terminal, or shell, or if commands are present in $PATH
     local os term shell q=()
     while (( $# )); do
@@ -138,6 +138,7 @@ _defer() {
     local x
     while pop defer x; do eval "$x"; done
 }
+# TODO make similar functions for other signals
 
 fun() { # working with shell functions
   case "$1" in
@@ -256,7 +257,6 @@ test_fmt_R() {
     e=({5..1})
     assert e r
 }
-# TODO count occurrences of literal
 # TODO test %% escaping
 test_fmt_Z() {
     r=(1 3 5 2 4 6)
@@ -278,6 +278,8 @@ test_fmt_SuS() {
     assert e r
 }
 
+# TODO %C count occurrences of literal
+# TODO -i input array, repeatable?
 fmt() { # [-v <out_var> | -V <in_out_var>] <pattern> [<value1> <value2> ...]
     # %T.. tput cache
     # %w/%W where/filter_out (where)
@@ -313,8 +315,7 @@ fmt() { # [-v <out_var> | -V <in_out_var>] <pattern> [<value1> <value2> ...]
     return
 }
 _fmt() {
-    local x y spec="$1"; shift
-    y='(^|[^%])%((%%)*)T(..)'
+    local x y='(^|[^%])%((%%)*)T(..)' spec="$1"; shift
     while [[ "$spec" =~ $y ]]; do
         x="${BASH_REMATCH[1]}${BASH_REMATCH[2]}${fmt[pp]}${fmt[${BASH_REMATCH[4]}]}${fmt[qq]}"
         spec="${spec/"${BASH_REMATCH[0]}"/"$x"}"
@@ -335,20 +336,18 @@ _fmt() {
             flag="F"
         fi
         #echo ">$section<>$flag<>$spec<"
+        x=()
         case "$flag" in
             R) # reverse
-                local x=()
                 eval 'x=("${(Oa)@}")' 2>/dev/null || while (($#)); do x=("$1" "${x[@]}"); shift; done
                 set -- "${x[@]}" ;;
             r) # repeat
-                local _ x=()
-                printf -v y '%*s' "$section"
-                y="${y// /y }"
+                printf -v y '%*s' "$section"; y="${y// /y }"
                 while (($#)); do for _ in $y; do x+=("$1"); done; shift; done
                 set -- "${x[@]}" ;;
             w|W) # filter
                 [ "$flag" = w ]; local invert=$? x=()
-                while (($#)); do [[ $1 =~ $section ]]; [ $invert = $? ] && x+=("$1"); shift; done
+                while (($#)); do [[ "$1" =~ $section ]]; [ $invert = $? ] && x+=("$1"); shift; done
                 set -- "${x[@]}" ;;
             j) # join
                 unset -v x; printf -v x "%s${section//"%"/%%}" "$@"; set -- "${x%"$section"}" ;;
