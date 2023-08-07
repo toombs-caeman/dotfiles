@@ -39,14 +39,6 @@ class match:
                         args.append(m.ast(_include))
                     else:
                         args.extend(m.ast(_include))
-        # collapse sequential strings
-        #x = []
-        #for a in args:
-        #    if isinstance(a, str) and x and isinstance(x[-1], str):
-        #        x[-1]+=a
-        #    else:
-        #        x.append(a)
-        #args = x
 
         if self.ast_name:
             return [self.ast_name, *args]
@@ -223,19 +215,10 @@ class Grammar(dict):
         def __repr__(self):
             return self.name
 
-def simp(m):
-    if m is None:
-        print('no simp 4 u')
-        return
-    match m.inner:
-        case list():
-            return f'{m.name} {m.is_arg}', [simp(m) for m in m.inner]
-        case _:
-            return m.name, m.is_arg, m.inner
 g = Grammar()
 """
 Grammar <- Expr
-Expr <- Add, Sub, Mul, Div, Pow, Val
+Expr <- Add/ Sub/ Mul/ Div/ Pow/ Val
 Sum  <- Add / Sub
 Add  <- %Product '+' %Product
 Sub  <- %Product '-' %Product
@@ -280,9 +263,9 @@ g['EndOfFile'] = n(dot)
 #print(repr(g))
 #tree = g('1.2*34+5')
 #tree = g['Mul']('1^2.3*4')
-t = '1.2  +  3*4^4-5*6'
+t = '1.2+3*4^4-5*6'
 #t = '1.2+3*4-5'
-tree = g(t) and None
+tree = g(t)
 if tree is None:
     print('no match')
 else:
@@ -387,10 +370,10 @@ g['EndOfFile'] = n(dot)
 #print(repr(g))
 #print(repr(g) == peg)
 tree = g(peg)
-pp(tree.ast())
+#pp(tree.ast())
 #pp(g['Expression']('hanky\n').ast())
 #print(peg[tree.start:tree.stop])
-class Interpreter(dict):
+class Interpreter(Grammar):
     def __call__(self, ast):
         match ast:
             case list():
@@ -403,17 +386,17 @@ class Interpreter(dict):
     def Definition(self, i, a):
         self[''.join(i[1:])] = self(a)
     def Choice(self, *a):
-        return c(self(x) for x in a)
+        return o(*(self(x) for x in a))
     def Sequence(self, *a):
-        return s(self(x) for x in a)
+        return s(*(self(x) for x in a))
     def ZeroOrOne(self, *a):
-        return q(self(x) for x in a)
+        return q(*(self(x) for x in a))
     def ZeroOrMore(self, *a):
-        return z(self(x) for x in a)
+        return z(*(self(x) for x in a))
     def OneOrMore(self, *a):
-        return p(self(x) for x in a)
+        return p(*(self(x) for x in a))
     def Lookahead(self, *x):
-        return a(self(v) for v in x)
+        return a(*(self(v) for v in x))
     def NotLookahead(self, *a):
         return n(*a)
     def Argument(self, a):
@@ -429,6 +412,12 @@ class Interpreter(dict):
     def DOT(self, *_):
         return dot
 i = Interpreter()
-a = g['Class']('[0-8]').ast()
+A = g['Class']('[0-8]').ast()
 i(tree.ast())
-pp(i)
+#pp(i)
+pp(tree.ast())
+import json
+with open('dream-init.json') as f:
+    i(f.read())
+#with open('dream-init.json', 'w') as f:
+    #json.dump(tree.ast(), f)

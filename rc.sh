@@ -56,7 +56,7 @@ timer() { # echo the (average) elapsed system time in seconds (millisecond preci
 }
 
 # zsh: $path is an alias for $PATH, so don't use it as a variable
-path() { (($#)) || fmt ':%J%s\n' "$PATH"; while (($#)); do export PATH="$PATH:$(cd "$1" && pwd)"; shift; done; }
+path() { (($#)) || fmt ':%J%s\n' "$PATH"; while (($#)); do export PATH="$PATH:$(cd "$1" 2>/dev/null && pwd)"; shift; done; }
 
 
 DOTROOT=~/my
