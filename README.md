@@ -128,7 +128,6 @@ but I try to give keys the same semantic meaning.
       * use folders/tags to trigger extra actions
     * ref [fraidycat](https://fraidyc.at/)
 * push notifications?
- 
 * idea sources
     * [dotfiles.io](http://dotfiles.github.io/)
     
@@ -162,3 +161,4 @@ but I try to give keys the same semantic meaning.
     * pactl - change sound sink, pavucontrol
 
 * https://news.ycombinator.com/item?id=36461102
+* [nerd-dictation](https://github.com/ideasman42/nerd-dictation) speech to text

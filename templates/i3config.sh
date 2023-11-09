@@ -29,8 +29,12 @@ bindsym $mod+Shift+q kill
 bindsym $mod+Ctrl+q --release exec --no-startup-id xkill
 
 # start program launcher
-bindsym $mod+space exec "i3-sensible-terminal -T launcher -e launch"
-for_window [title="launcher"] floating enable, border none, resize set width 25 ppt height 25 ppt, move absolute position center
+bindsym $mod+space exec "i3-sensible-terminal -T i3termlauncher -e launch"
+for_window [title="i3termlauncher"] floating enable, border none, resize set width 25 ppt height 25 ppt, move absolute position center
+
+# dictation
+bindsym $mod+Escape exec --no-startup-id dictation
+exec --no-startup-id i3-msg 'exec dictation'
 
 # screenshots
 bindsym Print exec --no-startup-id i3-scrot
