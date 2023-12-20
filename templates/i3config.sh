@@ -96,7 +96,7 @@ bindsym XF86MonBrightnessDown exec --no-startup-id brightness -10000
 # mpd
 bindsym $mod+p exec --no-startup-id mpc toggle
 bindsym $mod+n exec --no-startup-id mpc next
-bindsym $mod+Shift+n exec "i3-sensible-terminal -T launcher -e muse"
+bindsym $mod+Shift+n exec "i3-sensible-terminal -T i3termlauncher -e muse"
 exec_always --no-startup-id muse init
 
 # Open specific applications in floating mode
@@ -118,7 +118,7 @@ bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 
-exec --no-startup-id xautolock -time 10 -locker "i3lock -c {{background}}"
+exec --no-startup-id xautolock -time 10 -detectsleep -locker "i3lock -c {{background}}"
 bindsym $mod+0 mode "$mode_system"
 set $mode_system (l)ock, (e)xit, (r)eboot, (s)hutdown
 mode "$mode_system" {
