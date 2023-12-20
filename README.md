@@ -59,6 +59,7 @@ but I try to give keys the same semantic meaning.
     * toybox/ - random half-baked stuff
 
 # TODO
+* launcher doesn't correctly set fzf options (keybindings)
 * keyboard
   * save layout
   * flash instructions
@@ -159,6 +160,10 @@ but I try to give keys the same semantic meaning.
     * bluetuith?
     * brightness, (simple) volume
     * pactl - change sound sink, pavucontrol
+
+* send reminders 10 seconds later `systemd-run --user --on-active=10 /usr/bin/notify-send message`
+    * [systemd timers](https://wiki.archlinux.org/title/Systemd/Timers)
+    * compare with cron?
 
 * https://news.ycombinator.com/item?id=36461102
 * [nerd-dictation](https://github.com/ideasman42/nerd-dictation) speech to text
