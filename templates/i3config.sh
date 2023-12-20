@@ -96,7 +96,7 @@ bindsym XF86MonBrightnessDown exec --no-startup-id brightness -10000
 # mpd
 bindsym $mod+p exec --no-startup-id mpc toggle
 bindsym $mod+n exec --no-startup-id mpc next
-bindsym $mod+Shift+n exec "i3-sensible-terminal -T launcher -e muse"
+bindsym $mod+Shift+n exec "i3-sensible-terminal -T i3termlauncher -e muse"
 exec_always --no-startup-id muse init
 
 # Open specific applications in floating mode
