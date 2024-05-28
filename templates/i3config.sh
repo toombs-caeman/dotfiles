@@ -118,7 +118,7 @@ bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
 bindsym $mod+Shift+r restart
 
-exec --no-startup-id xautolock -time 10 -locker "i3lock -c {{background}}"
+exec --no-startup-id xautolock -time 10 -detectsleep -locker "i3lock -c {{background}}"
 bindsym $mod+0 mode "$mode_system"
 set $mode_system (l)ock, (e)xit, (r)eboot, (s)hutdown
 mode "$mode_system" {

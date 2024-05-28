@@ -386,6 +386,8 @@ dig ji 10781 j] 10197 j[ 10198 jo 10199
 " open circle arrows
 dig <Q 8634 >Q 8635
 dig := 8788 =: 8789
+" crossed out circle
+dig xo 10683
 
 " compress digraphs after the fact
 nn < <Cmd> exe "normal! diW"<bar>exe "normal! a\<C-k>".@"<CR>
@@ -482,11 +484,11 @@ endfu
 let g:markdown_folding = 1
 " misc
 " write to readonly file https://stackoverflow.com/questions/2600783/how-does-the-vim-write-with-sudo-trick-work
+"   probably need suda vim https://github.com/lambdalisue/suda.vim
 " '<,'>p without changing clipboard contents?
 " https://github.com/Konfekt/vim-CtrlXA
 " custom start page https://github.com/mhinz/vim-startify
-" bionic reading mode? https://bionic-reading.com/
-" let 'gf' open urls in browser
+" 'gx' open urls in browser
 " alter url-click behavior to open in firefox
 " remap alt-n to ctrl-\ctrl-n so we can get to terminal-normal mode
 " 

@@ -152,3 +152,8 @@ but I try to give keys the same semantic meaning.
 
 * https://news.ycombinator.com/item?id=36461102
 * [nerd-dictation](https://github.com/ideasman42/nerd-dictation) speech to text
+* [find archived youtube videos](https://findyoutubevideo.thetechrobo.ca/)
+* multiple monitors
+    * xrandr - CLI
+    * arandr - GUI
+    * autodetect & connect [autorandr](https://github.com/phillipberndt/autorandr)
