@@ -146,7 +146,7 @@ aug END
 " open a terminal
 call s:A('CR', 'vs term://$SHELL', 'S-CR', 'terminal<CR>i')
 " open files
-call s:A('b', 'Buffers', 'e', 'Files', 'g', 'GFiles?', 'd', 'NERDTreeToggle')
+call s:A('b', 'Buffers', 'e', 'Files', 'g', 'Rg', 'd', 'NERDTreeToggle')
 " toggle nerdtree with <A-d>, even when focused on nerdtree
 let NERDTreeMapQuit='A-d'
 
@@ -181,6 +181,8 @@ function! ShowDocumentation()
 endfunction
 nmap <expr> <A-f> CocActionAsync('format')
 xmap <expr> <A-f> CocActionAsync('format')
+nnoremap <silent> <A-z> <Plug>(coc-diagnostic-prev)
+nnoremap <silent> <A-x> <Plug>(coc-diagnostic-next)
 
 " rust.vim
 " open cargo in a new terminal split. Doing it this way ensures that we enter
@@ -475,7 +477,7 @@ endfu
 " markdown support
 " fold on headers/lists
 " change/renumber lists (~)
-" toggle checklists
+" toggle checklist
 " indent text object
 let g:markdown_folding = 1
 " misc
@@ -487,3 +489,6 @@ let g:markdown_folding = 1
 " let 'gf' open urls in browser
 " alter url-click behavior to open in firefox
 " remap alt-n to ctrl-\ctrl-n so we can get to terminal-normal mode
+" 
+" https://github.com/akrawchyk/awesome-vim
+" make `s(` shortcut restore the clipboard register

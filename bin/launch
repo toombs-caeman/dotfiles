@@ -4,7 +4,7 @@
 # history file
 h=~/.launch
 # have the user select an option from history, or use the entered query if there's no match
-readarray -t result <<< "$(fzf --color=16 --reverse --print-query -e < $h)"
+readarray -t result <<< "$(fzf --bind=alt-h:backward-char,alt-j:down,alt-k:up,alt-l:forward-char --color=16 --reverse --print-query -e < $h)"
 cmd="${result[${#result[@]}-1]}"
 # exit if they didn't make a selection
 [ ! "$cmd" ] && exit

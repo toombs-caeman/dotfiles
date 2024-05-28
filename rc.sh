@@ -93,6 +93,7 @@ __venv() { ls "$venv"; }
 
 
 
+
 minecraft-server() {
     eval "`opt port,p=25565 ip_file,ip,i=$HOME/.minecraft_server.ip -d "start a minecraft server"`"
     local old_ip="$(cat "$ip_file")"
@@ -282,6 +283,8 @@ __() {
     export EDITOR="$(command -v vi vim nvim | tail -n1)" PAGER="less" LESS="FXr" VISUAL=$EDITOR
     alias vi="$EDITOR" wget='wget -c' mkdir='mkdir -p' cp="cp -i" du='du -hs' df='df -h'
     alias la='ls -A' ll='ls -lh' sl='ls' ls='ls -F --color=auto'
+    alias mount='sudo mount -o gid=$(whoami),uid=$(whoami),fmask=113,dmask=002'
+    alias umount='sudo umount'
     rc "$(here include/fzf_complete.bash)" fzf bash
     rc "$(here include/fzf_complete.zsh)" fzf zsh
     path "$(here bin)"

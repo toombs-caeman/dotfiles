@@ -98,24 +98,9 @@ but I try to give keys the same semantic meaning.
 * define the One True Way™ and make sure all tools are built on that
     * external tools
         * git bat(batcat) exa rg kak zsh fzf dasel sqlite3 find python zsh bash
-    * ricer - configuration
-        * nix graphics
-    * micro languages
-      * parsing language (pyparsing?)
-      * regex
-        * [Posix ERE](https://www.regular-expressions.info/posix.html)
-      * templating language
-        * [moustache](https://mustache.github.io/mustache.5.html) templating
-        * [jinja](https://jinja.palletsprojects.com)
-        * python's [f-string](https://peps.python.org/pep-0498/)
-      * data format
-        * [TOML](https://github.com/toml-lang/toml)
-        * [YAML](https://yaml.org/), or pseudo-INI
-        * [Tablatal / Indental](https://wiki.xxiivv.com/site/tablatal.html)
-      * more than a consistent format, it's more important to have a consistent data query language
-        * [dasel](https://github.com/TomWright/dasel) 
-        * [gron](https://github.com/tomnomnom/gron) for grepping json
     * a modern (incompatible) ncurses [notcurses](https://github.com/dankamongmen/notcurses) [site](https://notcurses.com/)
+    * treerat
+        * ricer - configuration
 * bookmark / cache / rss / scraper tool
     * merge and manage bookmarks and cached content
         * maybe just use [buku](https://github.com/jarun/buku)

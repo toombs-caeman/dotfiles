@@ -28,7 +28,7 @@ if (($#)); then
 else
     #report_kitty
     #report_notify
-    next="$(mpc ls | fzf --color=16 --reverse)"
+    next="$(mpc ls | fzf --bind=alt-h:backward-char,alt-j:down,alt-k:up,alt-l:forward-char --color=16 --reverse)"
     if [[ -n "$next" ]]; then
         mpc insert "$next"; mpc next
     fi
