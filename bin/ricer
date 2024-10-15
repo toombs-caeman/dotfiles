@@ -9,6 +9,7 @@
 #   \__________/
 
 theme_dir="${BASH_SOURCE%/*/*}/themes"
+wallpaper_dir=~/Pictures/Wallpapers
 template_dir="${BASH_SOURCE%/*/*}/templates"
 config() {
     echo "theme='$theme' wallpaper='$wallpaper'"
@@ -19,7 +20,8 @@ config() {
     t alacritty alacritty.yml   ~/.alacritty.yml
     t kitty     kitty.conf      ~/.config/kitty/kitty.conf
     t i3-msg    i3status.conf   ~/.config/i3status/config
-    t i3-msg    i3config.sh     ~/.i3/config                        i3-msg restart >/dev/null
+    t i3-msg    i3config.sh     ~/.i3/config                        i3-msg reload >/dev/null
+    t sway      sway.conf       ~/.config/sway/config
     t nvim      nvim.vim        ~/.config/nvim/init.vim
     t nvim      plug.vim        ~/.config/nvim/autoload/plug.vim    nvim +PlugInstall '+qall!'
     t nvim      colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
@@ -77,7 +79,11 @@ ricer() {
     fi
 
     # select wallpaper
-    [ -n "$wallpaper" ] || wallpaper="$(find ~/Pictures/Wallpapers -type f | shuf | head -n1)"
+    if [ -n "$wallpaper" ] || ((fzf)); then
+        [ -f "$wallpaper" ] || wallpaper="$(fzf --preview 'kitty icat --clear --transfer-mode=memory --stdin=no --place="${FZF_PREVIEW_COLUMNS}x${FZF_PREVIEW_LINES}@0x0" {}' --walker-root="$wallpaper_dir")"
+    else
+        wallpaper="$(find "$wallpaper_dir" -type f | shuf | head -n1)"
+    fi
     [ ! -f "$wallpaper" ] && echo "wallpaper '$wallpaper' not found" >&2 && return 1
     printf -v sed "$s" "$sed" wallpaper "${wallpaper//,/\,}" # escape ',' for sed command
 

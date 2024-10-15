@@ -28,6 +28,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'} " code completion, linting, etc
 Plug 'rust-lang/rust.vim'               " rust syntax and stuff, integrates with syntastic
 Plug 'habamax/vim-godot'                " godot integration
 Plug 'tikhomirov/vim-glsl'              " glsl shaders
+Plug 'yuezk/vim-js'                     " javascript
 call plug#end()
 
 " status line
@@ -170,7 +171,14 @@ endfunction
 " rename symbol
 nmap <A-r> <Plug>(coc-rename)
 " go to definition
-nmap <silent> <A-w> <Plug>(coc-definition)
+nmap <silent> <A-w> :call ShowDefinition()<CR>
+function! ShowDefinition()
+    if CocAction('hasProvider', 'definition')
+        call CocAction('jumpDefinition')
+    else
+        call feedkeys('gx')
+    endif
+endfunction
 nnoremap <silent> <A-q> :call ShowDocumentation()<CR>
 function! ShowDocumentation()
   if CocAction('hasProvider', 'hover')
@@ -446,14 +454,6 @@ endfu
 " it would be super cool to embed firefox/a browser as a split 
 " open http:// in browser
 " horizontal scrolling https://github.com/alacritty/alacritty/issues/2185
-" i3 as nvim? can we use i3 to do splits and tabs (to a single nvim server in the background)
-"   which would let us have a 'split' for external programs? like a virtual i3:// handler
-"   wi³nk - winc[md] and i3
-"   use selenium / firefox --marionette for allowing vim-style motions and text input
-"   see: https://github.com/fu5ha/i3-vim-nav
-"   see: https://github.com/mhinz/neovim-remote
-"   see: `i3-msg -t get_tree` with :help json_encode()
-"   xdg-open urls etc.
 
 " language integration
 " python ide in vim
@@ -494,3 +494,4 @@ let g:markdown_folding = 1
 " 
 " https://github.com/akrawchyk/awesome-vim
 " make `s(` shortcut restore the clipboard register
+" coc make default/markdown povider for jumpDefinition to open links (open link with Alt-w)

@@ -1,6 +1,6 @@
 m=~/Music
 dl() {
-    youtube-dl --yes-playlist --extract-audio \
+    yt-dlp --yes-playlist --extract-audio \
         -f bestaudio/best --audio-format mp3 --audio-quality 0 \
         --restrict-filenames -o "$m/%(title)s.%(ext)s" \
         -iw --download-archive "$m/download-archive.txt" \

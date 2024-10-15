@@ -16,9 +16,9 @@ s_sys() {
     install python python-pip
 
     # reverse the default scroll direction
-    sudo ln -fs "$(git rev-parse --show-toplevel)/templates/libinput.conf" /usr/share/X11/xorg.conf.d/99-libinput.conf
+    #sudo ln -fs "$(git rev-parse --show-toplevel)/templates/libinput.conf" /usr/share/X11/xorg.conf.d/99-libinput.conf
     # let our i3config refer to a generic emulator, but actually use kitty
-    sudo ln -fs "$(which kitty)" /usr/bin/x-terminal-emulator
+    #sudo ln -fs "$(which kitty)" /usr/bin/x-terminal-emulator
 
     # media
     install blender krita godot lmms ardour
@@ -33,24 +33,16 @@ s_sys() {
     install android-studio
 
     # audio
-    install mpd mpc ffmpeg youtube-dl picard rsgain-git
+    install mpd mpc ffmpeg yt-dlp picard rsgain-git
     systemctl --user enable mpd.service
     systemctl --user start mpd.service
     #pactl list short sink # list soundcards
     #pactl set-default-sink alsa_output.pci-0000_28_00.3.analog-stereo
-    
 
+    # mime
+    #xdg-mime default firefox.desktop x-scheme-handler/http
+    #xdg-mime default firefox.desktop x-scheme-handler/https
 }
-s_games() {
-    # proton-ge fixes some wine video codec problems
-    # beataroni is a beatsaber mod loader, need chroma, mapping-extensions and noodle mod
-    install steam proton-ge-custom-bin beataroni-bin
-    echo 'need to install mods chroma, mapping-extensions, noodle'
-    /opt/beataroni-bin/Beataroni
-    # 3d printing
-    install openscad-git
-}
-
 s_dot() {
     # TODO git calls need to be idempotent
     DOTROOT=~/my
@@ -71,6 +63,26 @@ s_dot() {
     # TODO this is glitchy as fuck, from https://onlinepngtools.com/generate-1x1-png
     # run usual reconfig
     ricer -t spacedust2
+}
+s_gui() {
+    install greetd
+    # edit /etc/greetd/config.toml to launch /usr/bin/sway
+    install sway wl-clipboard swaylock sway-idle swaybar slurp grim
+    install firefox kitty
+}
+s_laptop() {
+    # TODO brightness and screen lock settings
+    :
+}
+s_media() {
+    install krita blender godot android-studio ardour8
+
+    install steam proton-ge-custom-bin
+
+    # music
+    install mpd mpc ffmpeg yt-dlp rsgain-git
+    systemctl --user enable mpd.service
+    systemctl --user start mpd.service
 }
 
 s_grub() {

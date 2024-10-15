@@ -1,4 +1,18 @@
-bi-directional compatibility between nvim and i3
+
+The idea is to have the equivalent operations for interacting with splits/tiles share keymaps between nvim and i3.
+The keys Meta+[hjkl] move to different i3 windows unless nvim is focused, and there is another split available in that direction, in which case the cursor moves to that nvim split instead.
+
+This is probably a terrible idea, but I think bi-directional compatibility between nvim and i3 is kinda neat.
+It effectively inverts the (user perceived) relationship between editor and desktop environment, where non-nvim windows behave as splits within nvim by creating a dummy split in nvim, and then floating the external application over the dummy split.
+
+i3 as nvim? can we use i3 to do splits and tabs (to a single nvim server in the background)
+  which would let us have a 'split' for external programs? like a virtual i3:// handler
+  wi³nk - winc[md] and i3
+  use selenium / firefox --marionette for allowing vim-style motions and text input
+  see: https://github.com/fu5ha/i3-vim-nav
+  see: https://github.com/mhinz/neovim-remote
+  see: `i3-msg -t get_tree` with :help json_encode()
+  xdg-open urls etc.
 
 * have a single headless nvim server and connect with nvr
 * Have a single nvr open in tiling mode in each i:workspace.

@@ -57,3 +57,6 @@ whitefox has 68 keys, 10 numbers 26 letters, 3 repeated keys (shift, fn, alt), 8
 
 # XXX integrations
 * directly open `:help` page?
+* visualize vim keymaps by mode+leader+modifier
+    * https://www.asciiart.eu/computers/keyboards
+    * `vim -e +"redir>>/dev/stdout | map | redir END" -scq`

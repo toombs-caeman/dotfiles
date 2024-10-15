@@ -32,9 +32,12 @@ a virtual assistant
 
 
 # features
+* [contact management](http://jakobgreenfeld.com/stay-in-touch)
+    * sqlite backing with visidata data entery
+    * [systemd timers](https://linuxconfig.org/how-to-schedule-tasks-with-systemd-timers-in-linux)
+    * [systemd timer python](https://stackoverflow.com/questions/50484969/start-systemd-timer-from-python)
 * contact management
   * http://jakobgreenfeld.com/stay-in-touch
-  * grist? as backing store
   * see zendesk/salesforce https://www.zendesk.com/blog/contact-management-101/
   * notify two names each day that have fallen out of touch. One, the most out of touch, and one random.
   * expert pipeline
@@ -52,6 +55,7 @@ a virtual assistant
 * weather report
   * https://wttr.in/:help
   * https://wttr.in/?1nq
+* ref [fraidycat](https://fraidyc.at/)
 
 # external bits - hardware and services
 * server - desktop or AWS

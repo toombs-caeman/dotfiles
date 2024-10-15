@@ -16,6 +16,9 @@
 	file = "!f=$PWD/$(fzf) && echo $f"
 	search = "!echo $PWD/$(rg "$*" | fzf | cut -f1 -d":" ) #"
 
+    # initialize remote repository over ssh
+    remote-init = "!bash -c 'url=\"$(git remote get-url \"$0\")\"; path=\"${url##*:}\"; host=\"${url%\"$path\"}\"; host=\"${host%:}\"; ssh \"$host\" \"git --bare init \\\"$path\\\"\"'"
+
 [credential]
 	helper = store
 [init]

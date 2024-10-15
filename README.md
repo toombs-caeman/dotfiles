@@ -7,6 +7,7 @@ I use i3-gaps and neovim heavily on some arch derivative.
 semantically i3 and vim have a bit of overlap in the 'arranging tiles' department so i3 gets the Meta key and vim gets the alt key,
 but I try to give keys the same semantic meaning.
 
+fzf is prefered for building interfaces
 # Principles
 * simplicity is a feature
     * simplicity is robustly encapsulated complexity, not a lack of features
@@ -31,35 +32,16 @@ but I try to give keys the same semantic meaning.
 * create install media
     * [Download arch](https://archlinux.org/download/)
     * flash to media `dd if=/path/to/iso of=/dev/sdX bs=4M`
-* base install
-    * [archinstall?](https://wiki.archlinux.org/title/Archinstall)
-    * `sudo pacman -S --needed git`
-    * `mkdir -p ~/my/toombs-caeman/; cd "$_"`
-    * `git clone git@github.com:toombs-caeman/dotfiles.git`
-    * source and run `scripts/setup.sh`
 
-# New structure
-* /
-    * install - script for new computers with dotfiles
-    * bin/
-        * rc - source in shell
-        * updaterc - update system templates
-        * lib - shell library
-        * blog
-    * static/ - static web resources, images etc.
-    * raw/ - web content rendered with `blog`
-        * index.html
-        * bin/index.html
-        * static/index.html
-        * templates/index.html
-        * themes/index.html
-        * toybox/index.html
-    * templates/ - system and web templates
-    * themes/ - ricer themes
-    * toybox/ - random half-baked stuff
+* base install
+    * [archinstall](https://wiki.archlinux.org/title/Archinstall)
+```shell
+sudo pacman -S --needed git
+mkdir -p ~/my/toombs-caeman/; cd "$_"
+git clone git@github.com:toombs-caeman/dotfiles.git
+```
 
 # TODO
-* launcher doesn't correctly set fzf options (keybindings)
 * keyboard
   * save layout
   * flash instructions
@@ -88,14 +70,15 @@ but I try to give keys the same semantic meaning.
 
 
 # Potential new stuff
+
+* [k](https://github.com/supercrabtree/k) - better ls
 * [mosh](https://mosh.org/) or [eternal terminal](https://eternalterminal.dev/)
     * rrc
+    * [xxh](https://github.com/xxh/xxh)
 * a 'media repository' for stuff that doesn't fit in git well?
     * images, video, audio
-* visualize vim keymaps by mode+leader+modifier
-    * https://www.asciiart.eu/computers/keyboards
-    * `vim -e +"redir>>/dev/stdout | map | redir END" -scq`
 * define the One True Way™ and make sure all tools are built on that
+    * treerat
     * external tools
         * git bat(batcat) exa rg kak zsh fzf dasel sqlite3 find python zsh bash
     * a modern (incompatible) ncurses [notcurses](https://github.com/dankamongmen/notcurses) [site](https://notcurses.com/)
@@ -114,17 +97,28 @@ but I try to give keys the same semantic meaning.
       * use folders/tags to trigger extra actions
     * ref [fraidycat](https://fraidyc.at/)
 * push notifications?
+    * libnotify notify-send for desktop
+    * what about mobile?
+* tabular data cli
+    * [sc-im](https://github.com/andmarti1424/sc-im)
+    * [visidata](https://www.visidata.org/)
 * idea sources
     * [dotfiles.io](http://dotfiles.github.io/)
-    
+    * [awesome shell](https://github.com/alebcay/awesome-shell)
+
 * file watcher
     * [entr](https://github.com/eradman/entr) 
     * [list of file watchers](https://anarc.at/blog/2019-11-20-file-monitoring-tools/)
-* [bespoke software](https://routley.io/posts/bespoke-software-rss-aggregator/)
-* [awesome shell](https://github.com/alebcay/awesome-shell)
-* [fzf completion menu]( https://reposhub.com/linux/shell-script-development/Aloxaf-fzf-tab.html)
-* [fzf history menu](https://medium.com/@ankurloriya/fzf-command-make-your-history-command-smarter-3294dfd1272f)
-* [moreutils vipe](https://joeyh.name/code/moreutils/) 
+* philosophy
+    * [bespoke software](https://routley.io/posts/bespoke-software-rss-aggregator/)
+    * [an app can be a home cooked meal](https://www.robinsloan.com/notes/home-cooked-app/)
+* fzf
+    * [fzf completion menu]( https://reposhub.com/linux/shell-script-development/Aloxaf-fzf-tab.html)
+    * [fzf history menu](https://medium.com/@ankurloriya/fzf-command-make-your-history-command-smarter-3294dfd1272f)
+    * [fzf image preview](https://github.com/junegunn/fzf/issues/3228)
+    * [fzf .blend preview](https://docs.blender.org/manual/en/latest/advanced/command_line/render.html)
+
+* [moreutils vipe](https://joeyh.name/code/moreutils/)
 * detect headphone plugin and button presses
     * [ref](https://unix.stackexchange.com/questions/25776/detecting-headphone-connection-disconnection-in-linux)
     * [mpd_sima](https://kaliko.me/mpd-sima/)
@@ -132,6 +126,7 @@ but I try to give keys the same semantic meaning.
     * [social media on top of rss](https://news.ycombinator.com/item?id=33975082)
 
 * git stuff
+    * git-diagram: show ascii art explaining a proposed operation (merge, rebase, etc.)
     * [git appraise](https://github.com/google/git-appraise)
     * [git note](https://git-scm.com/docs/git-notes)
     * [forgit](https://github.com/wfxr/forgit)?
@@ -157,3 +152,4 @@ but I try to give keys the same semantic meaning.
     * xrandr - CLI
     * arandr - GUI
     * autodetect & connect [autorandr](https://github.com/phillipberndt/autorandr)
+* [lightdm change background](https://wiki.archlinux.org/title/LightDM#Changing_background_images/colors)

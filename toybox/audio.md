@@ -43,6 +43,7 @@ features:
     * parameter sliders
 
 
+* [pocket bard](https://www.pocketbard.app/)
 
 # synths
 * [vital](https://vital.audio/)

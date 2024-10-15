@@ -162,6 +162,8 @@ prompt() {
     # for section ideas see: https://liquidprompt.readthedocs.io/en/stable/functions/data.html
     # aws, terraform, node, conda
 
+    # show the hostname iff we're tunneled to a remote
+    [ -n "$SSH_CLIENT" ] && fmt '%TU-%s:' "$HOST"
     # show 'HH:MM:SS' of runtime if a command took 5 or more seconds
     ((tdelta >= 5)) && fmt '%Ty-%02d%T--%F:%j%s ' $((tdelta/3600)) $((tdelta%3600/60)) $((tdelta%60))
     [ -n "$CONDA_DEFAULT_ENV" ] && fmt '%TB-∝<%s>' "$CONDA_DEFAULT_ENV"
@@ -279,7 +281,7 @@ alias g=gtd
 __() {
     set -o vi # enable vi-style line editing
     VIRTUAL_ENV_DISABLE_PROMPT=yes # don't let virtualenv do weird stuff to the prompt
-    export FZF_DEFAULT_OPTS='--color=16 --bind=alt-h:backward-char,alt-j:down,alt-k:up,alt-l:forward-char'
+    export FZF_DEFAULT_OPTS='--color=16 --bind=alt-h:backward-char,alt-j:down,alt-k:up,alt-l:forward-char '
     export EDITOR="$(command -v vi vim nvim | tail -n1)" PAGER="less" LESS="FXr" VISUAL=$EDITOR
     alias vi="$EDITOR" wget='wget -c' mkdir='mkdir -p' cp="cp -i" du='du -hs' df='df -h'
     alias la='ls -A' ll='ls -lh' sl='ls' ls='ls -F --color=auto'

@@ -1,0 +1,45 @@
+#!/bin/zsh
+
+# this is run as the user in a newly provisioned arch environment
+# guard, DO NOT run as root, run as main user
+if [ "$(id -u)" -e 0 ]; then
+    echo "this script should not be run as root"
+    echo "this should also be run in a new chroot"
+    exit 1
+fi
+
+DOTROOT=~/my
+
+# create dot directory and load dotfiles
+if [ ! -d "$DOTROOT" ]; then
+    mkdir -p "$DOTROOT/toombs-caeman"
+    git -C "$DOTROOT/toombs-caeman" clone https://github.com/toombs-caeman/dotfiles
+    git -C "$DOTROOT/toombs-caeman/dotfiles" remote set-url origin git@github.com:toombs-caeman/dotfiles.git
+    echo "PATH=\"\$PATH:$DOTROOT/toombs-caeman/dotfiles/bin\"" >> ~/.zprofile
+    echo ". $DOTROOT/toombs-caeman/dotfiles/rc.sh" >> ~/.bashrc
+    echo ". $DOTROOT/toombs-caeman/dotfiles/rc.sh" > ~/.zshrc
+fi
+
+# install yay
+if ! type yay > /dev/null; then
+    YAY="$DOTROOT/aur/yay"
+    mkdir -p "$YAY"
+    git clone https://aur.archlinux.org/yay.git "$YAY"
+    makepkg -siD "$YAY"
+fi
+install() { yay -S --needed --noconfirm "$@"; }
+# disable the systemd-boot menu
+sudo bootctl set-timeout 0
+# set shell to zsh
+sudo chsh -s "$(which zsh)" "$(whoami)"
+
+# install AUR packages
+install rsgain-git ttf-firacode-nerd
+
+mkdir -p ~/Music/
+systemctl --user enable mpd.service
+
+. ~/.zprofile
+# reconfigure userspace
+ricer -t spacedust2
+
