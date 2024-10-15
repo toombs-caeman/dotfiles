@@ -25,6 +25,7 @@
     "ntp": true,
     "offline": false,
     "packages": [
+        "i3status",
         "zsh",
         "bat",
         "ripgrep",
@@ -36,6 +37,7 @@
         "kitty",
         "mpd",
         "mpc",
+        "man",
         "neovim",
         "nodejs",
         "npm",

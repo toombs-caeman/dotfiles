@@ -19,19 +19,15 @@ config() {
     # libinput  libinput.conf   /etc/X11/xorg.conf.d/30-touchpad.conf
     t alacritty alacritty.yml   ~/.alacritty.yml
     t kitty     kitty.conf      ~/.config/kitty/kitty.conf
-    t i3-msg    i3status.conf   ~/.config/i3status/config
+    t i3status    i3status.conf   ~/.config/i3status/config
     t i3-msg    i3config.sh     ~/.i3/config                        i3-msg reload >/dev/null
-    t sway      sway.conf       ~/.config/sway/config
+    t sway      sway.conf       ~/.config/sway/config               swaymsg reload
     t nvim      nvim.vim        ~/.config/nvim/init.vim
     t nvim      plug.vim        ~/.config/nvim/autoload/plug.vim    nvim +PlugInstall '+qall!'
     t nvim      colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
     t picom     picom.conf      ~/.config/picom.conf
     t mpd       mpd.conf        ~/.mpdconf  systemctl --user restart mpd.service
     t git       gitconfig       ~/.gitconfig
-    # https://github.com/MrOtherGuy/firefox-csshacks/tree/master/chrome
-    # firefox: enable toolkit.legacyUserProfileCustomizations.stylesheets
-    : ~/.mozilla/firefox/*.default/chrome # expand glob pattern
-    t firefox   userChrome.css   "$_/userChrome.css"
 }
 t() { command -v "$1" >/dev/null && mkdir -p "${3%/*}" && sed "$sed" <"$template_dir/$2" >"$3"&&(($#>3)) && "${@:4}"; }
 ricer() {

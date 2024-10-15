@@ -8,8 +8,9 @@ readarray -t result <<< "$(fzf --bind=alt-h:backward-char,alt-j:down,alt-k:up,al
 cmd="${result[${#result[@]}-1]}"
 # exit if they didn't make a selection
 [ ! "$cmd" ] && exit
-# tell i3 to run the command
-i3-msg exec "$cmd" >/dev/null
+# tell i3 AND sway to run the command, only one should be running
+type i3-msg >/dev/null && i3-msg exec "$cmd" >/dev/null || swaymsg exec "$cmd" >/dev/null
+
 # update the history, move the chosen command to the front.
 readarray -t history < $h
 echo "$cmd" > $h

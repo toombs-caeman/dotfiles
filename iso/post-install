@@ -14,7 +14,7 @@ DOTROOT=~/my
 if [ ! -d "$DOTROOT" ]; then
     mkdir -p "$DOTROOT/toombs-caeman"
     git -C "$DOTROOT/toombs-caeman" clone https://github.com/toombs-caeman/dotfiles
-    git -C "$DOTROOT/toombs-caeman/dotfiles" remote set-url origin git@github.com:toombs-caeman/dotfiles.git
+    #git -C "$DOTROOT/toombs-caeman/dotfiles" remote set-url origin git@github.com:toombs-caeman/dotfiles.git
     echo "PATH=\"\$PATH:$DOTROOT/toombs-caeman/dotfiles/bin\"" >> ~/.zprofile
     echo ". $DOTROOT/toombs-caeman/dotfiles/rc.sh" >> ~/.bashrc
     echo ". $DOTROOT/toombs-caeman/dotfiles/rc.sh" > ~/.zshrc
@@ -28,8 +28,10 @@ if ! type yay > /dev/null; then
     makepkg -siD "$YAY"
 fi
 install() { yay -S --needed --noconfirm "$@"; }
+
 # disable the systemd-boot menu
 sudo bootctl set-timeout 0
+
 # set shell to zsh
 sudo chsh -s "$(which zsh)" "$(whoami)"
 
@@ -38,6 +40,8 @@ install rsgain-git ttf-firacode-nerd
 
 mkdir -p ~/Music/
 systemctl --user enable mpd.service
+
+echo "firefox\nkitty\nslurp | grim -g - - | wl-copy" > ~/.launch
 
 . ~/.zprofile
 # reconfigure userspace
