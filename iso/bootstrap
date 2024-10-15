@@ -16,6 +16,6 @@ cp *.jpg "$background_dir"
 
 # run post-install as user
 script=/mnt/archinstall/usr/bin/post-install
-cp post-install "$script"
+cp "$(which post-install)" "$script"
 HOME="/home/$user" arch-chroot -u "$user" /mnt/archinstall post-install
 rm "$script"

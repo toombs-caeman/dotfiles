@@ -47,3 +47,5 @@ echo "firefox\nkitty\nslurp | grim -g - - | wl-copy" > ~/.launch
 # reconfigure userspace
 ricer -t spacedust2
 
+clear
+echo 'DONE!'

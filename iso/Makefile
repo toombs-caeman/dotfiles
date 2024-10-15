@@ -14,13 +14,11 @@ iso:
 	cp bootstrap post-install $(FSROOT)/usr/local/bin/
 	echo 'file_permissions+=(["/usr/local/bin/post-install"]="0:0:755" ["/usr/local/bin/bootstrap"]="0:0:755")' >> $(BUILD_DIR)/profiledef.sh
 	cp README.md archinstall.json *.jpg $(FSROOT)/root/
-	false
 	sudo mkarchiso -v -r -w /tmp/archiso-tmp -o . $(BUILD_DIR)
 	@rm -rf $(BUILD_DIR)
 
 clean:
-	# if making the iso fails half way then BUILD_DIR isn't removed
-	rm -rf $(BUILD_DIR)
+	rm -rf *.iso $(BUILD_DIR)
 
 usb:
 	@image="$$(find . -name "*.iso" | fzf -0 -1)"; \
