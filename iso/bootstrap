@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# this is run in the bootstrap environment
+# this is run as root in the bootstrap environment (installation media)
 set -e
 
 if [ ! -d /mnt/archinstall ]; then
     archinstall --config /root/archinstall.json
 fi
-# select the user to set up by looking to find their home directory
+# select the user to set up finding their home directory
 user="$(find /mnt/archinstall/home -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | fzf -0 -1)"
 
 # copy in wallpapers
@@ -14,9 +14,8 @@ background_dir="/mnt/archinstall/home/$user/Pictures/Wallpapers"
 mkdir -p "$background_dir"
 cp *.jpg "$background_dir"
 
-
 # run post-install as user
-post=/mnt/archinstall/usr/bin/post-install
-cp post-install "$post"
+script=/mnt/archinstall/usr/bin/post-install
+cp post-install "$script"
 HOME="/home/$user" arch-chroot -u "$user" /mnt/archinstall post-install
-rm "$post"
+rm "$script"

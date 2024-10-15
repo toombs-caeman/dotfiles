@@ -27,6 +27,7 @@ config() {
     t nvim      colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
     t picom     picom.conf      ~/.config/picom.conf
     t mpd       mpd.conf        ~/.mpdconf  systemctl --user restart mpd.service
+    t mpd       mpd.conf        ~/.mpdconf                          muse init
     t git       gitconfig       ~/.gitconfig
 }
 t() { command -v "$1" >/dev/null && mkdir -p "${3%/*}" && sed "$sed" <"$template_dir/$2" >"$3"&&(($#>3)) && "${@:4}"; }

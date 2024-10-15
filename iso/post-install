@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-# this is run as the user in a newly provisioned arch environment
+# this is run as the user under chroot in a newly provisioned arch environment
 # guard, DO NOT run as root, run as main user
 if [ "$(id -u)" -e 0 ]; then
     echo "this script should not be run as root"

@@ -1,30 +1,26 @@
-for creating custom installation media
+# Provisioning A New Arch Desktop
 
-https://wiki.archlinux.org/title/Archiso
-
-cp -r /usr/share/archiso/configs/releng/ archlive
-mkarchiso -v -w /tmp/archiso-tmp /path/to/profile/
-
-# usage
-to make installation media (expects usb drive)
+## Creating Custom Installation Media
 ```
 make iso
 make usb
 ```
-to install:
+uses [archiso](https://wiki.archlinux.org/title/Archiso)
+
+## Provisioning
 1. boot the computer using the install media
 2. connect to the network using `iwctl`
     * `station list` -> station name
 	* `station <station> get-networks` -> network name
 	* `station <station> connect <network>`
     * `quit`
-3. run `install.sh`. set the following options:
+
+3. run command `bootstrap`. set the following options:
     * host name
     * disk layout
     * at least one user
-    * by default this will use the `Desktop` profile. This can be reset to avoid installing any GUI. Probably also want to reset the audio framework in that case.
+
+4. `reboot`
 
 # TODO
-* should use builtin brightness ctrl
-* include default background image
-
+* libinput.conf for touchpad natural scrolling and tap to click
