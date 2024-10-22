@@ -1,13 +1,13 @@
 a grab bag of stuff that personalizes my computers
 
-# general bent
-I use i3-gaps and neovim heavily on some arch derivative.
+# Overview
 
-# keymaps
-semantically i3 and vim have a bit of overlap in the 'arranging tiles' department so i3 gets the Meta key and vim gets the alt key,
-but I try to give keys the same semantic meaning.
+arch + swaywm + kitty + zsh + neovim
+
+Semantically sway and vim have a bit of overlap in the 'arranging tiles' department so sway gets the Meta key and vim gets the alt key, but I try to give keys the same semantic meaning.
 
 fzf is prefered for building interfaces
+
 # Principles
 * simplicity is a feature
     * simplicity is robustly encapsulated complexity, not a lack of features
@@ -29,44 +29,10 @@ fzf is prefered for building interfaces
         * who, what, where, when, why (user, command output, directory, timestamp, comments)
 
 # Installation
-* create install media
-    * [Download arch](https://archlinux.org/download/)
-    * flash to media `dd if=/path/to/iso of=/dev/sdX bs=4M`
-
-* base install
-    * [archinstall](https://wiki.archlinux.org/title/Archinstall)
-```shell
-sudo pacman -S --needed git
-mkdir -p ~/my/toombs-caeman/; cd "$_"
-git clone git@github.com:toombs-caeman/dotfiles.git
-```
-
-# TODO
-* keyboard
-  * save layout
-  * flash instructions
-* WM / DE
-  * arrange windows
-  * notifications
-    * [notifications](http://blog.z3bra.org/2014/04/pop-it-up.html)
-  * clipboard
-  * status bar
-  * network/wifi manager
-  * audio eq
-  * launcher
-  * switcher
-  * closer
-* backup utility
-  * [restic](https://restic.net/)
-  * [rsync](https://rsync.samba.org/)
-  * needs bi-directional notifications in case something breaks
-    * source and sink need to notify if no backup or ack for N days
-    * sink needs to notify if drive has failed, or has many bad sectors (maybe smartmontools)
-    * very occassionally, notify that everything is working
-* media
-  * mpd - needs configuration template
-  * mpc
-  * bookmark cache
+1. for the full OS, scripts in `iso/` can create a custom install drive.
+2. for work computers:
+    * `git -C ~/my/toombs-caeman/dotfiles clone https://github.com/toombs-caeman/dotfiles`
+    * `echo "PATH=\"\$PATH:~/my/toombs-caeman/dotfiles/bin\"" >> ~/.zprofile`
 
 
 # Potential new stuff
@@ -84,6 +50,8 @@ git clone git@github.com:toombs-caeman/dotfiles.git
     * a modern (incompatible) ncurses [notcurses](https://github.com/dankamongmen/notcurses) [site](https://notcurses.com/)
     * treerat
         * ricer - configuration
+* email/rss as a transport protocol
+    * [social media on top of rss](https://news.ycombinator.com/item?id=33975082)
 * bookmark / cache / rss / scraper tool
     * merge and manage bookmarks and cached content
         * maybe just use [buku](https://github.com/jarun/buku)
@@ -117,13 +85,9 @@ git clone git@github.com:toombs-caeman/dotfiles.git
     * [fzf history menu](https://medium.com/@ankurloriya/fzf-command-make-your-history-command-smarter-3294dfd1272f)
     * [fzf image preview](https://github.com/junegunn/fzf/issues/3228)
     * [fzf .blend preview](https://docs.blender.org/manual/en/latest/advanced/command_line/render.html)
-
-* [moreutils vipe](https://joeyh.name/code/moreutils/)
 * detect headphone plugin and button presses
     * [ref](https://unix.stackexchange.com/questions/25776/detecting-headphone-connection-disconnection-in-linux)
     * [mpd_sima](https://kaliko.me/mpd-sima/)
-* email/rss as a transport protocol
-    * [social media on top of rss](https://news.ycombinator.com/item?id=33975082)
 
 * git stuff
     * git-diagram: show ascii art explaining a proposed operation (merge, rebase, etc.)
@@ -135,21 +99,38 @@ git clone git@github.com:toombs-caeman/dotfiles.git
         * [footnotes](https://www.monde-diplomatique.fr/2021/01/PIGEAUD/62633)
 
 * just like how kde and gnome have their 'system settings' which shows graphically the different capabilities of the computer, I'd like to piece together a TUI
-    * nmtui
-    * alsamixer
-    * bluetuith?
-    * brightness, (simple) volume
-    * pactl - change sound sink, pavucontrol
+    * iwctl
+    * wpctl
+    * bluetoothctl
+    * brightnessctl
+    * pavucontrol
+    * arandr
+    * system-config-printer
+    * screenshot with slurp / grim
 
 * send reminders 10 seconds later `systemd-run --user --on-active=10 /usr/bin/notify-send message`
     * [systemd timers](https://wiki.archlinux.org/title/Systemd/Timers)
     * compare with cron?
 
-* https://news.ycombinator.com/item?id=36461102
 * [nerd-dictation](https://github.com/ideasman42/nerd-dictation) speech to text
 * [find archived youtube videos](https://findyoutubevideo.thetechrobo.ca/)
-* multiple monitors
-    * xrandr - CLI
-    * arandr - GUI
-    * autodetect & connect [autorandr](https://github.com/phillipberndt/autorandr)
-* [lightdm change background](https://wiki.archlinux.org/title/LightDM#Changing_background_images/colors)
+
+# TODO
+* whitefox keyboard
+  * save layout
+  * flash instructions
+* notify-send is broken?
+    * [notifications](http://blog.z3bra.org/2014/04/pop-it-up.html)
+* backup utility
+  * [restic](https://restic.net/)
+  * [rsync](https://rsync.samba.org/)
+  * needs bi-directional notifications in case something breaks
+    * source and sink need to notify if no backup or ack for N days
+    * sink needs to notify if drive has failed, or has many bad sectors (maybe smartmontools)
+    * very occassionally, notify that everything is working
+* media
+  * bookmark cache
+* note other programs (but don't include in base installation)
+    * krita blender godot android-studio ardour8
+    * steam proton-ge-custom-bin
+* include non-youtube links in script

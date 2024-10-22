@@ -1,3 +1,0 @@
-#!/bin/sh
-# support consistent copy and paste
-xdotool key --clearmodifiers "ctrl+$(xprop -id $(xdotool getactivewindow) | grep -q Alacritty && echo 'shift+')$1"

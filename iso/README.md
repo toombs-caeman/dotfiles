@@ -1,11 +1,14 @@
-# Provisioning A New Arch Desktop
+# ISO
+
+This project helps install arch with my setup in a quick and repeatable way.
+
 
 ## Creating Custom Installation Media
 ```
+# run in this directory
 make iso
 make usb
 ```
-uses [archiso](https://wiki.archlinux.org/title/Archiso)
 
 ## Provisioning
 1. boot the computer using the install media
@@ -23,4 +26,9 @@ uses [archiso](https://wiki.archlinux.org/title/Archiso)
 4. `reboot`
 
 # TODO
-* libinput.conf for touchpad natural scrolling and tap to click
+* can we set firefox to dark mode and install ublock origin from the command line?
+
+# reference
+* [archiso](https://wiki.archlinux.org/title/Archiso)
+* [archinstall](https://wiki.archlinux.org/title/Archinstall)
+    * [profiles](https://gitlab.archlinux.org/archlinux/archinstall/-/tree/master/archinstall/default_profiles/desktops)
