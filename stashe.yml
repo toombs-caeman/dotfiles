@@ -1,0 +1,36 @@
+template-dir: templates/
+
+
+# used to detect which os is running
+detect:
+  win: which winget
+  nix: which pacman
+  mac: which brew
+
+# used to install packages as needed
+install:
+  win: winget install
+  nix: sudo pacman -S --needed --noconfirm
+  mac: brew install
+
+template:
+  # each template (in this case "nvim:init.lua") runs if nvim is in path
+  nvim:
+    # can specify a single name or different for each os
+    package: neovim
+    files:
+      init.lua:
+        win: ~/AppData/Local/nvim/init.lua
+        nix: ~/.config/nvim/init.lua
+        mac: ~/.config/nvim/init.lua
+  fzf:
+    package:
+      win: junegunn.fzf
+      nix: fzf
+      mac: fzf
+  zsh:
+    package:
+      nix: zsh
+    files:
+      zshrc: ~/.zshrc
+
