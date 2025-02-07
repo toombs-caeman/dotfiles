@@ -15,6 +15,13 @@ install:
 
 template:
   # each template (in this case "nvim:init.lua") runs if nvim is in path
+  nu:
+    # it dosen't make sense to define package here,
+    # since it'll be processed using nu
+    files:
+      config.nu:
+        nix: .config/nushell/config.nu
+    callback: false
   nvim:
     # can specify a single name or different for each os
     package: neovim
@@ -23,14 +30,12 @@ template:
         win: ~/AppData/Local/nvim/init.lua
         nix: ~/.config/nvim/init.lua
         mac: ~/.config/nvim/init.lua
+      colo.vim: ~/.config/nvim/colo.vim
   fzf:
     package:
       win: junegunn.fzf
       nix: fzf
       mac: fzf
-  zsh:
-    package:
-      nix: zsh
+  barf:
     files:
-      zshrc: ~/.zshrc
-
+      doesntmatter: ~/doesntmatter
