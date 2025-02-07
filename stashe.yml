@@ -2,28 +2,38 @@ template-dir: templates/
 
 
 # used to detect which os is running
+# nushell boolean expression fragments
 detect:
-  win: which winget
-  nix: which pacman
-  mac: which brew
+  win: which winget | is-not-empty
+  nix: which pacman | is-not-empty
+  mac: which brew | is-not-empty
 
 # used to install packages as needed
+# nushell fragment run with nu -c
 install:
+  mac: brew install
   win: winget install
   nix: sudo pacman -S --needed --noconfirm
-  mac: brew install
 
 template:
-  # each template (in this case "nvim:init.lua") runs if nvim is in path
-  nu:
-    # it dosen't make sense to define package here,
-    # since it'll be processed using nu
+  nu: # shell
+    # https://www.nushell.sh/
     files:
       config.nu:
         nix: .config/nushell/config.nu
-    callback: false
-  nvim:
-    # can specify a single name or different for each os
+        win: ~/AppData/Roaming/nushell/config.nu
+  rio: # terminal
+    # https://raphamorim.io/rio/
+    files:
+      rio.toml:
+        win: ~/AppData/Local/rio/config.toml
+    package:
+      win: raphamorim.rio
+      nix: rio
+      mac: rio
+    # no callback, reloads config live
+  nvim: # editor
+    # https://neovim.io/
     package: neovim
     files:
       init.lua:
@@ -31,6 +41,7 @@ template:
         nix: ~/.config/nvim/init.lua
         mac: ~/.config/nvim/init.lua
       colo.vim: ~/.config/nvim/colo.vim
+    # TODO callback to reload
   fzf:
     package:
       win: junegunn.fzf

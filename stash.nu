@@ -1,17 +1,35 @@
 #!/usr/bin/env nu
 
-# load yaml
+## logical process
+# 0. load config from default path for platform or --config if passed.
+# 1. if --install is passed, download each tool which has a package defined on this platform or die
+# 2. for each file with an installed tool (determined by which):
+#       1. unless --force is passed, skip file if destination already exists and doesn't match a recorded hash
+#       2. render file to destination
+#       3. record the rendered file's hash
+# 3. for each tool which defines a callback and had a file change, run the callback
+
 # TODO default config location
-let config = open 'stashe.yml'
+# determine which config we should use, either --config or the standard path based on os-info
+let config_path = 'stashe.yml'
+match ($nu.os-info.name) {
+    windows => '',
+    linux => ~/.config/shache/config,
+}
+
+# load config
+let config = open $config_path
 cd $config.template-dir
 
-# detect operating systems
+# detect platforms
+# we don't use $nu.os-info here because we allow custom definitions
+# "platform" is related to, but not exactly equal to os
 let os = $config.detect |
     transpose os cmd |
-    where {|row| (run-external ...($row.cmd | split row ' ') | complete | get exit_code) == 0} |
+    where {|row|nu -c $row.cmd|into bool} |
     first | get os
 
-# resolve a value that is potentially split across operating systems
+# resolve a config value that is potentially split across platforms
 def ovalue [] {
     match ($in | describe) {
         'string' => $in,
@@ -45,6 +63,11 @@ $config.template |
 }
 exit
 
-# TODO structure with main function
-# TODO handle arguments --install(-i) --render(-r)
+# TODO structure with main function. help doc?
+# TODO handle arguments
+#   $in is values to render into templates
+# --install(-i) # install all tools for the current platform before attempting render
+# --force(-f) # overwrite external changes
+# --config(-c) # use alternate config file
 # TODO completions
+# TODO --watch? to watch the templates/ and config and do live updates of the system?
