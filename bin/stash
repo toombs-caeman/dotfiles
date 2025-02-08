@@ -1,0 +1,154 @@
+#!/usr/bin/env nu
+
+# TODO:
+# * document yaml keys in help text
+
+let defaultpath = (match ($nu.os-info.name) {
+        windows => "~/AppData/Local/stash/config.yaml",
+        linux => "~/.config/stash/config.yaml",
+})
+
+# a dotfile configurator
+#
+## logical process
+# 0. load config from default path for platform or --config if passed.
+# 1. if --install is passed, download each tool which has a package defined on this platform or die
+# 2. for each file with an installed tool (determined by which):
+#       1. unless --force is passed, skip file if destination already exists and doesn't match a recorded hash
+#       2. render file to destination OR render the directory
+#       3. record the rendered file's hash
+# 3. for each tool which defines a callback and had a file change, run the callback
+def main [
+        --config(-c):string,# use an alternate config location.
+        --install(-i),      # try to install tools before configuring them.
+        --force(-f),        # write files even if the destination has changed unexpectedly.
+] {
+        let config = setup $config
+        # determine the current platform
+        # so we can resolve config values that are potentially split across platforms
+        let platform = $config.detect | transpose platform cmd |
+                where {|row|nu -c $row.cmd|into bool} |
+                get 0.platform
+        let value = {||if ($in|describe) == 'string' { $in } else {$in | get -i $platform}}
+
+        # flatten command structure and resolve platform values
+        let commands = $config.template | transpose name data | flatten data |
+                upsert package $value |
+                upsert files {|v|if ($v.files? | is-not-empty) {
+                        $v.files | transpose from to |
+                        upsert to {||do $value | path expand}
+                }} |
+                upsert callback $value
+
+        # show what we're about to do
+        # $commands | table --expand | print
+
+        if $install {
+                let installer = $config.install | do $value
+                if ($installer | is-empty) {
+                        $'no installer configured for ($platform)' | log -w
+                        exit 2
+                }
+                let packages = $commands.package | compact |  str join ' '
+                if ($packages != '') { 
+                        let cmd = $"($installer) ($packages)"
+                        print $'(ansi blue)INFO(ansi reset): ($cmd)'
+                        # TODO run install command
+                        #nu -c $cmd
+                }
+        }
+
+        let state = (if ($config.state | path exists) { open $config.state | from yaml } else { {} })
+        mut changes = {}
+
+        for $command in ($commands | compact files) {
+                # don't process commands which aren't installed
+                if (which $command.name | is-empty) { continue }
+                for $render in $command.files {
+                        # skip rendering a file if the destination has an unexpected hash
+                        if not $force and ($render.to | path exists) {
+                                if (open $render.to | hash md5) != ($state | get -i $render.to)  {
+                                        print $'(ansi red_bold)WARN(ansi reset): destination ($render.to) has unrecognized changes. skipping'
+                                        continue
+                                }
+                        }
+                        if not ($render.from | path exists) {
+                                print $'(ansi red_bold)WARN(ansi reset): template ($render.to|path basename) not found. skipping'
+                                continue
+                        }
+                        print $'(ansi blue)INFO(ansi reset): ($render.from) => ($render.to)'
+                        # TODO render file
+                        let rendered = open $render.from
+
+                        # write file
+                        mkdir ($render.to | path dirname)
+                        $rendered | save -f $render.to
+
+                        # record hash
+                        $changes = $changes | merge {$render.to: ($rendered | hash md5)}
+                }
+                # wrap up with any callback
+                if ($command.callback | is-not-empty) {
+                        $command.callback | info
+                        nu -c $command.callback
+                }
+        }
+        # finally update the state file
+        $state | merge $changes | to yaml | save -f $config.state
+}
+
+# render the configuration for changes
+def "main watch" [--config(-c):string] {
+        let $config = setup $config # cd to the target directory
+        # TODO: also watch the configuration file itself, not sure how to make that happen
+        watch '.' {|op| if $op != 'Remove' { main --config $config.path }}
+}
+
+# install a stub at the default config location that loads the given file
+def "main using" [config:string] {
+        mkdir ($defaultpath | path expand | path dirname)
+        {redirect:($config|path expand)}|to yaml | save -f $defaultpath
+}
+
+
+# determine which config we should use, either from --config or the standard path based on os-info
+def --env setup [$configpath] {
+        let configpath = $configpath | default $defaultpath | path expand
+        mut config = {
+                path: $configpath
+                state: ($configpath | path parse | update extension 'state' | path join)
+        }
+
+        # if redirect to another file if requested.
+        # this is so that we can have a stub at the default configuration
+        # and then redirect to where our actual configuration is kept under version control
+        # the state file is not redirected in the same way, since it shouldn't be under vcs
+        mut userdata = {}
+        try {
+                $userdata = open $config.path
+        } catch {
+                error make {
+                        msg: "Configuration file not found."
+                        label: { text: $configpath span: (metadata $configpath).span }
+                        help: "Did you mean to pass --config?"
+                }
+        }
+        if ($userdata.redirect? | is-not-empty) and ($userdata.redirect | path exists) {
+                $config.path = $userdata.redirect
+                $userdata = open $config.path
+        }
+        $config = $config | merge $userdata
+
+        # paths are expanded relative to the current directory
+        # we want to expand the $config.source relative to $config.path
+        cd ($config.path | path dirname)
+        $config.source = $config.source | default '.' | path expand
+
+        # template names are relative to $config.source, so lets move again
+        cd $config.source
+
+        return $config
+}
+
+
+

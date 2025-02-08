@@ -1,5 +1,5 @@
-template-dir: templates/
-
+# path relative to this file where the source files are found
+source: templates/
 
 # used to detect which os is running
 # nushell boolean expression fragments
@@ -20,17 +20,13 @@ template:
     # https://www.nushell.sh/
     files:
       config.nu:
-        nix: .config/nushell/config.nu
+        nix: ~/.config/nushell/config.nu
         win: ~/AppData/Roaming/nushell/config.nu
-  rio: # terminal
+  wezterm: # terminal
     # https://raphamorim.io/rio/
     files:
-      rio.toml:
-        win: ~/AppData/Local/rio/config.toml
-    package:
-      win: raphamorim.rio
-      nix: rio
-      mac: rio
+      wezterm.lua: ~/.config/wezterm/wezterm.lua
+    package: wezterm
     # no callback, reloads config live
   nvim: # editor
     # https://neovim.io/

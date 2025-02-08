@@ -1,5 +1,7 @@
 # dotnu
 
+Portable dotfiles based on [nushell](https://www.nushell.sh/)
+
 * $"(ansi title)set window title(ansi st)" in precmd
 
 * [keep dotfiles in sync with git](https://github.com/dotphiles/dotsync)
@@ -34,11 +36,8 @@ requirements:
 * sane scrollback
 * gpu acceleration
 
-# TODO rio terminal
-* apply shaders?
-* bind image protocols
-* go through rio.toml
-* does this work longterm?
+# wezterm
+* initial configuration
 
 # TODO git
 find satisfactory git plugins for:
@@ -51,14 +50,16 @@ find satisfactory git plugins for:
 * lua based config (merge kickstart and old config)
     * plug -> [lazy](http://www.lazyvim.org/)
 * curate plugins
+    * manager [lazy.nvim](https://github.com/folke/lazy.nvim)
     * [neovim-lspconfig](https://github.com/neovim/nvim-lspconfig)
+    * [mason](https://github.com/williamboman/mason.nvim)
     * vim-surround
     * vim-targets
     * vim-gitgutter
     * fzf-lua
     * coc.nvim
     * something for git
-* automate hooking the language server download if a language server isn't downloaded
+    * automate hooking the language server download if a language server isn't downloaded
 * actually finish vim-in-term-in-vim config / winc
 * remote edit/nav through ssh, netrw? fzf as if cwd was remote
 * how to re-indent last selection (when pasting lines)
@@ -73,7 +74,7 @@ find satisfactory git plugins for:
 an implementation of [mustache](https://mustache.github.io/mustache.5.html) in [nushell](https://www.nushell.sh/)
 * [testing nushell](https://www.nushell.sh/book/testing.html)
 
-# stache
+# stash
 a sane, mustachioed, cross-platform dotfile configuration manager written in nushell.
 
 each template (in this case "nvim:init.lua") runs if nvim is in path and init.lua is in the templates directory
@@ -92,6 +93,8 @@ nvim:
 * match keybinds between firefox, rio, vim, nushell
 
 * remake spacedust2 for 24 bit color and with a deeper understanding of dracula.vim
+* recreate spacedust2 with [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
+    * [original spacedust](https://github.com/hallski/spacedust-theme)
 
 # firefox
 
