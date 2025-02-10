@@ -1,7 +1,7 @@
 local wezterm = require("wezterm")
 local config = wezterm.config_builder()
 
-config.font = wezterm.font("Fira Code Nerd Font")
+config.font = wezterm.font_with_fallback({ "Fira Code Nerd Font", "Twemoji Mozilla" })
 --
 config.default_prog = { "nu" }
 config.enable_kitty_keyboard = true

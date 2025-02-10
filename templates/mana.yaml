@@ -1,5 +1,7 @@
+# imbue config
+#
 # path relative to this file where the source files are found
-source: templates/
+source: .
 
 # used to detect which os is running
 # nushell boolean expression fragments
@@ -16,33 +18,38 @@ install:
   nix: sudo pacman -S --needed --noconfirm
 
 template:
-  nu: # shell
-    # https://www.nushell.sh/
+  nu: # shell https://www.nushell.sh/
     files:
       config.nu:
         nix: ~/.config/nushell/config.nu
         win: ~/AppData/Roaming/nushell/config.nu
-  wezterm: # terminal
-    # https://raphamorim.io/rio/
+  wezterm: # terminal https://wezterm.org/
     files:
       wezterm.lua: ~/.config/wezterm/wezterm.lua
     package: wezterm
     # no callback, reloads config live
-  nvim: # editor
-    # https://neovim.io/
+  nvim: # editor https://neovim.io/
     package: neovim
     files:
-      init.lua:
+      vim.init.lua:
         win: ~/AppData/Local/nvim/init.lua
         nix: ~/.config/nvim/init.lua
         mac: ~/.config/nvim/init.lua
-      colo.vim: ~/.config/nvim/colo.vim
-    # TODO callback to reload
   fzf:
-    package:
-      win: junegunn.fzf
-      nix: fzf
-      mac: fzf
-  barf:
+    package: fzf
+  mpc:
     files:
-      doesntmatter: ~/doesntmatter
+      mpd.conf:
+        nix: ~/.mpdconf
+  git:
+    files:
+      gitconfig: ~/.gitconfig
+  sway:
+    files:
+      waybar.jsonc:
+        nix: ~/.config/waybar/config.jsonc
+      waybar.css:
+        nix: ~/.config/waybar/style.css
+      sway.config:
+        nix: ~/.config/sway/config
+    callback: swaymsg reload; killall -SIGUSR2 waybar

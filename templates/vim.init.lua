@@ -35,6 +35,7 @@ vim.opt.list = true -- show whitespace characters
 vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 vim.opt.inccommand = "split" -- preview substitutions live
 vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
 vim.opt.fillchars = {
 	foldopen = "",
@@ -68,13 +69,13 @@ vim.keymap.set({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up",
 
 -- [[ windows / panes ]]
 vim.keymap.set("n", "<A-s>", "<cmd>sp<cr>", { desc = "Open a split", remap = true })
-vim.keymap.set("n", "<A-v>", "<cmd>sp<cr>", { desc = "Open a vertical split", remap = true })
+vim.keymap.set("n", "<A-v>", "<cmd>vs<cr>", { desc = "Open a vertical split", remap = true })
 
 -- Move to window using the <Alt> hjkl keys
-vim.keymap.set("n", "<A-h>", "<C-w>h", { desc = "Go to Left Window", remap = true })
-vim.keymap.set("n", "<A-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
-vim.keymap.set("n", "<A-k>", "<C-w>k", { desc = "Go to Upper Window", remap = true })
-vim.keymap.set("n", "<A-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
+vim.keymap.set({ "n", "t" }, "<A-h>", "<C-w>h", { desc = "Go to Left Window", remap = true })
+vim.keymap.set({ "n", "t" }, "<A-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
+vim.keymap.set({ "n", "t" }, "<A-k>", "<C-w>k", { desc = "Go to Upper Window", remap = true })
+vim.keymap.set({ "n", "t" }, "<A-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
 
 -- Resize window using <ctrl> hjkl keys
 vim.keymap.set("n", "<C-k>", "<cmd>resize +2<cr>", { desc = "Increase Window Height" })
@@ -113,6 +114,10 @@ vim.keymap.set("i", ";", ";<c-g>u")
 -- better indenting
 vim.keymap.set("v", "<", "<gv")
 vim.keymap.set("v", ">", ">gv")
+
+-- select the last pasted or changed text
+vim.keymap.set("n", "gp", "`[v`]")
+
 -- commenting
 vim.keymap.set("n", "gco", "o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 vim.keymap.set("n", "gcO", "O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
@@ -446,6 +451,10 @@ require("lazy").setup({
 						mode = mode or "n"
 						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 					end
+
+					map("<A-w>", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
+					map("<A-r>", vim.lsp.buf.rename, "[R]e[n]ame")
+					map("<A-q>", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
 
 					-- Jump to the definition of the word under your cursor.
 					--  This is where a variable was first declared, or where a function is defined, etc.
@@ -840,5 +849,6 @@ require("lazy").setup({
 	},
 })
 
+require("lspconfig").nushell.setup({})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

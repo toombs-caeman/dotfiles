@@ -1,13 +1,85 @@
 # dotnu
 
-Portable dotfiles based on [nushell](https://www.nushell.sh/)
+Portable dotfiles based on nushell
 
-* $"(ansi title)set window title(ansi st)" in precmd
+arch + swaywm + wezterm + nushell + neovim
 
-* [keep dotfiles in sync with git](https://github.com/dotphiles/dotsync)
+# Installation
+## Just Dotfiles
+0. install git and nushell
+    * windows: `winget install Git.Git Nushell.Nushell`
+    * ubuntu: `sudo apt install git nushell`
+    * mac: `brew install git nushell`
+    * arch: `sudo pacman -S git nushell`
+1. clone repository and run stash hook
+```shell
+# clone repository
+git clone git@github.com:toombs-caeman/dotfiles.git
+cd dotfiles
+bin/stash using stash.yml
+```
+
+## Operating System
+In addition to containing my dotfiles, this repository also specifies a custom arch ISO that I use to bootstrap all my personal computers.
+```
+# cd iso/
+make iso    # create an ISO
+make usb    # attempt to write that ISO to a removable drive
+```
+
+# Project Philosophy
+This isn't a well thought out manifesto or anything, but good tools do share certain qualities across vastly differnt domains.
+I suppose I'll discuss what I think those are here as an aspirational rant.
+
+* keep tools as simple as possible, but no simpler
+    * if you have to look up how something works every time you use it, it's too complicated.
+    * if you have to compose a complicated pipeline to do anything useful, the tools are too simple.
+    * it should be blindingly obvious which part is the handle, and where the pointy bits are.
+* eliminate redundancy
+    * redundanct tools are a complication that by definition don't offer extra functionality.
+    * I'm clearly not talking about things like redundant backups, where multiplicity is itself a feature.
+    * desktop environments (WMs), terminals, browsers, tmux, and nvim all have their own way of handling panes and tabs. Eliminate or disable as many of these as possible.
+    * nvim and my WM both have a status line.
+    * From the [Zen of Python](https://en.wikipedia.org/wiki/Zen_of_Python#Principles), there should be one and ideally only one obvious way to do something.
+* eliminate inconsistencies
+    * tools that rely on the network will fail when the network is down.
+    * tools that depend on specific versions of awk... or gawk... maybe it was mawk. Anyway you can never depend on having that exact version around. Bash is subtly different on linux and mac systems.
+    * prefer dumb, consistent tools.
+    * good tools are not novel, they behave exactly as expected every time.
+* Tools should be composable and work together
+    * This basically comes from [Unix Philosophy](https://en.wikipedia.org/wiki/Unix_philosophy), though I've soured on the idea of text streams being the best interface. It's a little too simple for a lot of things.
+    * this is related to eliminating redundancy.
+* Provide rich context
+    * Indicate abnormal status but not the expected or default status
+    * Rich means more concentrated, not just **more**. The ideal is that tools should deliver exactly what the user needs to know, right as they need to know it, and to otherwise stay quiet.
+    * eliminate visual clutter. Clutter is by definition not important; it dilutes the signal.
+    * cli context includes
+        * what happened (history), what could happen (autocomplete) and what's happening (progress bars, etc)
+        * who, what, where, when, why (user, command, directory+branch, timestamp, comments)
+* The less I know the better
+    * Fuzzy searching lets you stumble into the correct answer, even if you don't know exactly what you're looking for.
+    * if I make a clear mistake, suggest a correction rather than just failing.
+    * when it 'just works', you never have to think about how it works (or why it isn't working).
+    * tools should protect you from doing something dumb (at least by accident).
+
+# TODO
 
 * start over on the dotfiles using new tools and config from scratch
-* actual config/templating tool to replace ricer - stache
+    * copy configs from old dotfiles
+* actual config/templating tool to replace ricer - stash
+    * needs moustache tool
+* fzf vs telescope
+* rewrite launch for nushell+wezterm
+* switch to swaybar
+    * i3status was the old one
+    * swaybar comes native
+    * [waybar](https://github.com/Alexays/Waybar/)
+    * match with vim status line?
+* lush.nvim for colorscheme
+    * remake spacedust2 for 24 bit color
+    * maybe extract current vim colorscheme (using lush?) to generate renderable palettes?
+    * maybe use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
+    * [original spacedust](https://github.com/hallski/spacedust-theme)
 * better install script
     * https://raw.githubusercontent.com/toombs-caeman/.nu/refs/heads/master/install.sh | sh
     * fully test requirements are available
@@ -16,90 +88,62 @@ Portable dotfiles based on [nushell](https://www.nushell.sh/)
     * git-delta?
     * vim-git
     * interactive add, commit?
-* zoxide vs gg
-    * zoxide.vim
-* do I even need fmt?
-
-# Terminals
-kitty is not available for windows. exploring other options
-
-requirements:
-* [kitty keyboard protocol](https://sw.kovidgoyal.net/kitty/keyboard-protocol/)
-* packages exists in (winget, pacman, brew)
-* kitty or [iterm2](https://iterm2.com/documentation-images.html) image protocol or sixels
-* correctly open links on click
-* well behaved in sway, w/o a header
-* consistent keybinds across platforms
-* sane defaults
-* good documentation
-* tabs / pane keys align with wincmd
-* sane scrollback
-* gpu acceleration
-
-# wezterm
-* initial configuration
-
-# TODO git
-find satisfactory git plugins for:
-* vim - interactive stage & commit
     * vim-gitgutter
     * vim-fugitive?
     * vimagit?
+    * nushell plugin?
+    * aliases
+* ctl - new tui script
+    * wpctl - audio
+    * mpc - music
+    * iwctl - wifi
+    * bluetoothctl - bluetooth
+    * brightnessctl - screen brightness
+    * arandr - multiscreen
 
-# TODO vim
-* lua based config (merge kickstart and old config)
-    * plug -> [lazy](http://www.lazyvim.org/)
-* curate plugins
+* nvim merge kickstart.vim and old init.vim
+* curate vim plugins
     * manager [lazy.nvim](https://github.com/folke/lazy.nvim)
     * [neovim-lspconfig](https://github.com/neovim/nvim-lspconfig)
     * [mason](https://github.com/williamboman/mason.nvim)
     * vim-surround
     * vim-targets
     * vim-gitgutter
-    * fzf-lua
+    * [nvim-surround](https://github.com/kylechui/nvim-surround)
+    * fzf-lua or telescope.vim
     * coc.nvim
     * something for git
     * automate hooking the language server download if a language server isn't downloaded
 * actually finish vim-in-term-in-vim config / winc
+* gg to nushell
+    * zoxide vs gg
+    * zoxide.vim
+* do I even need fmt? probably not, use ansi
+* curate nushell plugins
 * remote edit/nav through ssh, netrw? fzf as if cwd was remote
-* how to re-indent last selection (when pasting lines)
-
-# TODO nushell
-* bind <A-e> to `fzf | nvim $in`
-* shell history? atuin?
-* [carapace completer](https://github.com/carapace-sh/carapace)
-* prompt
-
-# mustache + nushell = nustache
-an implementation of [mustache](https://mustache.github.io/mustache.5.html) in [nushell](https://www.nushell.sh/)
-* [testing nushell](https://www.nushell.sh/book/testing.html)
-
-# stash
-a sane, mustachioed, cross-platform dotfile configuration manager written in nushell.
-
-each template (in this case "nvim:init.lua") runs if nvim is in path and init.lua is in the templates directory
-can always specify a single name or different for each os
-
-```.stash.lock
-nvim:
-    init.lua: <md5 hash>
-    colo.vim: <md5 hash>
-```
-
-# TODO
-* go through kickstart.lua
-* go through rio.toml
 * can we replace nu config Roaming with Local?
-* match keybinds between firefox, rio, vim, nushell
+* match firefox keybinds for tabs
+* nushell bind <A-e> to `fzf | nvim $in`
+* shell history? atuin? need to configure it
+    * [atuin](https://atuin.sh/) magic search history
+* nushell [carapace completer](https://github.com/carapace-sh/carapace)
+* nushell prompt
+* nushell [background tasks with pueue](https://www.nushell.sh/book/background_task.html)
+* yt-dlp with --embed-metadata to write mp3 tags? using picard? [ytmdl](https://aur.archlinux.org/packages/ytmdl)
+* mpd configuration, try to eliminate muse
 
-* remake spacedust2 for 24 bit color and with a deeper understanding of dracula.vim
-* recreate spacedust2 with [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
-    * [original spacedust](https://github.com/hallski/spacedust-theme)
+# TODO: Maybe in the Future
+* rename stash:
+    * infuse: `infuse with desktop.yml`
+* separate configs for server and desktop?
+* nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
+* [mosh](https://mosh.org/) or [eternal terminal](https://eternalterminal.dev/)
+    * [xxh](https://github.com/xxh/xxh)
+* [notcurses](https://github.com/dankamongmen/notcurses) [site](https://notcurses.com/)
+* play with firefox bookmarks (places.sqlite)
+    * [nushell start](https://www.nushell.sh/commands/docs/start.html)
 
-# firefox
-
-# ref
-* [nu scripting](https://www.nushell.sh/book/scripts.html)
+# fonts
 
 # publicity
 * nustach
@@ -108,11 +152,11 @@ nvim:
     * add [tests badge](https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/monitoring-workflows/adding-a-workflow-status-badge)
     * run tests against the spec with [nutest](https://github.com/vyadh/nutest)
 
-* dotnu
+* dotfiles
     * [dotfiles](https://dotfiles.github.io/)
     * [awesome-dotfiles](https://github.com/webpro/awesome-dotfiles)
     * [arch dotfiles](https://wiki.archlinux.org/title/Dotfiles)
 
-* stash
+* imbue
     * [awesome-nu](https://github.com/nushell/awesome-nu)
     * [nupm](https://github.com/nushell/nupm)
