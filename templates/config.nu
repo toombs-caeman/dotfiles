@@ -1,3 +1,5 @@
+use std
+
 # prompt hooks https://www.nushell.sh/book/hooks.html
 # completers https://www.nushell.sh/cookbook/external_completers.html
 
@@ -25,12 +27,39 @@ alias vi = nvim
 # * $"(ansi title)set window title(ansi st)" in precmd
 
 
-$env.PROMPT_COMMAND = {||}
+# TODO: recurse
+$env.PROMPT_COMMAND = {||
+    try {
+        let root = git rev-parse --show-toplevel e> (std null-device)
+        let project = $root | path basename
+        $'($project):(pwd | path relative-to $root)'
+    } catch {
+        try { ['~' (pwd |path relative-to ~)] | path join } catch { pwd }
+    }
+}
 $env.PROMPT_COMMAND_RIGHT = {|| date now | format date '%m-%d %H:%M'}
 # TODO: this time stamp doesn't appear to be correct
-$env.TRANSIENT_PROMPT_COMMAND_RIGHT = {|| date now | format date 'run %m-%d %H:%M'}
+# $env.TRANSIENT_PROMPT_COMMAND_RIGHT = {|| date now | format date 'run %m-%d %H:%M'}
 # TODO: colors
 
 # TODO: dotroot and gg
 
 # TODO: lsp config?
+
+def _gg [] { glob '~/my/*/*' | path basename }
+def --env gg [project:string@_gg=''] {
+    if ($project | is-empty) {
+        # by default return to project root or home
+        cd (try { git rev-parse --show-toplevel e> (std null-device) } catch { '~' })
+    }
+    let p = $project | path split
+    match ($p | length) {
+        1 => (cd (glob ('~/my/*/' ++ $project) | first))
+        2 => (cd ('~/my/' ++ $project))
+        3 => (
+            let dest = ['~/my/', $p.1, $p.2] | path join;
+            git clone $project $dest;
+            cd $dest
+        )
+    }
+}

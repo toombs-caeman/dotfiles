@@ -540,7 +540,7 @@ require("lazy").setup({
 			-- See `:help lspconfig-all` for a list of all the pre-configured LSPs
 			local servers = {
 				-- clangd = {},
-				gopls = {},
+				-- gopls = {},
 				pyright = {},
 				rust_analyzer = {},
 				phpactor = {},
