@@ -26,6 +26,17 @@ alias vi = nvim
 # * exit code - if != 0
 # * $"(ansi title)set window title(ansi st)" in precmd
 
+# pipe through the clipboard
+#
+# TODO: separate commands into windows and linux versions
+# https://stackoverflow.com/questions/17819814/how-can-you-get-the-clipboard-contents-with-a-windows-command
+def clip [] {
+    if ($in | is-not-empty) {
+        $in | wl-copy
+    }
+    wl-paste
+}
+
 
 # TODO: recurse
 $env.PROMPT_COMMAND = {||
