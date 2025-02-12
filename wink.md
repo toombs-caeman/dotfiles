@@ -13,6 +13,7 @@ Here we discuss how it could be implemented.
     * conditionally switch keymaps if not running under hyprland (on windows for instance)
 * [tabless firefox](https://addons.mozilla.org/en-US/firefox/addon/tabless-fox/)
     * launch window instead of tab, hide tab bar
+* vimium for firefox
 * [tabless chrome](https://chromewebstore.google.com/detail/tab-less/mdndkociaebjkggmhnemegoegnbfbgoo?pli=1)
     * launch window instead of tab, hide tab bar
 

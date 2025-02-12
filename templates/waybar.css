@@ -16,6 +16,7 @@ window#waybar {
     background: @background-darker;
     color: @foreground;
     border-bottom: 2px solid @background;
+    font-family: "Fira Code", monospace;
 }
 #workspaces button {
     padding: 0 10px;

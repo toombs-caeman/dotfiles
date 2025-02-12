@@ -198,9 +198,8 @@
 * ripgrep
 * telescope with imgcat
 * notify command
+* locker
 
-* iso
-    * detect manually installed packages and update archinstall.json
 
 # TODO: Maybe in the Future
 * separate configs for server and desktop?
@@ -211,6 +210,7 @@
 * play with firefox bookmarks (places.sqlite)
     * [nushell start](https://www.nushell.sh/commands/docs/start.html)
 * hyprland - very nice FX tiling window manager
+* set gtk themes?
 
 
 # research: what are these? Do these things exist

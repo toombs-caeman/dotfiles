@@ -1,0 +1,72 @@
+{
+    "additional-repositories": [
+        "multilib"
+    ],
+    "archinstall-language": "English",
+    "audio_config": {
+        "audio": "pipewire"
+    },
+    "bootloader": "Systemd-boot",
+    "config_version": "2.8.6",
+    "debug": false,
+    "hostname": "archlinux",
+    "kernels": [
+        "linux"
+    ],
+    "locale_config": {
+        "kb_layout": "us",
+        "sys_enc": "UTF-8",
+        "sys_lang": "en_US"
+    },
+    "network_config": {
+        "type": "iso"
+    },
+    "no_pkg_lookups": false,
+    "ntp": true,
+    "offline": false,
+    "packages": [
+        "i3status",
+        "wl-clipboard",
+        "arandr",
+        "firefox",
+        "kitty",
+        "neovim",
+        "nodejs",
+        "npm",
+        "zsh",
+        "bat",
+        "ripgrep",
+        "git",
+        "fzf",
+        "man",
+        "ffmpeg",
+        "yt-dlp",
+        "mpd",
+        "mpc",
+        "swaync"
+    ],
+    "parallel downloads": 0,
+    "profile_config": {
+        "gfx_driver": "All open-source",
+        "greeter": "ly",
+        "profile": {
+            "custom_settings": {
+                "Sway": {
+                    "seat_access": "polkit"
+                }
+            },
+            "details": [
+                "Sway"
+            ],
+            "main": "Desktop"
+        }
+    },
+    "script": "guided",
+    "silent": false,
+    "skip_ntp": false,
+    "skip_version_check": false,
+    "swap": true,
+    "timezone": "America/New_York",
+    "uki": false,
+    "version": "2.8.6"
+}

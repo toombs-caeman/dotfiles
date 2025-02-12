@@ -53,3 +53,7 @@ template:
       sway.config:
         nix: ~/.config/sway/config
     callback: swaymsg reload; killall -SIGUSR2 waybar
+  hyprland:
+    files:
+      hyprland.conf: ~/.config/hypr/hyprland.conf
+

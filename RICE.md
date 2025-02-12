@@ -78,22 +78,26 @@ what even is a good looking desktop?
 * fonts
 
 # parts of a desktop env (typically)
+* bootsplash
+* login greeter
 * window management
-* status indicators
-* launcher
-* kill window
-* notification viewer
+    * launch / close
+    * rearrange / resize / group
+* system status indicators (bar)
+* notifications viewer
 * snip tools
     * copy-paste
-    * screenshot
+    * screenshot (color picker)
     * audio recorder
 * I/O control
     * wifi
     * bluetooth
     * audio
     * brightness
-    * arandr
+    * arandr multi-monitor setup
     * exit / power down
+    * screen locker
+    * screen idle locker
 * applications
     * web browser
     * file browser
