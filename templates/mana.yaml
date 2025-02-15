@@ -20,7 +20,7 @@ install:
 template:
   nu: # shell https://www.nushell.sh/
     files:
-      config.nu:
+      nushell.nu:
         nix: ~/.config/nushell/config.nu
         win: ~/AppData/Roaming/nushell/config.nu
   wezterm: # terminal https://wezterm.org/
@@ -31,7 +31,7 @@ template:
   nvim: # editor https://neovim.io/
     package: neovim
     files:
-      vim.init.lua:
+      nvim.init.lua:
         win: ~/AppData/Local/nvim/init.lua
         nix: ~/.config/nvim/init.lua
         mac: ~/.config/nvim/init.lua

@@ -8,6 +8,7 @@
     // Choose the order of the modules
     "modules-left": [
         "sway/workspaces",
+        "hyprland/workspaces",
         "sway/mode",
         "sway/scratchpad",
         "custom/media"

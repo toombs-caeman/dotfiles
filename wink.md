@@ -85,5 +85,6 @@ workspaces can be assigned a context
 * cbonsai
 * cava
 * not neofetch
+* pipes.sh
 
 # XDG_OPEN??

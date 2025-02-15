@@ -8,7 +8,6 @@
   * tab keymaps overwritten?
   * whichkey timeout changes
   * suppress diagnostic messages
-  * rewrite launch to get around needing fzf
 
 --]]
 
@@ -94,8 +93,8 @@ vim.keymap.set("n", "<A-W", "<cmd>tabclose<cr>", { desc = "Close Tab" })
 -- [[ buffers ]]
 vim.keymap.set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
-vim.keymap.set("n", "<A-e>", "<cmd>Telescope find_files<cr>", { desc = "Fuzzy find files" })
-vim.keymap.set("n", "<A-b>", "<cmd>Telescope buffers<cr>", { desc = "Fuzzy find buffers" })
+vim.keymap.set("n", "<A-e>", "<cmd>Telescope find_files sort_lastused=true<cr>", { desc = "Fuzzy find files" })
+vim.keymap.set("n", "<A-b>", "<cmd>Telescope buffers sort_lastused=true<cr>", { desc = "Fuzzy find buffers" })
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 -- `n` always searches forward and `N` always backwards
@@ -382,6 +381,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 			vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
 			vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
+			-- TODO: sort_mru builtin buffers
 
 			-- Slightly advanced example of overriding default behavior and theme
 			vim.keymap.set("n", "<leader>/", function()
@@ -824,6 +824,11 @@ require("lazy").setup({
 		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
+	{ "nvim-tree/nvim-tree.lua", opts = {
+		filters = {
+			dotfiles = true,
+		},
+	} },
 }, {
 	ui = {
 		-- If you are using a Nerd Font: set icons to an empty table which will use the

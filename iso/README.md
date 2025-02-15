@@ -26,8 +26,6 @@ make usb
 4. `reboot`
 
 # TODO
-* can we set firefox to dark mode and install ublock origin from the command line?
-    * [firefox-ublock-origin](https://archlinux.org/packages/extra/any/firefox-ublock-origin/)
 * quiet splash - IIRC you should add your kernel parameters to the APPEND in archiso_sys.cfg (and archiso_pxe.cfg if you use PXE).
 * bootsplash with [plymouth](https://wiki.archlinux.org/title/Plymouth)
     * `quiet splash` https://wiki.archlinux.org/title/Kernel_parameters#systemd-boot

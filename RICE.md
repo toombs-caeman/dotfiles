@@ -3,6 +3,14 @@ This file discusses the aspirational ideal of a desktop.
 
 If I'm going to go through the effort to make a nice setup. I'd like to have an idea of where I'm headed.
 
+# RICE THEORY
+ricing should curate the entire experience of using the computer.
+Most apply the term only the the desktop environment and never consider other parts of the experience of using a computer.
+What's it like to install the distribution, or personalize it?
+How many rough edges can we smooth over.
+
+rice iso rice.json # generate an install image (archiso) that does all the theming, and pulls in dotfiles and stuff
+
 # The Wink Desktop
 The unifying idea of wink is to unify. Why use two eyes when one is good enough?
 
