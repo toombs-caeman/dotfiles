@@ -1,6 +1,6 @@
 # TODO
-* nushell path management
-* imbue install
+* load theme from `themes/`
+    * give actual names to colors
 * rewrite launch for nushell
     * `hyprctl dispatch exec kitty nvim +"lua require(\"telescope.builtin\").asfd()"`
     * nushell:ctl[] - how to integrate with launch
@@ -13,13 +13,15 @@
     * lock 10min
 * handle laptop lid?
 * hyprpaper
+    * disable hyprland splash and anime girl
 * hyprlock
 * waybar
     * sections ok
     * needs visuals: mostly transparent, with pills and tooltips for info, move to bottom
     * match with vim status line?
 * fonts - fira code nerd font mono + twemoji
-    * in kitty, waybar, firefox
+    * in kitty, waybar, firefox, mako
+* kitty enable advanced key handling
 
 * iso
     * rewrite makefile as nushell
@@ -63,6 +65,7 @@
 * steam https://github.com/ValveSoftware/gamescope
 
 * nushell [carapace completer](https://github.com/carapace-sh/carapace)
+* nushell include path?
 
 * match firefox keybinds for tabs
 * telescope preview images with kitty icat

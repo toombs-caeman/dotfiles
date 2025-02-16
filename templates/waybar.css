@@ -12,14 +12,19 @@
 @define-color yellow #f1fa8c;
 
 window#waybar {
-    opacity: 0.9;
-    background: @background-darker;
+    opacity: 1;
+    background: rgba(0,0,0,0);
     color: @foreground;
-    border-bottom: 2px solid @background;
     font-family: "Fira Code", monospace;
 }
+#workspaces button, #network, #clock, #mpd, #pulseaudio, #battery, #tray {
+    padding: 0 0.5em 0 0.5em;
+    margin: 0 0 0.5em 0.25em;
+    border-radius: 1em;
+    background: @background;
+    color: @foreground;
+}
 #workspaces button {
-    padding: 0 10px;
     background: @background;
     color: @foreground;
 }
@@ -37,10 +42,11 @@ window#waybar {
 #taskbar button.active {
     background-image: linear-gradient(0deg, @selection, @background-darker);
 }
+
 #network {
-    background-color: @cyan;
+    background-color: @purple;
 }
 #clock {
-    padding: 0 4px;
-    background: @background;
+    background: @yellow;
+    color: @background
 }

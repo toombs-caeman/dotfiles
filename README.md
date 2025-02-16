@@ -21,6 +21,16 @@ bin/imbue with templates/mana.yaml
 # Imbue ISO
 [create an install image](iso/README.md)
 
+# default installation
+see [mana.yaml](templates/mana.yaml)
+* hyprland
+    * waybar
+    * mako
+
+* kitty
+    * nushell
+* firefox
+
 # applications
 preferred application, though not installed by default
 * audacity - editing audio

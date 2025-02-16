@@ -2,9 +2,12 @@
 use std
 
 # TODO: completers https://www.nushell.sh/cookbook/external_completers.html
+#   * carapace?
+
+# this is the path to imbue, which it templates in itself
+$env.path ++= ['{{$env.FILE_PWD}}']
 
 $env.config.show_banner = false
-
 $env.config.edit_mode = 'vi'
 $env.config.buffer_editor = 'nvim'
 $env.PROMPT_INDICATOR = '!!!' # emacs mode, this shouldn't happen
@@ -48,15 +51,15 @@ def roots [] {
     try {
         cd (git rev-parse --show-toplevel)
         let data = git status --porcelain=2 --branch --ahead-behind |
-            parse -r '(?m)(?:^(?:# branch.head (?<branch>.*)|(?<mod>[12u]).*|# (?<upstream>branch.upstream).*|# branch.ab +(?<ahead>\d+) -(?<behind>\d+)|.*)$)*'
+            parse -r '(?m)(?:^(?:# branch.head (?<branch>.*)|(?<mod>[12u]).*|# (?<upstream>branch.upstream).*|# branch.ab \+(?<ahead>\d+) -(?<behind>\d+)|.*)$)*'
         (do {cd ..; roots}) ++ [{
             dir:    (pwd)
             name:   (pwd | path parse | get stem)
             branch: ($data.branch   | compact -e | first | str replace '(detached)' 'HEAD')
             mod:    ($data.mod      | compact -e | is-not-empty)
             local:  ($data.upstream | compact -e | is-empty)
-            ahead:  ($data.ahead    | compact -e | append 0 | first)
-            behind: ($data.behind   | compact -e | append 0 | first)
+            ahead:  ($data.ahead    | compact -e | first)
+            behind: ($data.behind   | compact -e | first)
         }]
     } catch { [] }
 }
@@ -77,7 +80,7 @@ $env.PROMPT_COMMAND = {||
         $prompt ++= ($data | each {|repo|
             let dirty = (if $repo.mod {$"(ansi red)*"})
             let tracking = (if $repo.local { 'L'
-                } else match [($repo.ahead != 0) ($repo.behind != 0)] {
+                } else match [($repo.ahead != '0') ($repo.behind != '0')] {
                     [true  true ] => $'($repo.ahead)⇅($repo.behind)'
                     [true  false] => $'($repo.ahead)↑'
                     [false true ] => $'↓($repo.behind)'
@@ -108,24 +111,30 @@ $env.PROMPT_COMMAND_RIGHT = {||
     }
 }
 
-def _gg [] { glob '~/my/*/*' | path basename }
+# go to project roots
+# 
+# if no argument is given, go to git root or ~
+# if a git remote url is given, clone it and cd to it.
 def --env gg [project:string@_gg=''] {
     # by default return to project root or home
     if ($project | is-empty) {
         cd (try { git rev-parse --show-toplevel e> (std null-device) } catch { '~' })
     }
-    # clone a url in the correct place
-    let p = $project | path split
-    match ($p | length) {
-        1 => (cd (glob ('~/my/*/' ++ $project) | first))
-        2 => (cd ('~/my/' ++ $project))
-        3 => (
-            let dest = ['~/my/', $p.1, $p.2] | path join;
-            git clone $project $dest;
-            cd $dest
-        )
+
+    try {
+        # this fails if project is an ssh remote
+        # or if the glob fails to match anything
+        cd (glob ('~/my/*/' ++ $project) | first)
+    } catch {
+        let dest = $project |
+            parse -r '(?<group>[^/:]*)/(?<name>[^/]*?)(?:.git)?$' |
+            ['~' 'my' $in.0.group $in.0.name] |
+            path join | path expand
+        git clone $project $dest
+        cd $dest
     }
 }
+def _gg [] { glob '~/my/*/*' | path basename | uniq }
 
 # because I can never remember the damn names
 # TODO: make this a nicer wrapper
@@ -133,8 +142,9 @@ let ctl = {
     audio: wpctl
     wifi: iwctl
     music: mpc
-    blue: bluetoothctl
-    monitors: nwg-displays
+    bluetooth: bluetoothctl
+    monitors: nwg-displays # this is the only gui. does that make sense?
     brightness: brightnessctl
-    notify: notify-send
+    notify: makoctl
+    windows: hyprctl
 }

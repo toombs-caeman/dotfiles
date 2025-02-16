@@ -4,10 +4,6 @@
 # * what happens if a platform can't be determined?
 #   * can we have a default platform name?
 # * show some help text if run without any work to do?
-# * collapse template/ into main dir to eliminate source: ??
-#   * gives us a nicer watch
-# * rename template key to commands?
-# * tagline: a sane, mustachioed, dotfile configuration manager
 
 # print the version
 def 'main version' [] { '0.0.1' }
@@ -105,9 +101,10 @@ def main [
                 print $'(ansi red_bold)WARN(ansi reset): template ($render.to|path basename) not found. skipping'
                 continue
             }
+
+            # render file
             print $'(ansi blue)INFO(ansi reset): ($render.from) => ($render.to)'
-            # TODO render file
-            let rendered = open $render.from
+            let rendered = open $render.from | render $config.data
 
             # write file
             mkdir ($render.to | path dirname)
@@ -126,11 +123,18 @@ def main [
     $state | merge $changes | to yaml | save -f $config.state
 }
 
+def render [data] {
+    let t0 = $in
+    $in | parse -r '(?:^|[^{])(?<tag>\{\{(?<content>[^{}](?:[^}]|\}[^}])*)\s*}})' |
+        reduce -f $t0 {|tag text|
+            $text | str replace $tag.tag (with-env $data { nu -c $tag.content })
+        }
+}
+
 # watch the configuration directory and render on write
 def "main watch" [--config(-c):string] {
-    let $config = setup $config # cd to the target directory
-    # TODO: also watch the configuration file itself, not sure how to make that happen
-    watch '.' {|op| if $op != 'Remove' { main --config $config.path }}
+    setup $config # don't shadow $config here
+    watch '.' {|op| if $op != 'Remove' { main --config $config }}
 }
 
 # use the given configuration by default.
@@ -148,7 +152,7 @@ def "main with" [config:string] {
 def --env setup [$configpath] {
     let configpath = $configpath | default $defaultpath | path expand
     mut config = {
-        path: $configpath
+        configpath: $configpath
         state: ($configpath | path parse | update extension 'state' | path join)
     }
 
@@ -158,7 +162,7 @@ def --env setup [$configpath] {
     # the state file is not redirected in the same way, since it shouldn't be under vcs
     mut userdata = {}
     try {
-        $userdata = open $config.path
+        $userdata = open $config.configpath
     } catch {
         error make {
             msg: "Configuration file not found."
@@ -167,14 +171,14 @@ def --env setup [$configpath] {
         }
     }
     if ($userdata.redirect? | is-not-empty) and ($userdata.redirect | path exists) {
-        $config.path = $userdata.redirect
-        $userdata = open $config.path
+        $config.configpath = $userdata.redirect
+        $userdata = open $config.configpath
     }
     $config = $config | merge $userdata
 
     # paths are expanded relative to the current directory
-    # we want to expand the $config.source relative to $config.path
-    cd ($config.path | path dirname)
+    # we want to expand the $config.source relative to $config.configpath
+    cd ($config.configpath | path dirname)
     $config.source = $config.source | default '.' | path expand
 
     # template names are relative to $config.source, so lets move again

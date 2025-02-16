@@ -8,7 +8,7 @@ source: .
 detect:
   win: which winget | is-not-empty
   nix: which pacman | is-not-empty
-  mac: which brew | is-not-empty
+  mac: which brew   | is-not-empty
 
 # used to install packages as needed
 # nushell fragment run with nu -c
@@ -19,15 +19,17 @@ install:
 
 template:
   nu: # shell https://www.nushell.sh/
+    package: nu # this is useless, since you need nushell to run this
     files:
       nushell.nu:
         nix: ~/.config/nushell/config.nu
         win: ~/AppData/Roaming/nushell/config.nu
-  wezterm: # terminal https://wezterm.org/
+  kitty:
+    package: kitty
     files:
-      wezterm.lua: ~/.config/wezterm/wezterm.lua
-    package: wezterm
-    # no callback, reloads config live
+      kitty.conf:
+        nix: ~/.config/kitty/kitty.conf
+
   nvim: # editor https://neovim.io/
     package: neovim
     files:
@@ -35,25 +37,70 @@ template:
         win: ~/AppData/Local/nvim/init.lua
         nix: ~/.config/nvim/init.lua
         mac: ~/.config/nvim/init.lua
+
   fzf:
     package: fzf
-  mpc:
+
+  mpd:
+    package: mpd mpc
     files:
       mpd.conf:
         nix: ~/.mpdconf
   git:
     files:
       gitconfig: ~/.gitconfig
-  sway:
-    files:
-      waybar.jsonc:
-        nix: ~/.config/waybar/config.jsonc
-      waybar.css:
-        nix: ~/.config/waybar/style.css
-      sway.config:
-        nix: ~/.config/sway/config
-    callback: swaymsg reload; killall -SIGUSR2 waybar
-  hyprland:
+
+  hyprland: # window manager
+    package:
+      nix: hyprland
     files:
       hyprland.conf: ~/.config/hypr/hyprland.conf
 
+  waybar: # status bar
+    package:
+      nix: waybar
+    files:
+      waybar.jsonc: ~/.config/waybar/config.jsonc
+      waybar.css: ~/.config/waybar/style.css
+    callback: killall -SIGUSR2 waybar
+
+  mako: # notifications
+    package:
+      nix: mako
+    files:
+      mako.ini: ~/.config/mako/config
+    callback: makoctl reload
+  nwg-displays:
+    package: nwg-displays
+
+
+
+# themes are a colors 0-15, foreground background cursor
+data:
+  cursor:     'FFFFFF'
+  background: '05242A'
+  foreground: 'ECF0C1'
+  # black
+  color0:     '244F61'
+  color8:     '244F61'
+  # red
+  color1:     'E35B00'
+  color9:     'E35B00'
+  # green
+  color2:     '008080'
+  color10:    '008080'
+  # yellow
+  color3:     'EBC562'
+  color11:    'EBC562'
+  # blue
+  color4:     '009FC5'
+  color12:    '009FC5'
+  # magenta
+  color5:     '4A9D8F'
+  color13:    '4A9D8F'
+  # cyan
+  color6:     '09699D'
+  color14:    '09699D'
+  # white
+  color7:     'ECF0C1'
+  color15:    'ECF0C1'
