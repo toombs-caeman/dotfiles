@@ -148,3 +148,20 @@ let ctl = {
     notify: makoctl
     windows: hyprctl
 }
+def colors [] {
+    mut base = ['black' 'red' 'green' 'yellow' 'blue' 'magenta' 'cyan' 'white']
+    $base ++= $base | each {|c|'light_' ++ $c} | skip | drop
+    for c in $base {
+        print -n $'(ansi $c)($c) '
+    }
+    print (ansi reset)
+}
+
+def 'random index' [] {
+    let size = ($in | length) - 1
+    $in | get (random int ..$size)
+}
+
+def 'random wallpaper' [] {
+    hyprctl hyprpaper reload ,(glob ~/Pictures/Wallpapers/* | random index)
+}

@@ -2,6 +2,9 @@
 #
 # path relative to this file where the source files are found
 source: .
+themes: ../themes
+theme: spacedust2
+wallpaper: ~/Pictures/Wallpapers/rooftop-farm-jessica-woulfe.jpg
 
 # used to detect which os is running
 # nushell boolean expression fragments
@@ -38,14 +41,12 @@ template:
         nix: ~/.config/nvim/init.lua
         mac: ~/.config/nvim/init.lua
 
-  fzf:
-    package: fzf
-
   mpd:
     package: mpd mpc
     files:
       mpd.conf:
         nix: ~/.mpdconf
+
   git:
     files:
       gitconfig: ~/.gitconfig
@@ -70,37 +71,11 @@ template:
     files:
       mako.ini: ~/.config/mako/config
     callback: makoctl reload
+  hyprpaper:
+    package:
+      nix: hyprpaper
+    files:
+      hyprpaper.conf: ~/.config/hypr/hyprpaper.conf
   nwg-displays:
     package: nwg-displays
 
-
-
-# themes are a colors 0-15, foreground background cursor
-data:
-  cursor:     'FFFFFF'
-  background: '05242A'
-  foreground: 'ECF0C1'
-  # black
-  color0:     '244F61'
-  color8:     '244F61'
-  # red
-  color1:     'E35B00'
-  color9:     'E35B00'
-  # green
-  color2:     '008080'
-  color10:    '008080'
-  # yellow
-  color3:     'EBC562'
-  color11:    'EBC562'
-  # blue
-  color4:     '009FC5'
-  color12:    '009FC5'
-  # magenta
-  color5:     '4A9D8F'
-  color13:    '4A9D8F'
-  # cyan
-  color6:     '09699D'
-  color14:    '09699D'
-  # white
-  color7:     'ECF0C1'
-  color15:    'ECF0C1'

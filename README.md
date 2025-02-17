@@ -35,8 +35,16 @@ see [mana.yaml](templates/mana.yaml)
 preferred application, though not installed by default
 * audacity - editing audio
 * krita - editing images
+* obs - livestreaming
 * godot - writing games
 * steam - gaming
+* xournalpp - pdf editing & signing
+* asciinema - terminal recording
+
+# tabless firefox
+* convert every new tab to a window [extension](https://github.com/jscher2000/I-Hate-Tabs---SDI-extension)
+* enable userChrome: go to `about:config`, and change the value of `toolkit.legacyUserProfileCustomizations.stylesheets` to true.
+* copy userChrome.css to `~/.mozilla/firefox/*.default/chrome/userChrome.css`
 
 # publicity
 * dotfiles

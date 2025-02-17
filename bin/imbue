@@ -85,6 +85,8 @@ def main [
 
     let state = (if ($config.state | path exists) { open $config.state | from yaml } else { {} })
     mut changes = {}
+    mut theme = openTheme ([$config.themes $config.theme] | path join)
+    $theme.wallpaper = $config.wallpaper
 
     for $command in ($commands | compact files) {
         # don't process commands which aren't installed
@@ -104,7 +106,7 @@ def main [
 
             # render file
             print $'(ansi blue)INFO(ansi reset): ($render.from) => ($render.to)'
-            let rendered = open $render.from | render $config.data
+            let rendered = open $render.from | render $theme
 
             # write file
             mkdir ($render.to | path dirname)
@@ -185,4 +187,46 @@ def --env setup [$configpath] {
     cd $config.source
 
     return $config
+}
+
+def openTheme [theme] {
+    let t = open $theme | lines
+    {
+        color0:     $t.0
+        color1:     $t.1
+        color2:     $t.2
+        color3:     $t.3
+        color4:     $t.4
+        color5:     $t.5
+        color6:     $t.6
+        color7:     $t.7
+        color8:     $t.8
+        color9:     $t.9
+        color10:    $t.10
+        color11:    $t.11
+        color12:    $t.12
+        color13:    $t.13
+        color14:    $t.14
+        color15:    $t.15
+        foreground: $t.16
+        background: $t.17
+        cursor:     $t.18
+
+        black:  $t.0
+        boldblack:  $t.8
+        red:    $t.1
+        boldred:    $t.9
+        green:  $t.2
+        boldgreen:  $t.10
+        yellow: $t.3
+        boldyellow: $t.11
+        blue:   $t.4
+        boldblue:   $t.12
+        magenta:$t.5
+        boldmagenta:$t.13
+        cyan:   $t.6
+        boldcyan:   $t.14
+        white:  $t.7
+        boldwhite:  $t.15
+    }
 }

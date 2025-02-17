@@ -96,6 +96,9 @@ vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 vim.keymap.set("n", "<A-e>", "<cmd>Telescope find_files sort_lastused=true<cr>", { desc = "Fuzzy find files" })
 vim.keymap.set("n", "<A-b>", "<cmd>Telescope buffers sort_lastused=true<cr>", { desc = "Fuzzy find buffers" })
 
+-- [[ oil ]]
+vim.keymap.set("n", "_", "<cmd>Oil<cr>", { desc = "Edit Directories" })
+
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 -- `n` always searches forward and `N` always backwards
 vim.keymap.set("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
@@ -824,6 +827,17 @@ require("lazy").setup({
 		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
+	{
+		"stevearc/oil.nvim",
+		---@module 'oil'
+		---@type oil.SetupOpts
+		opts = {},
+		-- Optional dependencies
+		dependencies = { { "echasnovski/mini.icons", opts = {} } },
+		-- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
+		-- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
+		lazy = false,
+	},
 	{ "nvim-tree/nvim-tree.lua", opts = {
 		filters = {
 			dotfiles = true,
@@ -853,6 +867,37 @@ require("lazy").setup({
 		--
 	},
 })
+
+-- TODO: pull from a history file (launchrc)
+local apps = {
+	{ "notice", "notify-send 'red'" },
+	{ "firefox", "firefox" },
+	{ "waybar", "waybar" },
+	{ "wifi", "kitty iwctl" },
+	{ "displays", "nwg-displays" },
+	{ "steam", "steam -nochatui -nofriendsui" },
+}
+function Launch(quit)
+	-- TODO: pull options from config file
+	--
+	-- make sure that telescope is loaded
+	-- it will set itself to be the ui selector
+	require("telescope")
+	vim.ui.select(apps, {
+		prompt = "run:",
+		format_item = function(item)
+			return item[1]
+		end,
+	}, function(choice)
+		if choice ~= nil then
+			vim.cmd(string.format(":!hyprctl dispatch exec %s", choice[2]))
+		end
+		if quit then
+			vim.cmd("q!")
+		end
+	end)
+end
+vim.api.nvim_create_user_command("Launch", Launch, { bar = true })
 
 require("lspconfig").nushell.setup({})
 -- The line beneath this is called `modeline`. See `:help modeline`

@@ -1,72 +1,96 @@
 # TODO
-* load theme from `themes/`
-    * give actual names to colors
-* rewrite launch for nushell
-    * `hyprctl dispatch exec kitty nvim +"lua require(\"telescope.builtin\").asfd()"`
-    * nushell:ctl[] - how to integrate with launch
-    * separate name from command
-* hyprland keybinds
-    * exit, reboot menu
-    * hyprland match firefox keybinds for tabs
+* hyprpaper
+    * disable hyprland splash and anime girl
+    * automatically cycle through wallpapers?
+    * library of wallapers?
+* hyprlock
+    * match to plymouth?
+    * `magick -dispose previous -delay 2 ...(glob *.png | sort -n) ~/animated.gif`
 * hypridle
     * screen off 5min
     * lock 10min
 * handle laptop lid?
-* hyprpaper
-    * disable hyprland splash and anime girl
-* hyprlock
-* waybar
-    * sections ok
-    * needs visuals: mostly transparent, with pills and tooltips for info, move to bottom
-    * match with vim status line?
-* fonts - fira code nerd font mono + twemoji
-    * in kitty, waybar, firefox, mako
+
+* keybinds section
 * kitty enable advanced key handling
+    * correct <C-c> vs <C-C>
 
 * iso
     * rewrite makefile as nushell
     * test install env
     * post install instructions (firefox setup)
+    * add impala to install env, run it iff not connected to wifi
 
+* install on work laptop
+* [wallpapers](https://wallhaven.cc/)
 * shell history? [atuin](https://atuin.sh/)
 * nushell [carapace completer](https://github.com/carapace-sh/carapace)
-
-* vim keybinds
-    * from old init.vim
-    * nvim-tree
-    * telescope
-    * lsp
-* vim config mini
-* remote edit/nav through ssh, netrw? fzf as if cwd was remote
-* don't nest nvim term
-
-* lush.nvim for colorscheme
-    * remake spacedust2 for 24 bit color
-    * maybe extract current vim colorscheme (using lush?) to generate renderable palettes?
-    * maybe use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
-    * [original spacedust](https://github.com/hallski/spacedust-theme)
+* ssh section
+* theming section
+* enable vim formatters_by_ft?
+* launch.lua
+    * pull options from config file
+        * columns: display, cmd, last run timestamp
+    * CRUD on config file?
 
 * finalize readme
 * consolidate theory.md, rice.md, wink.md
 
+# ssh
+* remote edit/nav through ssh, netrw? fzf as if cwd was remote, oil.nvim
+* don't nest nvim term
+
+# theming
+* rename imbue 'bold*' colors to match nushells 'light_*'
+* nvim-web-dev-icons vs mini.icons
+* nvim use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
+    * [original spacedust](https://github.com/hallski/spacedust-theme)
+* firefox styles.css? [firefox userchrome](https://trickypr.github.io/FirefoxCSS-Store.github.io/)
+* template fonts
+    * firefox,waybar,mako,kitty
+    * "Fira",monospace,11
+
+* any way to convert plymouth theme to hyplock themes automatically?
+    * basically a visually seamless transition from plymouth to hyprlock
+    * convert plymouth code into password prompt
+
+
+# keybinds
+* master keybind list?
+* hyprland keybinds
+    * exit, reboot menu ??[wlogout](https://github.com/ArtsyMacaw/wlogout)
+    * hyprland match firefox keybinds for tabs
+    * mute, mpd control
+    * groups
+    * rebind toggle split
+    * move active window (mouse might be ok, but trackpad aint it)
+* vim keybinds
+    * from old init.vim
+    * nvim-tree, oil.nvim
+    * telescope
+    * <A-q> show documentation
+
 # TODO: Maybe in the Future
+* control mpd with playerctl [mpDris2](https://github.com/eonpatapon/mpDris2)
+* database vim tpope/dadbod-vim
 * ripgrep + telescope?
 * zoxide?
-* yt-dlp with --embed-metadata to write mp3 tags? using picard? [ytmdl](https://aur.archlinux.org/packages/ytmdl)
+* update music downloader
+    * yt-dlp with --embed-metadata to write mp3 tags? using picard?
+    * broken: [ytmdl](https://aur.archlinux.org/packages/ytmdl)
 * separate configs for server and desktop?
 * nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
-* ctl - new tui script
+* ctl - new tui script to join a bunch of others
     * wpctl - audio
-    * mpc - music
-    * iwctl - wifi
-    * bluetoothctl - bluetooth
+    * mpc/playerctl - music
+    * iwctl - wifi [impala](https://github.com/pythops/impala)
+    * bluetoothctl - bluetooth  bluetui
     * brightnessctl - screen brightness
-    * arandr - multiscreen
+    * wdisplays - multiscreen ?? not a TUI
+    * systemd - https://github.com/rgwood/systemctl-tui
 * steam https://github.com/ValveSoftware/gamescope
-
 * nushell [carapace completer](https://github.com/carapace-sh/carapace)
 * nushell include path?
-
 * match firefox keybinds for tabs
 * telescope preview images with kitty icat
 * background tasts
@@ -85,7 +109,9 @@
     * [nushell start](https://www.nushell.sh/commands/docs/start.html)
 * template gtk themes?
 * ls color generator [vivid](https://github.com/sharkdp/vivid)
-* generate colorschemes from images [pywal](https://github.com/dylanaraps/pywal)
+* generate colorschemes from images
+    * archived:[pywal](https://github.com/dylanaraps/pywal)
+    * [pywal16](https://github.com/eylles/pywal16)
 * hyprshade - screen shader frontend
 * window titles
     * waybar - show active window title
@@ -102,9 +128,12 @@
     * git config --global merge.conflictstyle diff3
     * always set upstream on push
     * forgit
-* steam https://github.com/ValveSoftware/gamescope
+* steam wayland fixes https://github.com/ValveSoftware/gamescope
 * [access clipboard from nushell/reedline](https://github.com/nushell/reedline/issues/745)
+* nvim lush.nvim for colorscheme
+* imbue rollback - keep backups of the original and previous versions of things for a clean uninstall
 
 # research: what are these? Do these things exist
 * https://nixos.org/
-* better launcher programs?
+* podman vs docker
+* https://terminaltrove.com/list/
