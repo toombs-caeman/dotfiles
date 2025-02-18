@@ -26,6 +26,7 @@ see [mana.yaml](templates/mana.yaml)
 * hyprland
     * waybar
     * mako
+    * hyprpaper + [wallpaper](bin/wallpaper)
 
 * kitty
     * nushell
@@ -52,6 +53,6 @@ preferred application, though not installed by default
     * [awesome-dotfiles](https://github.com/webpro/awesome-dotfiles)
     * [arch dotfiles](https://wiki.archlinux.org/title/Dotfiles)
 
-* imbue
+* imbue + wallpaper
     * [awesome-nu](https://github.com/nushell/awesome-nu)
     * [nupm](https://github.com/nushell/nupm)

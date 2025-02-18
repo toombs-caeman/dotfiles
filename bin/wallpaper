@@ -1,0 +1,57 @@
+#!/usr/bin/env nu
+
+# TODO:
+# * config file in ~/.config/hypr/wallpaper.yaml
+#   walldir, collection(s), user, apikey
+# * https://unsplash.com/developers
+
+# Download your collections from wallhaven.
+#
+# Won't download a file if it already exists.
+#
+# wallhaven.cc has a rate limit of 45 requests per minute which you may run up against
+# if you download a large collection at once.
+# https://wallhaven.cc/help/api
+def main [
+    username
+    apikey
+    --collection(-c)='Default'
+    --walldir(-d) = '~/Pictures/Wallpapers/'
+] {
+    let walldir = $walldir | path expand
+
+    # user collection
+    let collections = http get $'https://wallhaven.cc/api/v1/collections?apikey=($apikey)' | get data
+    let col_id = $collections | where label == $collection | get 0.id
+
+    # already downloaded files
+    let memo = glob ($walldir ++ '/*') | path parse | get stem
+
+    http get $'https://wallhaven.cc/api/v1/collections/($username)/($col_id)?apikey=($apikey)' |
+        get data |
+        select id path |
+        filter {|img| $img.id not-in $memo} | # don't download stuff we already have
+        each {|img| # do download
+            let file = { parent: $walldir stem: $img.id extension:($img.path | path parse | get extension) } | path join
+            print $img.id
+            http get $img.path | save $file
+        } | ignore
+}
+# download collection from wallhaven
+def 'main get' [] { }
+
+def 'main set' [file] {
+    hyprctl hyprpaper reload ,($file)
+}
+
+# set random wallpaper
+def 'main random' [--interval(-i)=0sec] {
+    let walls = (glob ~/Pictures/Wallpapers/*)
+    let size = ($walls | length) - 1
+    main set ($walls | get (random int ..$size))
+    if $interval == 0sec { return }
+    loop {
+        sleep $interval
+        main set ($walls | get (random int ..$size))
+    }
+}

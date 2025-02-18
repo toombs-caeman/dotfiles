@@ -1,4 +1,4 @@
-#!/usr/bin/env nu
+#!/sbin/nu
 
 # TODO:
 # * what happens if a platform can't be determined?
@@ -79,7 +79,7 @@ def main [
             let cmd = $"($installer) ($packages)"
             print $'(ansi blue)INFO(ansi reset): ($cmd)'
             # TODO run install command
-            #nu -c $cmd
+            nu -c $cmd
         }
     }
 

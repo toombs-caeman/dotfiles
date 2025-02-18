@@ -22,7 +22,7 @@ install:
 
 template:
   nu: # shell https://www.nushell.sh/
-    package: nu # this is useless, since you need nushell to run this
+    package: nushell # this is useless, since you need nushell to run this
     files:
       nushell.nu:
         nix: ~/.config/nushell/config.nu
@@ -71,11 +71,25 @@ template:
     files:
       mako.ini: ~/.config/mako/config
     callback: makoctl reload
+
   hyprpaper:
     package:
       nix: hyprpaper
     files:
       hyprpaper.conf: ~/.config/hypr/hyprpaper.conf
+
+  hypridle:
+    package:
+      nix: hypridle
+    files:
+      hypridle.conf: ~/.config/hypr/hypridle.conf
+
+  hyprlock:
+    package:
+      nix: hyprlock
+    files:
+      hyprlock.conf: ~/.config/hypr/hyprlock.conf
+
   nwg-displays:
     package: nwg-displays
 

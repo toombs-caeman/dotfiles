@@ -58,8 +58,8 @@ def roots [] {
             branch: ($data.branch   | compact -e | first | str replace '(detached)' 'HEAD')
             mod:    ($data.mod      | compact -e | is-not-empty)
             local:  ($data.upstream | compact -e | is-empty)
-            ahead:  ($data.ahead    | compact -e | first)
-            behind: ($data.behind   | compact -e | first)
+            ahead:  ($data.ahead    | compact -e | append 0 | first)
+            behind: ($data.behind   | compact -e | append 0 | first)
         }]
     } catch { [] }
 }

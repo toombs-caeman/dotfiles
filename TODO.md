@@ -1,11 +1,6 @@
 # TODO
-* hyprpaper
-    * disable hyprland splash and anime girl
-    * automatically cycle through wallpapers?
-    * library of wallapers?
-* hyprlock
-    * match to plymouth?
-    * `magick -dispose previous -delay 2 ...(glob *.png | sort -n) ~/animated.gif`
+* hyprlock - pull image from wallpaper current
+
 * hypridle
     * screen off 5min
     * lock 10min
@@ -20,8 +15,10 @@
     * test install env
     * post install instructions (firefox setup)
     * add impala to install env, run it iff not connected to wifi
+    * iso as `imbue iso`
 
 * install on work laptop
+* tabless
 * [wallpapers](https://wallhaven.cc/)
 * shell history? [atuin](https://atuin.sh/)
 * nushell [carapace completer](https://github.com/carapace-sh/carapace)
@@ -35,6 +32,19 @@
 
 * finalize readme
 * consolidate theory.md, rice.md, wink.md
+# windows config
+* ideavimrc
+* limit mana
+
+# boot sequence
+ditch ly and just `while true; do hyprland done` on tty1
+* kernel params (quiet splash)
+* plymouth with the splash animation
+* immediately open hyprland and lock it
+* match plymouth visuals to hyprlock
+    * start hyprlock as a white dot on a black screen
+    * `magick -dispose previous -delay 2 ...(glob *.png | sort -n) ~/animated.gif`
+
 
 # ssh
 * remote edit/nav through ssh, netrw? fzf as if cwd was remote, oil.nvim
@@ -132,6 +142,7 @@
 * [access clipboard from nushell/reedline](https://github.com/nushell/reedline/issues/745)
 * nvim lush.nvim for colorscheme
 * imbue rollback - keep backups of the original and previous versions of things for a clean uninstall
+* hyprcursor
 
 # research: what are these? Do these things exist
 * https://nixos.org/
