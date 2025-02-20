@@ -80,7 +80,6 @@ workspaces can be assigned a context
 * hyprland colors
 * waybar css
 
-
 # visual toys
 * cbonsai
 * cava

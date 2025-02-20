@@ -20,7 +20,7 @@ window#waybar {
     background-color: #{{$env.blue}};
 }
 #workspaces button.urgent {
-    background-color: #{{$env.boldred}};
+    background-color: #{{$env.light_red}};
 }
 #network {
     background-color: #{{$env.blue}};

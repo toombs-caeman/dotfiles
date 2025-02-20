@@ -1,37 +1,52 @@
 # TODO
-* hyprlock - pull image from wallpaper current
-
-* hypridle
-    * screen off 5min
-    * lock 10min
-* handle laptop lid?
-
-* keybinds section
-* kitty enable advanced key handling
-    * correct <C-c> vs <C-C>
 
 * iso
     * rewrite makefile as nushell
     * test install env
     * post install instructions (firefox setup)
     * add impala to install env, run it iff not connected to wifi
-    * iso as `imbue iso`
+    * iso as `imbue iso`, usb as `imbue wand (image='') (disk='')`
+        * build
+    * boot section
+    * copy the host wifi (iwd) configuration to the install env
+    * copy the host public key to install env to enable install over ssh
 
 * install on work laptop
+    * either pull out harddrive, or copy out credentials first
+        * ssh keys, github key
+    * make sure hardware key works with it.
+    * ensure ssh works as expected
+    * truenas
+    * wifi
+    * secureboot?
+    * do I have a usbc boot device?
+
+* keybinds section
+* kitty enable advanced key handling
+    * correct <C-c> vs <C-C>
+
 * tabless
-* [wallpapers](https://wallhaven.cc/)
+* more [wallpapers](https://wallhaven.cc/)
 * shell history? [atuin](https://atuin.sh/)
 * nushell [carapace completer](https://github.com/carapace-sh/carapace)
 * ssh section
+    * nushell ssh completions
 * theming section
-* enable vim formatters_by_ft?
 * launch.lua
     * pull options from config file
         * columns: display, cmd, last run timestamp
     * CRUD on config file?
+    * package as neovim plugin?
 
 * finalize readme
 * consolidate theory.md, rice.md, wink.md
+* handle laptop lid? need to set lock grace to 0 for it to work?
+
+* explore nushell stdlib and nu_scripts
+    * contribute hypr completions [custom-completions](https://github.com/nushell/nu_scripts/tree/main/custom-completions)
+    * contribute to documentation
+    * poor mans fzf: input list -f
+
 # windows config
 * ideavimrc
 * limit mana
@@ -51,7 +66,6 @@ ditch ly and just `while true; do hyprland done` on tty1
 * don't nest nvim term
 
 # theming
-* rename imbue 'bold*' colors to match nushells 'light_*'
 * nvim-web-dev-icons vs mini.icons
 * nvim use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
     * [original spacedust](https://github.com/hallski/spacedust-theme)
@@ -81,6 +95,7 @@ ditch ly and just `while true; do hyprland done` on tty1
     * <A-q> show documentation
 
 # TODO: Maybe in the Future
+* increase hypridle times?
 * control mpd with playerctl [mpDris2](https://github.com/eonpatapon/mpDris2)
 * database vim tpope/dadbod-vim
 * ripgrep + telescope?

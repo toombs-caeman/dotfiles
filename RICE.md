@@ -102,7 +102,7 @@ what even is a good looking desktop?
     * bluetooth
     * audio
     * brightness
-    * arandr multi-monitor setup
+    * multi-monitor config
     * exit / power down
     * screen locker
     * screen idle locker

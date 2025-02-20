@@ -1,0 +1,75 @@
+# imbue config
+theme: spacedust2
+
+# path relative to this file where the source files are found
+templates: .
+themes: ../themes/
+wallhaven:
+  username: caeman
+  collection: Default
+wallpapers: ~/Pictures/Wallpapers
+
+installer: sudo pacman -S --needed --noconfirm
+
+commands:
+  nu:
+    package: nushell # this is useless, since you need nushell to run this
+    files:
+      nushell.nu: ~/.config/nushell/config.nu
+  kitty:
+    package: kitty
+    files:
+      kitty.conf: ~/.config/kitty/kitty.conf
+    callback: killall -SIGUSR1 kitty
+
+  nvim: # editor https://neovim.io/
+    package: neovim
+    files:
+      nvim.init.lua: ~/.config/nvim/init.lua
+
+  mpd:
+    package: mpd mpc
+    files:
+      mpd.conf: ~/.mpdconf
+
+  git:
+    package: git
+    files:
+      gitconfig: ~/.gitconfig
+
+  hyprland: # window manager
+    package: hyprland
+    files:
+      hyprland.conf: ~/.config/hypr/hyprland.conf
+
+  waybar: # status bar
+    package: waybar
+    files:
+      waybar.jsonc: ~/.config/waybar/config.jsonc
+      waybar.css: ~/.config/waybar/style.css
+    callback: killall -SIGUSR2 waybar
+
+  mako: # notifications
+    package: mako
+    files:
+      mako.ini: ~/.config/mako/config
+    callback: makoctl reload
+
+  hyprpaper:
+    package: hyprpaper
+    files:
+      hyprpaper.conf: ~/.config/hypr/hyprpaper.conf
+
+  hypridle:
+    package: hypridle
+    files:
+      hypridle.conf: ~/.config/hypr/hypridle.conf
+
+  hyprlock:
+    package: hyprlock
+    files:
+      hyprlock.conf: ~/.config/hypr/hyprlock.conf
+
+  phony:
+    package: nwg-displays
+

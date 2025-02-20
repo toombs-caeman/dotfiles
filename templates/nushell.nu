@@ -165,3 +165,9 @@ def 'random index' [] {
 def 'random wallpaper' [] {
     hyprctl hyprpaper reload ,(glob ~/Pictures/Wallpapers/* | random index)
 }
+
+# list attached block devices with lsblk
+def 'sys blocks' [] {
+    lsblk --json | from json | get blockdevices
+}
+
