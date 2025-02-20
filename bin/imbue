@@ -4,7 +4,6 @@ use std null-device
 use std log
 
 # TODO:
-# * render only cell paths into theme, drop `$env.`
 # * bring in pywal or color thief
 # * pull all configuration, path expansion and defaulting into setup
 # * ? support wallpapers from https://unsplash.com/developers
@@ -27,7 +26,10 @@ def 'main version' [] { $VERSION }
 def main [
     --config(-c):string # configuration file
     --force(-f)         # always write files
-] { __main (setup $config) $force }
+] {
+    #__main (setup $config) $force
+    timeit { __main (setup $config) $force }
+}
 
 # install configured packages
 #
@@ -92,30 +94,40 @@ def __main [config force] {
                 log warning $'template ($render.to|path basename) not found. skipping'
                 return
             }
-            # render file
-            let rendered = open $render.from | render $theme
-            let newhash = ($rendered | hash md5)
+            try {
+                # render file
+                let rendered = open $render.from | render $theme
+                let newhash = ($rendered | hash md5)
 
-            # don't write the file if it hasn't changed
-            if $newhash != $oldhash or $force {
-                log info $'($render.from | path basename) => ($render.to)'
-                # write file
-                mkdir ($render.to | path dirname)
-                $rendered | save -f $render.to
+                # don't write the file if it hasn't changed
+                if $newhash != $oldhash or $force {
+                    log info $'($render.from | path basename) => ($render.to)'
+                    # write file
+                    mkdir ($render.to | path dirname)
+                    $rendered | save -f $render.to
 
-                # record hash
-                return {$render.to: $newhash}
-            } else {
-                log debug $'no change: ($render.to)'
+                    # record hash
+                    return {$render.to: $newhash}
+                } else {
+                    log debug $'no change: ($render.to)'
+                }
+            } catch {|err|
+                log warning $'render of "($render.from|path basename)" failed because of tag ($err.json | from json | get msg)'
+                return {}
             }
-        } | reduce -f {} {|it acc|$acc|merge $it}
+        } | reduce -f {} {|it acc|
+            log debug $'($it | describe) ($acc | describe)'
+            $acc|merge $it}
         # wrap up with any callback
         if ($changes | is-not-empty) and ($command.callback | is-not-empty) {
             log debug $'callback: ($command.callback)'
             nu -c $command.callback | complete
         }
         return $changes
-    } | reduce -f {} {|it acc|$acc|merge $it}
+    } | reduce -f {} {|it acc|
+        log debug $'($it | describe) ($acc | describe)'
+
+        $acc|merge $it}
 
 
     # save changed state
@@ -158,7 +170,7 @@ def 'main iso' [] {
     let root = $profile ++ '/airootfs'
 
     # copy files to install env
-    cp $env.CURRENT_FILE $'($root)/usr/local/bin/'
+    cp $env.CURRENT_FILE $'($root)/usr/local/bin/bootstrap'
     cp README.md archinstall.json $'($root)/root/'
 	$"file_permissions+=\(['/usr/local/bin/($env.CURRENT_FILE|path basename)']='0:0:755')" |
         save --append $'($profile)/profiledef.sh)'
@@ -248,14 +260,21 @@ def --env setup [$configpath] {
 def render [data] {
     let t0 = $in
     $in | parse -r '(?:^|[^{])(?<tag>\{\{(?<content>[^{}](?:[^}]|\}[^}])*)\s*}})' |
+        uniq |
         reduce -f $t0 {|tag text|
-            $text | str replace $tag.tag (with-env $data { nu -c $tag.content })
+            try {
+                $text | str replace -a $tag.tag ($data | get $tag.content)
+            } catch {|err|
+                error make -u {
+                    msg: $'($tag.tag), ($err.json | from json | get labels.0.text)'
+            }}
         }
 }
 
 def openTheme [theme] {
     let t = open $theme | lines
     {
+        bin:    $env.FILE_PWD
         imbue:  $env.CURRENT_FILE
 
         color0:     $t.0

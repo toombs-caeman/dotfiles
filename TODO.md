@@ -1,5 +1,5 @@
 # TODO
-
+* push to dotfiles
 * iso
     * rewrite makefile as nushell
     * test install env
@@ -25,10 +25,9 @@
 * kitty enable advanced key handling
     * correct <C-c> vs <C-C>
 
+* nushell section
 * tabless
 * more [wallpapers](https://wallhaven.cc/)
-* shell history? [atuin](https://atuin.sh/)
-* nushell [carapace completer](https://github.com/carapace-sh/carapace)
 * ssh section
     * nushell ssh completions
 * theming section
@@ -42,6 +41,10 @@
 * consolidate theory.md, rice.md, wink.md
 * handle laptop lid? need to set lock grace to 0 for it to work?
 
+# nushell section
+* shell history? [atuin](https://atuin.sh/)
+* nushell [carapace completer](https://github.com/carapace-sh/carapace)
+* hook command-not-found
 * explore nushell stdlib and nu_scripts
     * contribute hypr completions [custom-completions](https://github.com/nushell/nu_scripts/tree/main/custom-completions)
     * contribute to documentation
@@ -49,7 +52,7 @@
 
 # windows config
 * ideavimrc
-* limit mana
+* limited imbue.yaml
 
 # boot sequence
 ditch ly and just `while true; do hyprland done` on tty1

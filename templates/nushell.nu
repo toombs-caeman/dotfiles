@@ -5,7 +5,7 @@ use std
 #   * carapace?
 
 # this is the path to imbue, which it templates in itself
-$env.path ++= ['{{$env.FILE_PWD}}']
+$env.path ++= ['{{bin}}']
 
 $env.config.show_banner = false
 $env.config.edit_mode = 'vi'

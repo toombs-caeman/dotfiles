@@ -1,15 +1,15 @@
 window#waybar {
     opacity: 1;
     background: rgba(0,0,0,0); /* transparent */
-    color: #{{$env.foreground}};
+    color: #{{foreground}};
     font-family: "Fira Code", monospace;
 }
 #workspaces button, #network, #clock, #mpd, #pulseaudio, #battery, #tray {
     padding: 0 0.5em 0 0.5em;
     margin: 0 0 0.5em 0.25em;
     border-radius: 1em;
-    background: #{{$env.background}};
-    color: #{{$env.foreground}};
+    background: #{{background}};
+    color: #{{foreground}};
 }
 #workspaces button:hover {
     box-shadow: inherit;
@@ -17,19 +17,19 @@ window#waybar {
     background-image: linear-gradient(0deg, @selection, @background-darker);
 }
 #workspaces button.active {
-    background-color: #{{$env.blue}};
+    background-color: #{{blue}};
 }
 #workspaces button.urgent {
-    background-color: #{{$env.light_red}};
+    background-color: #{{light_red}};
 }
 #network {
-    background-color: #{{$env.blue}};
+    background-color: #{{blue}};
 }
 #clock {
-    background: #{{$env.yellow}};
-    color: #{{$env.black}};
+    background: #{{yellow}};
+    color: #{{black}};
 }
 #battery {
-    color: #{{$env.black}};
-    background-color: #{{$env.green}};
+    color: #{{black}};
+    background-color: #{{green}};
 }
