@@ -1,0 +1,337 @@
+#!/usr/bin/env nu
+
+# create custom arch installer
+#
+# The script consists of the following parts:
+# * 'main' writes an iso to a disk, with the added convenience of checking
+#       that the disk options are removable drives that are not mounted.
+# * 'main iso' builds an image using archiso. The image is based on archiso's
+#       releng profile, but with a few additions for convenience.
+#       For example: 'bootstrap' is made available in the installer environment.
+# * 'bootstrap' closely follows the Arch Installation Guide to set up a fresh
+#       installation, but is opinionated enough that the user doesn't make
+#       too many decisions at install time.
+#
+# This script has no separate config file; Edit the script as needed.
+def main [
+    iso? : string  # the image to write to disk, if not given, create from config
+    disk?: string  # the disk to write. if not given, select interactively
+] {
+    mut iso = $iso
+    mut disk = $disk
+
+    if ($iso | is-empty) {
+        let options = glob *.iso
+        if ($options | is-empty) { error make {msg: 'no suitable iso found.' help: 'Try `bootstrap iso`' }}
+        $iso = $options | input list
+    }
+    # get disk
+    if ($disk | is-empty) {
+        let options = lsblk --json | from json | get blockdevices | where rm
+        if ($options | is-empty) { error make {msg: 'no suitable disks found' }}
+        # TODO: also filter out mounted disks (any part is mounted)
+        print 'select a removable disk:'
+        $disk = $options | select name size | input list | '/dev/' ++ $in.name
+    }
+    sudo dd bs=4M if=($iso) of=($disk) conv=fsync oflag=direct status=progress
+}
+
+# create an arch iso
+def 'main iso' [] {
+    let profile = './profile' | path expand     # create a temp directory to construct the profile
+    let root = $profile | path join 'airootfs'  # the root of what will become the live environment
+
+    # start from the releng profile
+    cp -r /usr/share/archiso/configs/releng/ $profile
+
+    # add extra bootstrap dependencies to profile
+    [nushell git] | str join "\n" | save --append $'($profile)/packages.x86_64'
+
+    # copy bootstrap script
+    $"#!/usr/bin/env nu\n(
+        view source bootstrap | str replace bootstrap main)" |
+        save ($root | path join '/usr/local/bin/bootstrap')
+
+    # get bootsplash theme
+    http get 'https://github.com/adi1090x/plymouth-themes/releases/download/v1.0/black_hud.tar.gz' |
+        save ($root | path join '/root/black_hud.tar.gz')
+
+    # inject bootstrap help text as readme
+    help bootstrap | save ($root | path join '/root/README.md')
+
+    ## copy in authorized keys to allow ssh managed installation
+    ## these keys are NOT copied to the resulting environment
+    #glob ~/.ssh/*.pub | each {|f| open $f | save --append ($root | path join '/root/.ssh/authorized_keys') }
+
+    # copy in network configuration from /var/lib/iwd/
+    # this allows bootstrap to access any network your current computer knows about.
+    # this will also get forwarded to the resulting environment
+    sudo cp /var/lib/iwd/* ($root | path join '/var/lib/iwd/')
+
+    # set file permissions
+    let permissions = {
+        # enable bootstrap script
+        /usr/local/bin/bootstrap: 755
+
+        ## enable bootstrap over ssh
+        #/root:750
+        #/root/.ssh: 700
+        #/root/.ssh/authorized_keys:600
+
+        # enable automatic networking
+        /var/lib/iwd:700
+    }
+    $"file_permissions+=\((
+        $permissions |
+        transpose f pem |
+        each {|v| $"['($v.f)']='0:0:($v.pem)'" } |
+        str join ' ' ))" | save --append $'($profile)/profiledef.sh'
+
+    # -v verbose
+    # -r delete work dir (./work/)
+    # -o output
+    sudo mkarchiso -vro . $profile
+    rm -rf $profile
+}
+
+# # README
+# 2. connect to the network using `iwctl`
+#     * `station list` -> station name
+# 	* `station <station> get-networks` -> network name
+# 	* `station <station> connect <network>`
+#     * `quit`
+# 
+# 3. run command `bootstrap <user> <hostname>`
+#     * you will be prompted to edit a disk configuration
+# an opionated walk through the arch installation guide
+# # reference
+# * [archiso](https://wiki.archlinux.org/title/Archiso)
+# * [archinstall](https://wiki.archlinux.org/title/Archinstall)
+#     * [profiles](https://gitlab.archlinux.org/archlinux/archinstall/-/tree/master/archinstall/default_profiles/desktops)
+#
+# https://wiki.archlinux.org/title/Installation_guide
+def bootstrap [user host] {
+    # depend on the internet being connected prior to this
+    try {
+        http head 'https://archlinux.org/' | ignore
+    } catch {
+        error make {msg: "couldn't ping archlinux.org" help: 'connect to the internet first' }
+    }
+
+    let editor = which nvim vim vi nano] | get command | input list 'pick your editor'
+    let conf = 'disk.tsv'
+    def config_disks [] {
+        if not ($conf | path exists) {
+            # find disks which aren't currently mounted (and have no mounted partitions)
+            # these are candidates for installation
+            let disks = lsblk -l --output PATH,PKNAME,MOUNTPOINT,NAME,SIZE | detect columns
+            let busy = $disks | where mountpoint != null | get PKNAME | uniq
+            let candidates = $disks |
+                where name not-in $busy and PKNAME == null and MOUNTPOINT == null |
+                select PATH SIZE | sort-by SIZE
+            [
+                'mount	mkfs	size	drive'
+                '# create plan for disk partitions, filesystems & mountpoints'
+                '# you must have an entry for the root partition (/) and the boot partition (/boot)'
+                ''
+                '# ALL DRIVES SPECIFIED IN THE DRIVE COLUMN WILL BE WIPED'
+                '# you will have a chance to abort this process after editing this file.'
+                ''
+                '# column descriptions'
+                '# * mount: the mountpoint'
+                '# * mkfs: the command to create the file system for that partition. mkfs.{ext4,btrfs}'
+                '#   * this will be called as `$mkfs $partition`'
+                '# * size: the size of the new partition, or 0 for remaining capacity'
+                '#   * like +2G, +500M'
+                '#   * only the last partition of a drive may specify 0'
+                '# / and /boot (root and efi system) partitions are required'
+                '# all disks mentioned in the file when written will be erased'
+                ''
+                '/boot	mkfs.fat -F 32	+1G	'
+                '/	mkfs.btrfs	0	'
+                ''
+                "# available drives"
+            ] ++ ($candidates | each {|disk|
+                $"# ($disk.SIZE)\t($disk.PATH)"
+            }) | str join "\n" | save $conf
+        }
+        ^$editor $conf
+        if (validate_config) {
+            [continue edit restart abort] | input list 'plan valid. continue?'
+        } else {
+            [edit restart abort] | input list 'invalid config'
+        } 
+    }
+
+    def validate_config [] {
+        clear
+        # don't change the columns
+        let plan = (do --ignore-errors { open -r $conf | from tsv -c '#' })
+
+        if ($plan | is-empty) {
+            print "couldn't parse tsv"
+            print "either you modified the columns or didn't specify all fields for all rows"
+            print "the columns should be: mount mkfs size drive"
+            return false
+        }
+        # all fields must be specified
+        let unspecified = $plan | where mount? == '' or mkfs? == '' or size? == '' or drive? == ''
+        if ($unspecified | is-not-empty) {
+            print 'under specified rows.'
+            print $unspecified
+            return false
+        }
+        # TODO: only the last partition of a disk may have size 0
+
+        # must have root partition
+        if '/' not-in $plan.mount {
+            print 'must specify root partition (/).'
+            return false
+        }
+        # must have boot partition
+        if '/boot' not-in $plan.mount {
+            print 'must specify boot partition (/boot).'
+            return false
+        }
+
+        # the drives must actually exist
+        let missing_drives = $plan.drive | uniq | filter {|d| not ($d | path exists)}
+        if ($missing_drives | is-not-empty) {
+            print "drives don't exist" $missing_drives
+            return false
+        }
+
+        # all is well. print the plan
+        disk_commands $plan | table --expand | print
+        return true
+    }
+    # return a list of commands to execute
+    def disk_commands [plan] {
+        mut out = []
+        # enrich plan with partition numbers (start with 1)
+        let plan = $plan | group-by drive --to-table |
+            update items {|row|$row.items| merge (1..($row.items|length) | wrap part)}
+
+        # repartition and mkfs
+        $out ++= $plan | each {|drive|
+            [$"sgdisk -Z ($drive.drive)"] ++ (
+                $drive.items | each {|part| [
+                    $"sgdisk -n ($part.part):0:($part.size) ($part.drive)"
+                    # partitions are numbered from one
+                    $"($part.mkfs) ($part.drive)($part.part)"
+                ]} | flatten
+            )
+        } | flatten
+        # mount
+        $out ++= $plan.items | flatten | sort-by mount | each {|part|
+            $"mount --mkdir ($part.drive)($part.part) ($part.mount)"
+        }
+        return $out
+    }
+    # loop to let the user try to edit the file multiple times
+    loop {
+        do (match (config_disks) {
+            continue => {|| break }
+            edit => {|| continue }
+            restart => {||
+                rm $conf
+                continue
+            }
+            _ => {||
+                error make -u {msg: 'aborted by user' }
+            }
+        })
+    }
+    let plan = disk_commands (open -r $conf | from tsv -c '#')
+    rm $conf
+    clear
+    # execute the disk plan
+    for cmd in $plan {
+        nu -c $cmd
+    }
+
+    # TODO: create swapfile https://wiki.archlinux.org/title/Swap#Swap_file_creation
+    # swapon /swapfile
+
+    # XXX: assuming your cpu is either intel or amd. this is probably better to default to none
+    let microcode = (if (sys cpu | get 0.vendor_id) == GenuineIntel { 'intel-ucode' } else { 'amd-ucode' })
+    pacstrap -K /mnt base linux linux-firmware $microcode plymouth pipewire man-db manpages texinfo iwd nushell neovim
+
+    genfstab -U /mnt >> /mnt/etc/fstab
+
+    # copy in known networks
+    cp /var/lib/iwd/* /mnt/var/lib/iwd/*
+
+    # generate locale
+    "\nen_US.UTF-8 UTF-8\n" | save --append /mnt/etc/locale.conf
+    arch-chroot /mnt locale-gen
+    "LANG=en_US.UTF-8\n" | save /mnt/etc/locale.conf
+
+    # set time
+    arch-chroot /mnt ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+    arch-chroot /mnt hwclock --systohc
+
+    # set hostname
+    $host | save /mnt/etc/hostname
+
+    # systemd should ignore power button.
+    # This can be handled more gracefully by the wm by binding XF86PowerOff.
+    # A long press of the power button will still be handled by systemd.
+    "\nHandlePowerKey=ignore\n" | save --append /mnt/etc/systemd/logind.conf
+
+    # install yay
+    git clone https://aur.archlinux.org/yay-bin.git /mnt/root/yay
+    arch-chroot /mnt makepkg -siD /root/yay
+
+    # install systemd-boot as bootloader
+    arch-chroot /mnt bootctl install
+    # disable startup menu
+    arch-chroot /mnt bootctl set-timeout 0
+
+    print 'set root password'
+    arch-chroot /mnt passwd
+
+    # create $user
+    arch-chroot /mnt useradd $user
+    print $'set ($user) password'
+    arch-chroot /mnt -u $user passwd
+
+    # configure auto login to hyprland
+    # configure agetty to automatically log in as $user
+    # from bash, auto start hyprland if on tty1
+    # it's up to hyprland.conf to exec-once = hyprlock --immediate
+    [ 
+        '[Service]'
+        'Environment=XDG_SESSION_TYPE=wayland'
+        'ExecStart='
+        $"ExecStart=-/sbin/agetty --noclear --autologin ($user) %I $TERM"
+    ] | str join "\n" | save /mnt/etc/systemd/system/getty@tty1.service.d/autologin.conf
+    'if [[ "$(tty)" == "/dev/tty1" ]]; then exec Hyprland; fi' | save /mnt/etc/bash.bashrc
+
+    # clone dotfiles
+    let dotdir = $'/mnt/home/($user)/my/toombs-caeman/dotfiles'
+    mkdir $dotdir
+    git clone https://github.com/toombs-caeman/dotfiles $dotdir
+
+    # TODO: trigger dotfiles
+    let imbue = $dotdir | path join 'bin/imbue'
+    let mana = $dotdir | path join 'templates/nix.yaml'
+    arch-chroot /mnt -u $user ^($imbue) with $mana
+
+    mkdir $"/mnt/home/($user)/Music/"
+    arch-chroot /mnt -u $user systemctl --user enable mpd.service
+
+    # TODO: set kernel parameters (quiet splash)
+    # IIRC you should add your kernel parameters to the APPEND in archiso_sys.cfg (and archiso_pxe.cfg if you use PXE).
+
+    # install bootsplash theme
+    # this also has the side effect of rebuilting the initramfs (instead of running mkinitcpio)
+    tar -xf black_hud.tar.gz -C /mnt/usr/share/plymouth/themes/
+    arch-chroot /mnt plymouth-set-default-theme -R black_hud
+
+    let timeout = 3sec
+    print $'reboot in ($timeout)'
+    sleep $timeout
+    reboot now
+}
+

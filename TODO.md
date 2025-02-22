@@ -23,6 +23,7 @@
 * guard powerkey press
     * open wlogout instead of immediately powering down
 
+* set noexpandtab for tsv
 * nushell keybind for mini.sessions <A-S>?
 
 * keybinds section
