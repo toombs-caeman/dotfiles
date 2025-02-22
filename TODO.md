@@ -1,32 +1,35 @@
 # TODO
-* push to dotfiles
-* iso
+* bootstrap iso
     * rewrite makefile as nushell
     * test install env
-    * post install instructions (firefox setup)
-    * add impala to install env, run it iff not connected to wifi
-    * iso as `imbue iso`, usb as `imbue wand (image='') (disk='')`
-        * build
     * boot section
     * copy the host wifi (iwd) configuration to the install env
     * copy the host public key to install env to enable install over ssh
 
+* push to dotfiles
+    * get whitefox.json
+    * toybox?
+    * scripts/ydl.sh
+    * homelab.md
 * install on work laptop
     * either pull out harddrive, or copy out credentials first
-        * ssh keys, github key
+    * ssh keys, github key
     * make sure hardware key works with it.
     * ensure ssh works as expected
     * truenas
     * wifi
-    * secureboot?
     * do I have a usbc boot device?
+    * dockertest
+* guard powerkey press
+    * open wlogout instead of immediately powering down
+
+* nushell keybind for mini.sessions <A-S>?
 
 * keybinds section
 * kitty enable advanced key handling
     * correct <C-c> vs <C-C>
 
 * nushell section
-* tabless
 * more [wallpapers](https://wallhaven.cc/)
 * ssh section
     * nushell ssh completions
@@ -98,6 +101,7 @@ ditch ly and just `while true; do hyprland done` on tty1
     * <A-q> show documentation
 
 # TODO: Maybe in the Future
+* is tab-less working? re-evaluate wink
 * increase hypridle times?
 * control mpd with playerctl [mpDris2](https://github.com/eonpatapon/mpDris2)
 * database vim tpope/dadbod-vim
@@ -161,6 +165,8 @@ ditch ly and just `while true; do hyprland done` on tty1
 * nvim lush.nvim for colorscheme
 * imbue rollback - keep backups of the original and previous versions of things for a clean uninstall
 * hyprcursor
+* mini has a bunch of [modules](https://github.com/echasnovski/mini.nvim?tab=readme-ov-file#modules)
+* remember 'telescope colorscheme' in mini.sessions?
 
 # research: what are these? Do these things exist
 * https://nixos.org/

@@ -9,7 +9,7 @@ wallhaven:
   collection: Default
 wallpapers: ~/Pictures/Wallpapers
 
-installer: sudo pacman -S --needed --noconfirm
+installer: yay -S --needed --noconfirm
 
 commands:
   nu:
@@ -36,6 +36,9 @@ commands:
     package: git
     files:
       gitconfig: ~/.gitconfig
+
+  firefox:
+    package: firefox firefox-ublock-origin firefox-vimium
 
   hyprland: # window manager
     package: hyprland

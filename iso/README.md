@@ -1,14 +1,10 @@
+TODO
 # ISO
 
 This project helps install arch with my setup in a quick and repeatable way.
 
 
 ## Creating Custom Installation Media
-```
-# run in this directory
-make iso
-make usb
-```
 
 ## Provisioning
 1. boot the computer using the install media
@@ -18,10 +14,8 @@ make usb
 	* `station <station> connect <network>`
     * `quit`
 
-3. run command `bootstrap`. set the following options:
-    * host name
-    * disk layout
-    * at least one user
+3. run command `bootstrap <user> <hostname>`
+    * you will be prompted to edit a disk configuration
 
 4. `reboot`
 

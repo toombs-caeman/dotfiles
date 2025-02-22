@@ -7,8 +7,6 @@ use std log
 # * bring in pywal or color thief
 # * pull all configuration, path expansion and defaulting into setup
 # * ? support wallpapers from https://unsplash.com/developers
-# * imbue iso     # create archiso installation image
-# * imbue wand    # write iso to live usb
 
 const VERSION = '0.0.2'
 const defaultpath = "~/.config/imbue/config.yaml" | path expand
@@ -25,39 +23,22 @@ def 'main version' [] { $VERSION }
 # The tool won't overwrite files that weren't previously rendered by it.
 def main [
     --config(-c):string # configuration file
+    --install(-i)       # install commands
     --force(-f)         # always write files
 ] {
-    #__main (setup $config) $force
-    timeit { __main (setup $config) $force }
-}
-
-# install configured packages
-#
-# multiple space-separated packages can be listed in the config
-# but at leas one package should provide <cmd name>.
-#
-# commands:
-#   <cmd name>:
-#       package: 
-def 'main install' [
-    --config(-c):string # configuration file
-    --force(-f)         # write files even if the destination has changed unexpectedly.
-] {
     let config = setup $config
-    if ($config.installer | is-empty) {
-        log critical 'no installer configured'
-        exit 2
+    if $install {
+        if ($config.installer | is-empty) {
+            log critical 'no installer configured'
+            exit 2
+        }
+        let packages = $config.commands.package | compact |  str join ' '
+        if ($packages != '') { 
+            let cmd = $"($config.installer) ($packages)"
+            log info $cmd
+            nu -c $cmd
+        }
     }
-    let packages = $config.commands.package | compact |  str join ' '
-    if ($packages != '') { 
-        let cmd = $"($config.installer) ($packages)"
-        log info $cmd
-        nu -c $cmd
-    }
-    __main $config $force
-}
-
-def __main [config force] {
     # set wallpaper
     if ($config.wallpaper? | is-empty) {
         __wall_random $config
@@ -138,7 +119,7 @@ def __main [config force] {
 
 # render on write
 def "main watch" [
-    --config(-c):string,# use an alternate config file.
+    --config(-c):string # configuration file
 ] {
     cd (setup $config).templates # don't shadow $config here, just cd
     watch '.' {|op| if $op != 'Remove' { main --config $config }}
@@ -154,52 +135,6 @@ def "main with" [config:string] {
     main
 }
 
-
-# create an arch iso
-def 'main iso' [] {
-    require mkarchiso
-    let profile = './profile'
-
-    if not ($profile | path exists) {
-	    cp -r /usr/share/archiso/configs/releng/ $profile
-    }
-    # add extra dependencies to profile
-    "nushell" | save --append $'($profile)/packages.x86_64'
-
-    # the root of the live environment
-    let root = $profile ++ '/airootfs'
-
-    # copy files to install env
-    cp $env.CURRENT_FILE $'($root)/usr/local/bin/bootstrap'
-    cp README.md archinstall.json $'($root)/root/'
-	$"file_permissions+=\(['/usr/local/bin/($env.CURRENT_FILE|path basename)']='0:0:755')" |
-        save --append $'($profile)/profiledef.sh)'
-
-	sudo mkarchiso -vro . $profile | complete
-    rm -rf $profile
-}
-
-# create an install usb from an image
-def 'main wand' [
-    iso? : string  # the image to write to disk, if not given, create from config
-    disk?: string  # the disk to write. if not given, select interactively
-] {
-    require lsblk dd
-    # get disk
-    if ($disk == '') {
-        let options = lsblk --json | from json | get blockdevices | where rm
-        if ($options | is-empty) { error make {msg: 'no suitable disks found' }}
-        # TODO: also filter out mounted disks (any part is mounted)
-        print 'select a removable disk:'
-        let disk = $options | select name size | input list
-    }
-	sudo dd bs=4M $"if=($iso)" $"of=($disk)" conv=fsync oflag=direct status=progress
-}
-
-
-#########
-# UTILS #
-#########
 
 # open config file and expand all paths
 def --env setup [$configpath] {

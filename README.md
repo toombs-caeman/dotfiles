@@ -15,22 +15,25 @@ arch + hyprland + kitty + nushell + neovim
 # clone repository
 git clone git@github.com:toombs-caeman/dotfiles.git
 cd dotfiles
-bin/imbue with templates/mana.yaml
+bin/imbue with templates/nix.yaml
 ```
+2. additional extensions for firefox
+    * `yay -S --needed firefox-ublock-origin firefox-vimium`
 
 # Imbue ISO
 [create an install image](iso/README.md)
 
 # default installation
-see [mana.yaml](templates/mana.yaml)
+see [imbue](bin/imbue) with [nix.yaml](templates/nix.yaml)
 * hyprland
     * waybar
     * mako
-    * hyprpaper + [wallpaper](bin/wallpaper)
+    * hyprpaper
 
 * kitty
     * nushell
 * firefox
+    * 
 
 # applications
 preferred application, though not installed by default
@@ -43,7 +46,11 @@ preferred application, though not installed by default
 * asciinema - terminal recording
 
 # tabless firefox
+Not sure if I like this, but let hyprland handle tabs (groups) by disabling firefox tabs.
+This is part of the Wink desktop idea.
+
 * convert every new tab to a window [extension](https://github.com/jscher2000/I-Hate-Tabs---SDI-extension)
+    * It causes some visual glitches when converting a tab to a new window.
 * enable userChrome: go to `about:config`, and change the value of `toolkit.legacyUserProfileCustomizations.stylesheets` to true.
 * copy userChrome.css to `~/.mozilla/firefox/*.default/chrome/userChrome.css`
 

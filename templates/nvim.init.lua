@@ -58,6 +58,9 @@ vim.keymap.set("n", "0", '<Cmd>if col(\'.\') - 1<bar>exe "normal! 0"<bar>else<ba
 -- Diagnostic keymaps
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
 
+-- don't open the annoying command split
+vim.keymap.set("n", "q:", ":q", { desc = "ya dumbass" })
+
 vim.keymap.set("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Exit terminal mode" })
 
 -- better up/down
@@ -97,6 +100,7 @@ vim.keymap.set("n", "<A-e>", "<cmd>Telescope find_files sort_lastused=true<cr>",
 vim.keymap.set("n", "<A-b>", "<cmd>Telescope buffers sort_lastused=true<cr>", { desc = "Fuzzy find buffers" })
 
 -- [[ oil ]]
+vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Edit Directories" })
 vim.keymap.set("n", "_", "<cmd>Oil<cr>", { desc = "Edit Directories" })
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
@@ -237,6 +241,10 @@ require("lazy").setup({
 			},
 		},
 	},
+	-- provides SudoWrite and SudoRead
+	{ "denialofsandwich/sudo.nvim", dependencies = {
+		"MunifTanjim/nui.nvim",
+	}, config = true },
 	{
 		"folke/which-key.nvim",
 		event = "VimEnter", -- Sets the loading event to 'VimEnter'
@@ -560,6 +568,8 @@ require("lazy").setup({
 					},
 				},
 			}
+			-- do this one separately since mason doesn't know what's up.
+			require("lspconfig").nushell.setup({})
 
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
@@ -773,6 +783,8 @@ require("lazy").setup({
 			require("mini.ai").setup({ n_lines = 500 })
 			-- Add/delete/replace surroundings (brackets, quotes, etc.)
 			require("mini.surround").setup()
+			-- session management
+			require("mini.sessions").setup({ file = "" })
 			-- Simple and easy statusline.
 			--  You could remove this setup call if you don't like it,
 			--  and try some other statusline plugin
@@ -897,8 +909,39 @@ function Launch(quit)
 		end
 	end)
 end
-vim.api.nvim_create_user_command("Launch", Launch, { bar = true })
+vim.api.nvim_create_user_command("Launch", Launch, { bar = true, nargs = "?" })
 
-require("lspconfig").nushell.setup({})
+-- print table
+function dump(o)
+	if type(o) == "table" then
+		local s = "{ "
+		for k, v in pairs(o) do
+			if type(k) ~= "number" then
+				k = '"' .. k .. '"'
+			end
+			s = s .. "[" .. k .. "] = " .. dump(v) .. ","
+		end
+		return s .. "} "
+	else
+		return tostring(o)
+	end
+end
+
+-- mini.sessions binding
+vim.api.nvim_create_user_command("Session", function(opts)
+	require("telescope")
+	if #opts.fargs == 0 then
+		-- search for a session with telescope
+		MiniSessions.select()
+		return
+	end
+	if opts.fargs[1] == "delete" then
+		MiniSessions.select("delete")
+	else
+		-- create a new session
+		MiniSessions.write(opts.fargs[1])
+	end
+end, { nargs = "?" })
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

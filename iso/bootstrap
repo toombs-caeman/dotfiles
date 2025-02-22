@@ -1,21 +1,212 @@
-#!/bin/bash
+#!/usr/bin/env nu
 
-# this is run as root in the bootstrap environment (installation media)
-set -e
+# create custom arch installer
+#
+# This script has no separate config file; Edit the script as needed.
+# The script consists of the following parts:
+# * 'main' writes an iso to a disk, with the added convenience of checking
+#       that the disk options are removable drives that are not mounted.
+# * 'main iso' builds an image using archiso. The image is based on archiso's
+#       releng profile, but with a few additions for convenience.
+#       'bootstrap' will be available in the installer environment.
+# * 'bootstrap' closely follows the Arch Installation Guide to set up a fresh
+#       installation, but is opinionated enough that the user doesn't make
+#       too many decisions at install time.
+#
+def main [
+    iso? : string  # the image to write to disk, if not given, create from config
+    disk?: string  # the disk to write. if not given, select interactively
+] {
+    mut iso = $iso
+    mut disk = $disk
 
-if [ ! -d /mnt/archinstall ]; then
-    archinstall --config /root/archinstall.json
-fi
-# select the user to set up finding their home directory
-user="$(find /mnt/archinstall/home -maxdepth 1 -mindepth 1 -type d -printf "%f\n" | fzf -0 -1)"
+    if ($iso | is-empty) {
+        let options = glob *.iso
+        if ($options | is-empty) { error make {msg: 'no suitable iso found.' help: 'Try `bootstrap iso`' }}
+        $iso = $options | input list
+    }
+    # get disk
+    if ($disk | is-empty) {
+        let options = lsblk --json | from json | get blockdevices | where rm
+        if ($options | is-empty) { error make {msg: 'no suitable disks found' }}
+        # TODO: also filter out mounted disks (any part is mounted)
+        print 'select a removable disk:'
+        $disk = $options | select name size | input list | '/dev/' ++ $in.name
+    }
+    sudo dd bs=4M if=($iso) of=($disk) conv=fsync oflag=direct status=progress
+}
 
-# copy in wallpapers
-background_dir="/mnt/archinstall/home/$user/Pictures/Wallpapers"
-mkdir -p "$background_dir"
-cp *.jpg "$background_dir"
+# create an arch iso
+def 'main iso' [] {
+    let profile = './profile' | path expand     # create a temp directory to construct the profile
+    let root = $profile | path join 'airootfs'  # the root of what will become the live environment
 
-# run post-install as user
-script=/mnt/archinstall/usr/bin/post-install
-cp "$(which post-install)" "$script"
-HOME="/home/$user" arch-chroot -u "$user" /mnt/archinstall post-install
-rm "$script"
+    # start from the releng profile
+    cp -r /usr/share/archiso/configs/releng/ $profile
+
+    # add extra bootstrap dependencies to profile
+    [nushell git] | str join "\n" | save --append $'($profile)/packages.x86_64'
+
+    # copy bootstrap script
+    $"#!/usr/bin/env nu\n(
+        view source bootstrap | str replace bootstrap main)" |
+        save ($root | path join '/usr/local/bin/bootstrap')
+
+    # get bootsplash theme
+    http get 'https://github.com/adi1090x/plymouth-themes/releases/download/v1.0/black_hud.tar.gz' |
+        save ($root | path join '/root/black_hud.tar.gz')
+
+    ## copy in authorized keys to allow ssh managed installation
+    ## these keys are NOT copied to the resulting environment
+    #glob ~/.ssh/*.pub | each {|f| open $f | save --append ($root | path join '/root/.ssh/authorized_keys') }
+
+    # copy in network configuration from /var/lib/iwd/
+    # this allows bootstrap to access any network your current computer knows about.
+    # this will also get forwarded to the resulting environment
+    sudo cp /var/lib/iwd/* ($root | path join '/var/lib/iwd/')
+
+    # set file permissions
+    let permissions = {
+        # enable bootstrap script
+        /usr/local/bin/bootstrap: 755
+
+        ## enable bootstrap over ssh
+        #/root:750
+        #/root/.ssh: 700
+        #/root/.ssh/authorized_keys:600
+
+        # enable automatic networking
+        /var/lib/iwd:700
+    }
+    $"file_permissions+=\((
+        $permissions |
+        transpose f pem |
+        each {|v| $"['($v.f)']='0:0:($v.pem)'" } |
+        str join ' ' ))" | save --append $'($profile)/profiledef.sh'
+
+    # -v verbose
+    # -r delete work dir (./work/)
+    # -o output
+    sudo mkarchiso -vro . $profile
+    rm -rf $profile
+}
+
+def 'main test' [] {
+}
+# an opionated walk through the arch installation guide
+#
+# https://wiki.archlinux.org/title/Installation_guide
+def bootstrap [user host] {
+    use std
+    # depend on the internet being connected prior to this
+    try { http get 'https://archlinux.org/' o> (std null-device) }
+    catch { error make {msg: 'connect to the internet first' } }
+
+    # mount is the mount point
+    # drive is either an existing partition
+    # mkfs is either mkfs.{ext4,btrfs}
+    # size is the size of the new partition (like +2G) or '0' for remaining capacity
+    # / and /boot (root and efi system) partitions are required
+    # all disks mentioned in the file when written will be erased
+    def config_disks [] {
+        # find disks which aren't currently mounted (and have no mounted partitions)
+        # these are candidates for installation
+        let disks = lsblk -l --output PATH,PKNAME,MOUNTPOINT,NAME,SIZE | detect columns
+        let busy = $disks | where mountpoint != null | get PKNAME | uniq
+        let candidates = $disks |
+            where name not-in $busy and PKNAME == null and MOUNTPOINT == null |
+            select PATH SIZE | sort-by SIZE
+
+        let editor = [vim nano] | input list 'pick your editor for disk setup.'
+        help config_disks | save disk.tsv
+        [
+            $"# ($candidates)"
+            "mount\tmkfs\tsize\tdrive"
+            "/boot\tmkfs.fat -F 32\t+1G\t"
+            "/\tmkfs.btrfs\t0\t"
+        ] | str join "\n" | save --append disk.tsv
+        print "\n\n/\n/boot\n"
+        ^$editor disk.tsv
+        # TODO: validate input after user writes
+
+        let ok = [yes no] | input list 'proceed with disk setup?'
+        if $ok == 'no' { error make { msg: 'aborted by user' } }
+    }
+    config_disks
+
+    let disks = open disk.tsv
+
+    # delete old signatures
+    $disks.drive | each {|d| sgdisk -Z $d }
+    for disk in $disks {
+        # create a new partition of the specified size
+        sgdisk -n 0:0:($disk.size)
+        # TODO: get the partition number
+        # it will be the highest extant partition on the disk
+        nu -c $"($disk.mkfs) ($part)"
+    }
+
+    # mount the system, starting with the top of the heirarchy
+    for disk in ($disks | sort-by mount) {
+        mount --mkdir $disk.drive $disk.mount
+    }
+
+    # TODO: create swapfile https://wiki.archlinux.org/title/Swap#Swap_file_creation
+    swapon /swapfile
+
+    # TODO: get microcode using `(sys cpu).vendor_id`, then download package
+    pacstrap -K /mnt base linux linux-firmware nushell iwd plymouth
+
+    genfstab -U /mnt >> /mnt/etc/fstab
+
+    # copy in known networks
+    cp /var/lib/iwd/* /mnt/var/lib/iwd/*
+
+    # generate locale
+    "\nen_US.UTF-8 UTF-8\n" | save --append /mnt/etc/locale.conf
+    arch-chroot /mnt locale-gen
+    "LANG=en_US.UTF-8\n" | save /mnt/etc/locale.conf
+
+    # set time
+    arch-chroot /mnt ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+    arch-chroot /mnt hwclock --systohc
+
+    # set hostname
+    $host | save /mnt/etc/hostname
+
+    # systemd should ignore power button.
+    # This can be handled more gracefully by the wm by binding XF86PowerOff.
+    # A long press of the power button will still be handled by systemd.
+    "\nHandlePowerKey=ignore\n" | save --append /mnt/etc/systemd/logind.conf
+
+    # install yay
+    git clone https://aur.archlinux.org/yay-bin.git /mnt/root/yay
+    arch-chroot /mnt makepkg -siD /root/yay
+
+    # install systemd-boot as bootloader
+    arch-chroot /mnt bootctl install
+    # disable startup menu
+    arch-chroot /mnt bootctl set-timeout 0
+
+    # clone dotfiles
+    let dotdir = $'/mnt/home/($user)/my/toombs-caeman/dotfiles'
+    git clone https://github.com/toombs-caeman/dotfiles $dotdir
+
+    # TODO: trigger dotfiles
+    let imbue = $dotdir | path join 'bin/imbue'
+    let mana = $dotdir | path join 'templates/nix.yaml'
+    arch-chroot /mnt -u $user ^($imbue) with $mana
+
+    mkdir $"/mnt/home/($user)/Music/"
+    arch-chroot /mnt -u $user systemctl --user enable mpd.service
+
+    # TODO: set kernel parameters (quiet splash)
+
+    # install bootsplash theme
+    # this also has the side effect of rebuilting the initramfs (instead of running mkinitcpio)
+    tar -xf black_hud.tar.gz -C /mnt/usr/share/plymouth/themes/
+    arch-chroot /mnt plymouth-set-default-theme -R black_hud
+
+    reboot now
+}
+
