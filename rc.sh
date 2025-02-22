@@ -9,34 +9,20 @@
 #             _|    / \ \_/
 #          ,-/   _  \_/   \
 #         / (   /_______|  )
-#        (  |_ (    )  \) _|
-#       _/ _)   \   \__/   (_
-#      (,-(,(,(,/      \,),),)
-
+# ====== (  |_ (    )  \) _| ==
+# ===== _/ _)   \   \__/   (_=====
+# ==== (,-(,(,(,/      \,),),)=======
+# ======================================
+# This file is archived. The dream I had of having parity between bash and zsh
+# was doomed from the start, and I found a different way to approach the problem.
+# While I'll still have a minimal bash/zsh config in the future, for things that
+# expect a posix shell (like login shells), I'll be switching to nushell.
 
 . "$(lib)" # import lib
 
 # print absolute paths as if the argument is always relative to the directory of this file
-# TODO breaks if run as '. ./rc.sh'
+# breaks if run as '. ./rc.sh'
 here() { : "${BASH_SOURCE[0]:-${(%):-%x}}"; (( $# )) && echo "${_%/*}/${1#/}" || echo "$_"; }
-
-
-rrc() {
-    # send this config file over to remote connection
-    #  ssh -tt "$@" "bash --init-file <(base64 -d <<<$(sed 's/^ *//;s/  *#.*$//;s/^#.*$//;/^$/d' "$(here)" | base64 -w0))"
-    # TODO make an initial connection to get remote config and trim files to send over
-    # zsh rc: https://unix.stackexchange.com/questions/131716/start-zsh-with-a-custom-zshrc#131735
-    local SSH CMD='bash --init-file'
-    case "$(command -v mosh ssh | head -n1)" in
-        *mosh) SSH=mosh ;;
-        # -tt: force a psudo-tty allocation
-        *ssh) SSH='ssh -tt' ;;
-    esac
-    # make remote call
-    # sed ...: strip comments, leading whitespace and empty lines from rc files
-    # base64: encode the file to avoid weird quoting issues, then decode it on the other side
-    $SSH "$@" "$CMD <(base64 -d <<<$(sed 's/^ *//;s/  *#.*$//;s/^#.*$//;/^$/d' "${rc[@]}" | base64 -w0))"
-}
 
 
 timer() { # echo the (average) elapsed system time in seconds (millisecond precision)
@@ -144,6 +130,9 @@ zsh__() {
     compinit
     setopt promptsubst zle autocd nolocaloptions
     setopt appendhistory histexpiredupsfirst histignoredups noextendedhistory
+    if command -v aws &>/dev/null; then
+        . aws_zsh_completer.sh
+    fi
 }
 bash__() {
     shopt -s expand_aliases checkwinsize autocd
@@ -202,6 +191,8 @@ kubectl__() { . <(kubectl completion ${SHELL##*/}); }
 eksctl__() { . <(eksctl completion ${SHELL##*/}); }
 helm__() { . <(helm completion ${SHELL##*/}); }
 inv__() { . <(inv --print-completion-script=${SHELL##*/}); }
+aws__bash__() { complete -C "$(command -v aws_bash_completer)";}
+aws__zsh__() { . aws_zsh_completer.sh; }
 
 
 colortest() {
@@ -298,27 +289,6 @@ __() {
 }
 
 rc
-__ # TODO idk why but git doesn't recognize the editor unless its set twice, but only in zsh
-
-
-# TODO - one per line
-# add execution time to prompt if it's over some threshold
-# detect when in nvim, and nvim and don't open nested editors, split instead
-# detect nvim, disable vi-mode line editing, and goto terminal normal
-# don't parse ls http://mywiki.wooledge.org/ParsingLs
-# git: use diff3 https://blog.nilbus.com/take-the-pain-out-of-git-conflict-resolution-use-diff3/ https://blog.nilbus.com/take-the-pain-out-of-git-conflict-resolution-use-diff3/
-# git: integrate forgit with existing fzf completion architecture
-# term__(): [iTerm xterm] [window-dressing(title), copy-paste, scrollback, window-size]
-# help() unify bash.help(), man, info, -h, -help, --help, type, link to docs?
-# test suite? especially for bash vs zsh https://bach.sh/
-# installer system - separate from rc() but install tools specified by rc
-# degrade/fallback system - as part of rc(), fallback to available tools if preferred versions aren't available
-# install/fallback grep=rg ls=exa find=fd https://github.com/sharkdp/fd cat=batcat vipe
-# art
-# https://マリウス.com/command-line/
-# input syntax highlighting https://github.com/akinomyoga/ble.sh https://github.com/zsh-users/zsh-syntax-highlighting
-# replace ~/my with $DOTROOT
-# as part of human data-formats [todo.txt](https://github.com/todotxt/todo.txt) and [cal.txt](https://terokarvinen.com/2021/calendar-txt/)
-#
+__ # idk why but git doesn't recognize the editor unless its set twice, but only in zsh
 
 # ascii art credit https://ascii.co.uk/art/cerberus https://ascii.co.uk/art/sphinx

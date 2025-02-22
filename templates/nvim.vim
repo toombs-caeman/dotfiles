@@ -29,7 +29,10 @@ Plug 'rust-lang/rust.vim'               " rust syntax and stuff, integrates with
 Plug 'habamax/vim-godot'                " godot integration
 Plug 'tikhomirov/vim-glsl'              " glsl shaders
 Plug 'yuezk/vim-js'                     " javascript
+Plug 'LhKipp/nvim-nu', {'do': ':TSInstall nu'}
+
 call plug#end()
+
 
 " status line
 set showcmd                 " display incomplete commands
@@ -152,7 +155,7 @@ call s:A('b', 'Buffers', 'e', 'Files', 'g', 'Rg', 'd', 'NERDTreeToggle')
 let NERDTreeMapQuit='A-d'
 
 " CoC
-let g:coc_global_extensions = ['coc-rust-analyzer', 'coc-pyright', 'coc-sh', 'coc-html', 'coc-go', 'coc-glslx']
+let g:coc_global_extensions = ['coc-rust-analyzer', 'coc-pyright', 'coc-sh', 'coc-json', 'coc-html', 'coc-go', 'coc-glslx', '@yaegassy/coc-intelephense']
 call coc#config('suggest.autoTrigger', 'trigger')  " don't suggest anything until I hit <tab>
 inoremap <silent><expr> <TAB>
       \ coc#pum#visible() ? coc#pum#next(1) :

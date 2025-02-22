@@ -22,10 +22,7 @@ config() {
     t i3status    i3status.conf   ~/.config/i3status/config
     t i3-msg    i3config.sh     ~/.i3/config                        i3-msg reload >/dev/null
     t sway      sway.conf       ~/.config/sway/config               swaymsg reload
-    t nvim      nvim.vim        ~/.config/nvim/init.vim
-    t nvim      plug.vim        ~/.config/nvim/autoload/plug.vim    nvim +PlugInstall '+qall!'
-    t nvim      colo.vim        ~/.local/share/nvim/plugged/dracula/autoload/dracula.vim
-    t picom     picom.conf      ~/.config/picom.conf
+    t nvim      coc-settings.json ~/.config/nvim/coc-settings.json
     t mpd       mpd.conf        ~/.mpdconf  systemctl --user restart mpd.service
     t mpd       mpd.conf        ~/.mpdconf                          muse init
     t git       gitconfig       ~/.gitconfig

@@ -67,8 +67,11 @@ rc() {
     fmt -v comp '^__.%w' "${fs[@]}"     # __*fun()
     fmt -v alt '^__%W__$%W' "${fs[@]}" # when*__*fun()
     #fmt -V fs '^.*__(.*)$%M%1ms%Fu%S'  # fun() select only the last section of the name, then sort unique
-    for f in "${setup[@]}"; do q ${f/__/ } && "$f"; done
-    for f in "${alt[@]}"; do x="${f%__*}"; q ${x/__/ } && fun cp "$f" "${f#*__}"; done
+    # as a special case, do zsh and bash setup first
+    q bash && command -v bash__ &>/dev/null && bash__
+    q zsh && command -v zsh__ &>/dev/null && zsh__
+    for f in "${setup[@]}"; do q ${f//__/ } && "$f"; done
+    for f in "${alt[@]}"; do x="${f%__*}"; q ${x//__/ } && fun cp "$f" "${f#*__}"; done
     # TODO what about config sensitive completions?
     # TODO _fzf_setup_completion https://github.com/junegunn/fzf#supported-commands autogen for __*()
     for f in "${comp[@]}"; do

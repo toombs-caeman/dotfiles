@@ -36,25 +36,18 @@ fzf is prefered for building interfaces
 
 
 # Potential new stuff
-
+* [atuin](https://atuin.sh/) magic search history
 * [k](https://github.com/supercrabtree/k) - better ls
 * [mosh](https://mosh.org/) or [eternal terminal](https://eternalterminal.dev/)
     * rrc
     * [xxh](https://github.com/xxh/xxh)
 * a 'media repository' for stuff that doesn't fit in git well?
-    * images, video, audio
-* define the One True Way™ and make sure all tools are built on that
-    * treerat
-    * external tools
-        * git bat(batcat) exa rg kak zsh fzf dasel sqlite3 find python zsh bash
-    * a modern (incompatible) ncurses [notcurses](https://github.com/dankamongmen/notcurses) [site](https://notcurses.com/)
     * treerat
         * ricer - configuration
 * email/rss as a transport protocol
     * [social media on top of rss](https://news.ycombinator.com/item?id=33975082)
 * bookmark / cache / rss / scraper tool
     * merge and manage bookmarks and cached content
-        * maybe just use [buku](https://github.com/jarun/buku)
     * keep a shallow cache of bookmarked websites in case they disappear
       * search for dead links
       * update cache from the wayback machine if necessary
@@ -64,9 +57,11 @@ fzf is prefered for building interfaces
     * pull new bookmarks from chrome / firefox
       * use folders/tags to trigger extra actions
     * ref [fraidycat](https://fraidyc.at/)
-* push notifications?
+* Notifications
+    * [swaync](https://github.com/ErikReider/SwayNotificationCente)
+    * push notification server [apprise](https://github.com/caronc/apprise)
     * libnotify notify-send for desktop
-    * what about mobile?
+    * what about mobile? onesignal?
 * tabular data cli
     * [sc-im](https://github.com/andmarti1424/sc-im)
     * [visidata](https://www.visidata.org/)
@@ -75,7 +70,7 @@ fzf is prefered for building interfaces
     * [awesome shell](https://github.com/alebcay/awesome-shell)
 
 * file watcher
-    * [entr](https://github.com/eradman/entr) 
+    * [entr](https://github.com/eradman/entr)
     * [list of file watchers](https://anarc.at/blog/2019-11-20-file-monitoring-tools/)
 * philosophy
     * [bespoke software](https://routley.io/posts/bespoke-software-rss-aggregator/)
@@ -104,6 +99,7 @@ fzf is prefered for building interfaces
     * bluetoothctl
     * brightnessctl
     * pavucontrol
+    * camera / microphone tests
     * arandr
     * system-config-printer
     * screenshot with slurp / grim
@@ -112,7 +108,6 @@ fzf is prefered for building interfaces
     * [systemd timers](https://wiki.archlinux.org/title/Systemd/Timers)
     * compare with cron?
 
-* [nerd-dictation](https://github.com/ideasman42/nerd-dictation) speech to text
 * [find archived youtube videos](https://findyoutubevideo.thetechrobo.ca/)
 
 # TODO

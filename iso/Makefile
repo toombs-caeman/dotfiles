@@ -27,4 +27,4 @@ usb:
 	if [ -z "$$device" ]; then echo no device selected; exit 1; fi; \
 	echo install "$$image" to "$$device?"; \
 	read; \
-	dd bs=4M if="$$image" of="$$device" conv=fsync oflag=direct status=progress
+	sudo dd bs=4M if="$$image" of="$$device" conv=fsync oflag=direct status=progress
