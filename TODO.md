@@ -1,49 +1,56 @@
 # TODO
-* bootstrap iso
-    * rewrite makefile as nushell
-    * test install env
-    * boot section
-    * copy the host wifi (iwd) configuration to the install env
-    * copy the host public key to install env to enable install over ssh
 
-* push to dotfiles
-    * get whitefox.json
-    * toybox?
-    * scripts/ydl.sh
-    * homelab.md
 * install on work laptop
-    * either pull out harddrive, or copy out credentials first
-    * ssh keys, github key
-    * make sure hardware key works with it.
-    * ensure ssh works as expected
+    * setup ssh / scp
     * truenas
     * wifi
-    * do I have a usbc boot device?
-    * dockertest
-* guard powerkey press
-    * open wlogout instead of immediately powering down
+
+* ssh
+    * ssh+oil.nvim?
+    * nushell ssh completions
+
+* multihead neovim
+    * unmaintained [nwin](https://github.com/glacambre/nwin?tab=readme-ov-file)
+
+    * not quite it [nvr](https://github.com/mhinz/neovim-remote)
+    * ext multigrid??
+    * ext windows??
+    * https://github.com/topics/neovim-guis
+
+
+* [master keymap](keymap.md)
+
+* dockertest
+    * docker init
+    * from php5.6-apache
+    * extensions pdo_mysql mysql mysqli
+    * s,/www/*/html/,,g
+    * s,https://www.*.com,,g  - no trailing slash
+    * in docker compose
+        * mount /src over /var/www/whatever
+        * mount php-develop.ini
 
 * set noexpandtab for tsv
-* nushell keybind for mini.sessions <A-S>?
-
-* keybinds section
-* kitty enable advanced key handling
-    * correct <C-c> vs <C-C>
-
 * nushell section
-* more [wallpapers](https://wallhaven.cc/)
-* ssh section
-    * nushell ssh completions
 * theming section
+
 * launch.lua
     * pull options from config file
-        * columns: display, cmd, last run timestamp
+        * columns: display, cmd
+        * sort by MRU
     * CRUD on config file?
     * package as neovim plugin?
+    * can we hook `vim.ui.input` with nui like telescope does for `select`
+* don't nest nvim term - use `neovim --server $env.NVIM --remote $file` to send to the parent instance if NVIM in $env
 
 * finalize readme
 * consolidate theory.md, rice.md, wink.md
 * handle laptop lid? need to set lock grace to 0 for it to work?
+
+* bootstrap iso
+    * test install env
+    * there seem to be a number of permissions problems related to setting up a user correctly. (adding user to groups)
+    * a better testing setup with qemu-full
 
 # nushell section
 * shell history? [atuin](https://atuin.sh/)
@@ -58,24 +65,13 @@
 * ideavimrc
 * limited imbue.yaml
 
-# boot sequence
-ditch ly and just `while true; do hyprland done` on tty1
-* kernel params (quiet splash)
-* plymouth with the splash animation
-* immediately open hyprland and lock it
-* match plymouth visuals to hyprlock
-    * start hyprlock as a white dot on a black screen
-    * `magick -dispose previous -delay 2 ...(glob *.png | sort -n) ~/animated.gif`
-
-
-# ssh
-* remote edit/nav through ssh, netrw? fzf as if cwd was remote, oil.nvim
-* don't nest nvim term
-
 # theming
-* nvim-web-dev-icons vs mini.icons
+* more [wallpapers](https://wallhaven.cc/)
+* standardize nvim-web-dev-icons vs mini.icons vs nerdfonts icons
+* adjust spacedust2 magenta to be more magenta
 * nvim use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
     * [original spacedust](https://github.com/hallski/spacedust-theme)
+    * plugin
 * firefox styles.css? [firefox userchrome](https://trickypr.github.io/FirefoxCSS-Store.github.io/)
 * template fonts
     * firefox,waybar,mako,kitty
@@ -85,35 +81,31 @@ ditch ly and just `while true; do hyprland done` on tty1
     * basically a visually seamless transition from plymouth to hyprlock
     * convert plymouth code into password prompt
 
+* add mpc current back to hyprlock
 
-# keybinds
-* master keybind list?
-* hyprland keybinds
-    * exit, reboot menu ??[wlogout](https://github.com/ArtsyMacaw/wlogout)
-    * hyprland match firefox keybinds for tabs
-    * mute, mpd control
-    * groups
-    * rebind toggle split
-    * move active window (mouse might be ok, but trackpad aint it)
-* vim keybinds
-    * from old init.vim
-    * nvim-tree, oil.nvim
-    * telescope
-    * <A-q> show documentation
+* pokemon sprites `kitten icat --align=left (ls ruby-sapphire/ | where type == file | shuffle | first | get name)`
+    * would be cool to have animated sprites (b/w 2) but limit it to the <= gen 3
+    * [source](https://veekun.com/dex/downloads)
+    * https://pokemondb.net/sprites
+    * "https://img.pokemondb.net/sprites/black-white/anim/normal/swampert.gif"
+    * "https://img.pokemondb.net/sprites/black-white/anim/back-shiny/swampert.gif"
+    * [terminal themes](https://github.com/LazoCoder/Pokemon-Terminal)
 
 # TODO: Maybe in the Future
+* try not to need aur packages for the base system.
+* homelab.md?
 * is tab-less working? re-evaluate wink
+* integrate gg with nvim sessions?
 * increase hypridle times?
 * control mpd with playerctl [mpDris2](https://github.com/eonpatapon/mpDris2)
 * database vim tpope/dadbod-vim
-* ripgrep + telescope?
 * zoxide?
-* update music downloader
-    * yt-dlp with --embed-metadata to write mp3 tags? using picard?
-    * broken: [ytmdl](https://aur.archlinux.org/packages/ytmdl)
-* separate configs for server and desktop?
+* bootstrap script for server?
 * nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
 * ctl - new tui script to join a bunch of others
+    * a chance to learn rust? tui, ratatui or iocraft crate
+    * manage all system config
+    * top/htop - task management
     * wpctl - audio
     * mpc/playerctl - music
     * iwctl - wifi [impala](https://github.com/pythops/impala)
@@ -121,11 +113,10 @@ ditch ly and just `while true; do hyprland done` on tty1
     * brightnessctl - screen brightness
     * wdisplays - multiscreen ?? not a TUI
     * systemd - https://github.com/rgwood/systemctl-tui
+    * bootctl - 
 * steam https://github.com/ValveSoftware/gamescope
 * nushell [carapace completer](https://github.com/carapace-sh/carapace)
 * nushell include path?
-* match firefox keybinds for tabs
-* telescope preview images with kitty icat
 * background tasts
     * [pueue](https://www.nushell.sh/book/background_task.html)
     * systemctl units
@@ -165,9 +156,12 @@ ditch ly and just `while true; do hyprland done` on tty1
 * [access clipboard from nushell/reedline](https://github.com/nushell/reedline/issues/745)
 * nvim lush.nvim for colorscheme
 * imbue rollback - keep backups of the original and previous versions of things for a clean uninstall
-* hyprcursor
 * mini has a bunch of [modules](https://github.com/echasnovski/mini.nvim?tab=readme-ov-file#modules)
-* remember 'telescope colorscheme' in mini.sessions?
+
+* telescope
+    * remember 'telescope colorscheme' in mini.sessions?
+    * telescope preview images with kitty icat
+    * ripgrep + telescope?
 
 # research: what are these? Do these things exist
 * https://nixos.org/

@@ -1,6 +1,4 @@
-# dotnu
-
-Portable dotfiles based on nushell
+# dotfiles
 
 arch + hyprland + kitty + nushell + neovim
 
@@ -20,6 +18,14 @@ bin/imbue with templates/nix.yaml
 2. additional extensions for firefox
     * `yay -S --needed firefox-ublock-origin firefox-vimium`
 
+# Status
+* imbue ![ready](https://img.shields.io/badge/status-ready-green)
+* bootstrap iso ![ready](https://img.shields.io/badge/status-ready-green)
+    * used to create a custom arch iso
+* bootstrap ![ready](https://img.shields.io/badge/status-ready-green)
+    * used to write images to disk
+* installer script ![incomplete](https://img.shields.io/badge/status-incomplete-red)
+    * the bootstrap script can be taken as a template for how to set up your own environment, but don't expect it to run smoothly or be complete.
 # Imbue ISO
 [create an install image](iso/README.md)
 

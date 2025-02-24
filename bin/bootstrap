@@ -1,5 +1,11 @@
 #!/usr/bin/env nu
 
+# TODO: partition numbering does not work on nvme0n1{,p1}
+# TODO: user home not created correctly
+# TODO: rename to 'enchant' 'enchant archiso' 'bootstrap'?
+# TODO: install yay
+# TODO: rustup default stable
+
 # create custom arch installer
 #
 # The script consists of the following parts:
@@ -27,12 +33,13 @@ def main [
     }
     # get disk
     if ($disk | is-empty) {
+        # TODO use lsblk -lo rather than --json
         let options = lsblk --json | from json | get blockdevices | where rm
         if ($options | is-empty) { error make {msg: 'no suitable disks found' }}
         # TODO: also filter out mounted disks (any part is mounted)
-        print 'select a removable disk:'
-        $disk = $options | select name size | input list | '/dev/' ++ $in.name
+        $disk = $options | select name size | input list 'select a removable disk' | '/dev/' ++ $in.name
     }
+    print $"dd if=($iso | path basename) of=($disk)"
     sudo dd bs=4M if=($iso) of=($disk) conv=fsync oflag=direct status=progress
 }
 
@@ -50,23 +57,25 @@ def 'main iso' [] {
     # copy bootstrap script
     $"#!/usr/bin/env nu\n(
         view source bootstrap | str replace bootstrap main)" |
-        save ($root | path join '/usr/local/bin/bootstrap')
+        save ($root | path join 'usr/local/bin/bootstrap')
 
     # get bootsplash theme
     http get 'https://github.com/adi1090x/plymouth-themes/releases/download/v1.0/black_hud.tar.gz' |
-        save ($root | path join '/root/black_hud.tar.gz')
+        save ($root | path join 'root/black_hud.tar.gz')
 
     # inject bootstrap help text as readme
-    help bootstrap | save ($root | path join '/root/README.md')
+    help bootstrap | save ($root | path join 'root/README.md')
 
     ## copy in authorized keys to allow ssh managed installation
     ## these keys are NOT copied to the resulting environment
-    #glob ~/.ssh/*.pub | each {|f| open $f | save --append ($root | path join '/root/.ssh/authorized_keys') }
+    #glob ~/.ssh/*.pub | each {|f| open $f | save --append ($root | path join 'root/.ssh/authorized_keys') }
 
     # copy in network configuration from /var/lib/iwd/
     # this allows bootstrap to access any network your current computer knows about.
     # this will also get forwarded to the resulting environment
-    sudo cp /var/lib/iwd/* ($root | path join '/var/lib/iwd/')
+    let lib = ($root | path join 'var/lib/')
+    mkdir $lib
+    sudo cp -r /var/lib/iwd $lib
 
     # set file permissions
     let permissions = {
@@ -93,6 +102,10 @@ def 'main iso' [] {
     sudo mkarchiso -vro . $profile
     rm -rf $profile
 }
+
+# TODO: creating the readme this way is not ideal
+#   the colors and box characters do not draw correctly
+#   using the editor available in bootstrap env
 
 # # README
 # 2. connect to the network using `iwctl`
@@ -148,7 +161,7 @@ def bootstrap [user host] {
                 '# all disks mentioned in the file when written will be erased'
                 ''
                 '/boot	mkfs.fat -F 32	+1G	'
-                '/	mkfs.btrfs	0	'
+                '/	mkfs.btrfs -f	0	'
                 ''
                 "# available drives"
             ] ++ ($candidates | each {|disk|
@@ -209,8 +222,10 @@ def bootstrap [user host] {
     def disk_commands [plan] {
         mut out = []
         # enrich plan with partition numbers (start with 1)
+        # TODO: nvme drive partitions are named differently
+        # nvme0n1{p1,p2}
         let plan = $plan | group-by drive --to-table |
-            update items {|row|$row.items| merge (1..($row.items|length) | wrap part)}
+            update items {|row| $row.items| merge (1..($row.items|length) | wrap part)}
 
         # repartition and mkfs
         $out ++= $plan | each {|drive|
@@ -224,7 +239,7 @@ def bootstrap [user host] {
         } | flatten
         # mount
         $out ++= $plan.items | flatten | sort-by mount | each {|part|
-            $"mount --mkdir ($part.drive)($part.part) ($part.mount)"
+            $"mount --mkdir ($part.drive)($part.part) /mnt($part.mount)"
         }
         return $out
     }
@@ -255,17 +270,17 @@ def bootstrap [user host] {
 
     # XXX: assuming your cpu is either intel or amd. this is probably better to default to none
     let microcode = (if (sys cpu | get 0.vendor_id) == GenuineIntel { 'intel-ucode' } else { 'amd-ucode' })
-    pacstrap -K /mnt base linux linux-firmware $microcode plymouth pipewire man-db manpages texinfo iwd nushell neovim
+    pacstrap -K /mnt base base-devel linux linux-firmware $microcode plymouth pipewire man-db man-pages texinfo iwd git nushell neovim
 
     genfstab -U /mnt >> /mnt/etc/fstab
 
     # copy in known networks
-    cp /var/lib/iwd/* /mnt/var/lib/iwd/*
+    mkdir /mnt/var/lib/iwd/
+    cp -r /var/lib/iwd/* /mnt/var/lib/iwd/
 
     # generate locale
     "\nen_US.UTF-8 UTF-8\n" | save --append /mnt/etc/locale.conf
     arch-chroot /mnt locale-gen
-    "LANG=en_US.UTF-8\n" | save /mnt/etc/locale.conf
 
     # set time
     arch-chroot /mnt ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
@@ -279,34 +294,43 @@ def bootstrap [user host] {
     # A long press of the power button will still be handled by systemd.
     "\nHandlePowerKey=ignore\n" | save --append /mnt/etc/systemd/logind.conf
 
-    # install yay
-    git clone https://aur.archlinux.org/yay-bin.git /mnt/root/yay
-    arch-chroot /mnt makepkg -siD /root/yay
-
-    # install systemd-boot as bootloader
-    arch-chroot /mnt bootctl install
-    # disable startup menu
-    arch-chroot /mnt bootctl set-timeout 0
-
     print 'set root password'
     arch-chroot /mnt passwd
 
     # create $user
     arch-chroot /mnt useradd $user
-    print $'set ($user) password'
-    arch-chroot /mnt -u $user passwd
+    print $'set password for ($user)'
+    arch-chroot /mnt passwd $user
+    # TODO: add user to sudo
+    $"\n($user)   ALL=\(ALL:ALL) ALL\n" | save --append /mnt/etc/sudoers
+
+    # install yay
+    # TODO: cannot run makepkg as root
+    # cannot cd to /root/yay
+    git clone https://aur.archlinux.org/yay-bin.git /mnt/root/yay
+    arch-chroot /mnt chown $"($user):($user)" /yay
+    arch-chroot -u $user /mnt makepkg -siD /yay
+
+    # install systemd-boot as bootloader
+    arch-chroot /mnt bootctl install
+    ## TODO: not booted with UEFI (chroot), so cannot set
+    ## disable startup menu
+    #arch-chroot /mnt bootctl set-timeout 0
+
 
     # configure auto login to hyprland
     # configure agetty to automatically log in as $user
     # from bash, auto start hyprland if on tty1
     # it's up to hyprland.conf to exec-once = hyprlock --immediate
+    let getty = '/mnt/etc/systemd/system/getty@tty1.service.d/autologin.conf'
+    mkdir ($getty | path dirname)
     [ 
         '[Service]'
         'Environment=XDG_SESSION_TYPE=wayland'
         'ExecStart='
         $"ExecStart=-/sbin/agetty --noclear --autologin ($user) %I $TERM"
-    ] | str join "\n" | save /mnt/etc/systemd/system/getty@tty1.service.d/autologin.conf
-    'if [[ "$(tty)" == "/dev/tty1" ]]; then exec Hyprland; fi' | save /mnt/etc/bash.bashrc
+    ] | str join "\n" | save -f $getty
+    'if [[ "$(tty)" == "/dev/tty1" ]]; then exec Hyprland; fi' | save -f /mnt/etc/bash.bashrc
 
     # clone dotfiles
     let dotdir = $'/mnt/home/($user)/my/toombs-caeman/dotfiles'
@@ -316,10 +340,10 @@ def bootstrap [user host] {
     # TODO: trigger dotfiles
     let imbue = $dotdir | path join 'bin/imbue'
     let mana = $dotdir | path join 'templates/nix.yaml'
-    arch-chroot /mnt -u $user ^($imbue) with $mana
+    arch-chroot -u $user /mnt ^($imbue) with $mana
 
     mkdir $"/mnt/home/($user)/Music/"
-    arch-chroot /mnt -u $user systemctl --user enable mpd.service
+    arch-chroot -u $user /mnt systemctl --user enable mpd.service
 
     # TODO: set kernel parameters (quiet splash)
     # IIRC you should add your kernel parameters to the APPEND in archiso_sys.cfg (and archiso_pxe.cfg if you use PXE).

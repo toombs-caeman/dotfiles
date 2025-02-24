@@ -41,7 +41,7 @@ commands:
     package: firefox firefox-ublock-origin firefox-vimium
 
   hyprland: # window manager
-    package: hyprland
+    package: hyprland polkit
     files:
       hyprland.conf: ~/.config/hypr/hyprland.conf
 
@@ -74,5 +74,5 @@ commands:
       hyprlock.conf: ~/.config/hypr/hyprlock.conf
 
   phony:
-    package: nwg-displays
+    package: nwg-displays pipewire
 

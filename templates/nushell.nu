@@ -148,6 +148,17 @@ let ctl = {
     notify: makoctl
     windows: hyprctl
 }
+def _ctl [] { $ctl | columns }
+def ctl [query:string@_ctl] {
+    mut query = $query
+    if ($query | is-empty) {
+        $query = $ctl | transpose name cmd | input list -fd name | get cmd
+    } else {
+        $query = $ctl | get $query
+    }
+    ^$query
+}
+
 def colors [] {
     mut base = ['black' 'red' 'green' 'yellow' 'blue' 'magenta' 'cyan' 'white']
     $base ++= $base | each {|c|'light_' ++ $c} | skip | drop
