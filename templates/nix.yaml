@@ -9,7 +9,7 @@ wallhaven:
   collection: Default
 wallpapers: ~/Pictures/Wallpapers
 
-installer: yay -S --needed --noconfirm
+installer: sudo pacman -S --needed --noconfirm
 
 commands:
   nu:
@@ -28,17 +28,17 @@ commands:
       nvim.init.lua: ~/.config/nvim/init.lua
 
   mpd:
-    package: mpd mpc
+    package: mpd mpc yt-dlp
     files:
       mpd.conf: ~/.mpdconf
 
   git:
-    package: git
+    package: git less
     files:
       gitconfig: ~/.gitconfig
 
   firefox:
-    package: firefox firefox-ublock-origin firefox-vimium
+    package: firefox firefox-ublock-origin
 
   hyprland: # window manager
     package: hyprland polkit
@@ -53,7 +53,7 @@ commands:
     callback: killall -SIGUSR2 waybar
 
   mako: # notifications
-    package: mako
+    package: mako libnotify
     files:
       mako.ini: ~/.config/mako/config
     callback: makoctl reload
@@ -74,5 +74,5 @@ commands:
       hyprlock.conf: ~/.config/hypr/hyprlock.conf
 
   phony:
-    package: nwg-displays pipewire
+    package: nwg-displays ttf-firacode-nerd pipewire
 

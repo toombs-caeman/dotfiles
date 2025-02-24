@@ -307,7 +307,7 @@ def 'main wall haven' [
 
 # set wallpaper
 def 'main wall set' [file:string] {
-    hyprctl hyprpaper reload ,($file) o+e> (null-device)
+    hyprctl hyprpaper reload ,($file) | complete | ignore
 }
 
 # set random wallpaper
