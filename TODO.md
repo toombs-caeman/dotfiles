@@ -1,87 +1,98 @@
 # TODO
 
-* install on work laptop
-    * setup ssh / scp
-    * truenas
-    * wifi
+* [nushell wrappers](https://github.com/drbrain/nushell-config/tree/main)
+    * provides completions and command output as a table
+    * ssh, git, docker, atuin, rg, rsync
+
+* correct `c-v` behavior
+    * how to get nushell to use the system clipboard for pasting?
+
+# git section
+* nvim + git
+    * need to be able to stage, checkout, and commit from within vim
+* git-delta?
+* vim-git
+* mini.git
+* mini.diff
+* gitsigns
+* interactive add, commit?
+* vim-fugitive?
+* vimagit?
+* nushell completer
+* aliases
+* git config --global merge.conflictstyle diff3
+* always set upstream on push
+* forgit
+
+
+# general
+
+* [master keymap](keymap.md)
+
+* kitty keys
+    * scroll to prompt `c-{z,x}` -> `c-{j,k}`
+    * page last output? map kitty_mod+g `show_last_command_output`
+
+* push blog to github
 
 * ssh
-    * ssh+oil.nvim?
+    * sshfs
+    * rsync -rR
     * nushell ssh completions
 
+* nvim set noexpandtab for tsv
+* nushell section
+* theming sectioo setting up a user correctly. (adding user to groups)
+* get better about vim marks
+* vim custom snippets
+
+* [image.nvim](https://github.com/3rd/image.nvim)
+    * unbearably slow. need an alternative
 * multihead neovim
     * unmaintained [nwin](https://github.com/glacambre/nwin?tab=readme-ov-file)
-
     * not quite it [nvr](https://github.com/mhinz/neovim-remote)
     * ext multigrid??
     * ext windows??
     * https://github.com/topics/neovim-guis
 
+# nvim debug
+* mini.misc.put()
+* mini.test
+* plenary.test_harness
 
-* [master keymap](keymap.md)
-
-* dockertest
-    * docker init
-    * from php5.6-apache
-    * extensions pdo_mysql mysql mysqli
-    * s,/www/*/html/,,g
-    * s,https://www.*.com,,g  - no trailing slash
-    * in docker compose
-        * mount /src over /var/www/whatever
-        * mount php-develop.ini
-
-* set noexpandtab for tsv
-* nushell section
-* theming section
-
-* launch.lua
-    * pull options from config file
-        * columns: display, cmd
-        * sort by MRU
-    * CRUD on config file?
-    * package as neovim plugin?
-    * can we hook `vim.ui.input` with nui like telescope does for `select`
-* don't nest nvim term - use `neovim --server $env.NVIM --remote $file` to send to the parent instance if NVIM in $env
-
-* finalize readme
-* consolidate theory.md, rice.md, wink.md
-* handle laptop lid? need to set lock grace to 0 for it to work?
-
-* bootstrap iso
-    * test install env
-    * there seem to be a number of permissions problems related to setting up a user correctly. (adding user to groups)
-    * a better testing setup with qemu-full
 
 # nushell section
 * shell history? [atuin](https://atuin.sh/)
 * nushell [carapace completer](https://github.com/carapace-sh/carapace)
+    * make sure the bindings have parity with nvim-cmphePrimeagen
 * hook command-not-found
 * explore nushell stdlib and nu_scripts
     * contribute hypr completions [custom-completions](https://github.com/nushell/nu_scripts/tree/main/custom-completions)
     * contribute to documentation
     * poor mans fzf: input list -f
 
-# windows config
-* ideavimrc
-* limited imbue.yaml
-
 # theming
-* more [wallpapers](https://wallhaven.cc/)
 * standardize nvim-web-dev-icons vs mini.icons vs nerdfonts icons
+* more [wallpapers](https://wallhaven.cc/)
 * adjust spacedust2 magenta to be more magenta
-* nvim use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
+* nvim colorscheme
+    * lush.nvim interactive colorscheme
+    * mini.colors 
+    * mini.hues (:colorscheme randomhue)
+    * mini.base16
+    * nvim use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
     * [original spacedust](https://github.com/hallski/spacedust-theme)
-    * plugin
-* firefox styles.css? [firefox userchrome](https://trickypr.github.io/FirefoxCSS-Store.github.io/)
+    * remember colorscheme in mini.sessions?
 * template fonts
     * firefox,waybar,mako,kitty
-    * "Fira",monospace,11
+    * fira -> noto+emoji
 
 * any way to convert plymouth theme to hyplock themes automatically?
     * basically a visually seamless transition from plymouth to hyprlock
     * convert plymouth code into password prompt
 
-* add mpc current back to hyprlock
+* add mpc current back to hyprlock, now that commands work when locked
+* catpuccin?
 
 * pokemon sprites `kitten icat --align=left (ls ruby-sapphire/ | where type == file | shuffle | first | get name)`
     * would be cool to have animated sprites (b/w 2) but limit it to the <= gen 3
@@ -90,6 +101,7 @@
     * "https://img.pokemondb.net/sprites/black-white/anim/normal/swampert.gif"
     * "https://img.pokemondb.net/sprites/black-white/anim/back-shiny/swampert.gif"
     * [terminal themes](https://github.com/LazoCoder/Pokemon-Terminal)
+    * keep compressed in git? should probably do the same for black_hud
 
 # TODO: Maybe in the Future
 * try not to need aur packages for the base system.
@@ -100,7 +112,7 @@
 * control mpd with playerctl [mpDris2](https://github.com/eonpatapon/mpDris2)
 * database vim tpope/dadbod-vim
 * zoxide?
-* bootstrap script for server?
+* separate bootstrap script for server?
 * nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
 * ctl - new tui script to join a bunch of others
     * a chance to learn rust? tui, ratatui or iocraft crate
@@ -140,26 +152,12 @@
 * window titles
     * waybar - show active window title
     * nvim set title to buffer name
-* git
-    * git-delta?
-    * vim-git
-    * interactive add, commit?
-    * vim-gitgutter
-    * vim-fugitive?
-    * vimagit?
-    * nushell plugin?
-    * aliases
-    * git config --global merge.conflictstyle diff3
-    * always set upstream on push
-    * forgit
+
 * steam wayland fixes https://github.com/ValveSoftware/gamescope
 * [access clipboard from nushell/reedline](https://github.com/nushell/reedline/issues/745)
-* nvim lush.nvim for colorscheme
 * imbue rollback - keep backups of the original and previous versions of things for a clean uninstall
-* mini has a bunch of [modules](https://github.com/echasnovski/mini.nvim?tab=readme-ov-file#modules)
 
 * telescope
-    * remember 'telescope colorscheme' in mini.sessions?
     * telescope preview images with kitty icat
     * ripgrep + telescope?
 

@@ -53,7 +53,16 @@ vim.opt.scrolloff = 5
 
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
 -- let 0 toggle between the start and end of line
-vim.keymap.set("n", "0", '<Cmd>if col(\'.\') - 1<bar>exe "normal! 0"<bar>else<bar> exe "normal! $"<bar>endif<CR>')
+vim.keymap.set(
+	{ "n", "v" },
+	"0",
+	'<Cmd>if col(\'.\') - 1<bar>exe "normal! 0"<bar>else<bar> exe "normal! $"<bar>endif<CR>'
+)
+
+vim.keymap.set({ "n", "i", "v" }, "<a-b>", "<cmd>Gitsigns blame<CR>")
+
+-- handle paste events in insert and command modes
+vim.keymap.set({ "i", "c" }, "<c-v>", "<c-r>+")
 
 -- Diagnostic keymaps
 vim.keymap.set("n", "<leader>q", vim.diagnostic.setloclist, { desc = "Open diagnostic [Q]uickfix list" })
@@ -97,11 +106,10 @@ vim.keymap.set("n", "<A-W", "<cmd>tabclose<cr>", { desc = "Close Tab" })
 vim.keymap.set("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 vim.keymap.set("n", "<A-e>", "<cmd>Telescope find_files sort_lastused=true<cr>", { desc = "Fuzzy find files" })
-vim.keymap.set("n", "<A-b>", "<cmd>Telescope buffers sort_lastused=true<cr>", { desc = "Fuzzy find buffers" })
+vim.keymap.set("n", "<A-space>", "<cmd>Telescope buffers sort_lastused=true<cr>", { desc = "Fuzzy find buffers" })
 
--- [[ oil ]]
-vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Edit Directories" })
-vim.keymap.set("n", "_", "<cmd>Oil<cr>", { desc = "Edit Directories" })
+-- [[ directory ]]
+vim.keymap.set("n", "-", "<cmd>lua require('mini.files').open()<cr>", { desc = "Edit Directories" })
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 -- `n` always searches forward and `N` always backwards
@@ -164,6 +172,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
+-- TODO require('mini.misc').setup_restore_cursor()
 -- go to last loc when opening a buffer
 vim.api.nvim_create_autocmd("BufReadPost", {
 	group = augroup("last_loc"),
@@ -242,9 +251,11 @@ require("lazy").setup({
 		},
 	},
 	-- provides SudoWrite and SudoRead
-	{ "denialofsandwich/sudo.nvim", dependencies = {
-		"MunifTanjim/nui.nvim",
-	}, config = true },
+	{
+		"denialofsandwich/sudo.nvim",
+		dependencies = { "MunifTanjim/nui.nvim" },
+		config = true,
+	},
 	{
 		"folke/which-key.nvim",
 		event = "VimEnter", -- Sets the loading event to 'VimEnter'
@@ -252,39 +263,7 @@ require("lazy").setup({
 			delay = 500, -- delay between pressing a key and opening which-key (milliseconds)
 			icons = {
 				-- set icon mappings to true if you have a Nerd Font
-				mappings = vim.g.have_nerd_font,
-				-- If you are using a Nerd Font: set icons.keys to an empty table which will use the
-				-- default which-key.nvim defined Nerd Font icons, otherwise define a string table
-				keys = vim.g.have_nerd_font and {} or {
-					Up = "<Up> ",
-					Down = "<Down> ",
-					Left = "<Left> ",
-					Right = "<Right> ",
-					C = "<C-…> ",
-					M = "<M-…> ",
-					D = "<D-…> ",
-					S = "<S-…> ",
-					CR = "<CR> ",
-					Esc = "<Esc> ",
-					ScrollWheelDown = "<ScrollWheelDown> ",
-					ScrollWheelUp = "<ScrollWheelUp> ",
-					NL = "<NL> ",
-					BS = "<BS> ",
-					Space = "<Space> ",
-					Tab = "<Tab> ",
-					F1 = "<F1>",
-					F2 = "<F2>",
-					F3 = "<F3>",
-					F4 = "<F4>",
-					F5 = "<F5>",
-					F6 = "<F6>",
-					F7 = "<F7>",
-					F8 = "<F8>",
-					F9 = "<F9>",
-					F10 = "<F10>",
-					F11 = "<F11>",
-					F12 = "<F12>",
-				},
+				mappings = true,
 			},
 
 			-- Document existing key chains
@@ -299,13 +278,6 @@ require("lazy").setup({
 			},
 		},
 	},
-
-	-- NOTE: Plugins can specify dependencies.
-	--
-	-- The dependencies are proper plugin specifications as well - anything
-	-- you do for a plugin at the top level, you can do for a dependency.
-	--
-	-- Use the `dependencies` key to specify the dependencies of a particular plugin
 
 	{ -- Fuzzy Finder (files, lsp, etc)
 		"nvim-telescope/telescope.nvim",
@@ -327,36 +299,11 @@ require("lazy").setup({
 				end,
 			},
 			{ "nvim-telescope/telescope-ui-select.nvim" },
-
-			-- Useful for getting pretty icons, but requires a Nerd Font.
-			{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
+			{ "nvim-tree/nvim-web-devicons", enabled = true },
 		},
 		config = function()
-			-- Telescope is a fuzzy finder that comes with a lot of different things that
-			-- it can fuzzy find! It's more than just a "file finder", it can search
-			-- many different aspects of Neovim, your workspace, LSP, and more!
-			--
-			-- The easiest way to use Telescope, is to start by doing something like:
-			--  :Telescope help_tags
-			--
-			-- After running this command, a window will open up and you're able to
-			-- type in the prompt window. You'll see a list of `help_tags` options and
-			-- a corresponding preview of the help.
-			--
-			-- Two important keymaps to use while in Telescope are:
-			--  - Insert mode: <c-/>
-			--  - Normal mode: ?
-			--
-			-- This opens a window that shows you all of the keymaps for the current
-			-- Telescope picker. This is really useful to discover what Telescope can
-			-- do as well as how to actually do it!
-
-			-- [[ Configure Telescope ]]
-			-- See `:help telescope` and `:help telescope.setup()`
 			require("telescope").setup({
-				-- You can put your default mappings / updates / etc. in here
 				--  All the info you're looking for is in `:help telescope.setup()`
-				--
 				defaults = {
 					mappings = {
 						i = {
@@ -522,14 +469,12 @@ require("lazy").setup({
 			})
 
 			-- Change diagnostic symbols in the sign column (gutter)
-			if vim.g.have_nerd_font then
-				local signs = { ERROR = "", WARN = "", INFO = "", HINT = "" }
-				local diagnostic_signs = {}
-				for type, icon in pairs(signs) do
-					diagnostic_signs[vim.diagnostic.severity[type]] = icon
-				end
-				vim.diagnostic.config({ signs = { text = diagnostic_signs } })
+			local signs = { ERROR = "", WARN = "", INFO = "", HINT = "" }
+			local diagnostic_signs = {}
+			for type, icon in pairs(signs) do
+				diagnostic_signs[vim.diagnostic.severity[type]] = icon
 			end
+			vim.diagnostic.config({ signs = { text = diagnostic_signs } })
 
 			-- LSP servers and clients are able to communicate to each other what features they support.
 			--  By default, Neovim doesn't support everything that is in the LSP specification.
@@ -555,7 +500,24 @@ require("lazy").setup({
 				pyright = {},
 				rust_analyzer = {},
 				phpactor = {},
-				-- ts_ls = {},
+				ts_ls = {
+					filetypes = {
+						"javascript",
+						"javascriptreact",
+						"javascript.jsx",
+						"typescript",
+						"typescriptreact",
+						"typescript.tsx",
+						"php",
+						"html",
+					},
+				},
+				html = {
+					filetypes = {
+						"php",
+						"html",
+					},
+				},
 				lua_ls = {
 					settings = {
 						Lua = {
@@ -612,7 +574,7 @@ require("lazy").setup({
 				-- Disable "format_on_save lsp_fallback" for languages that don't
 				-- have a well standardized coding style. You can add additional
 				-- languages here or re-enable it for the disabled ones.
-				local disable_filetypes = { c = true, cpp = true }
+				local disable_filetypes = { c = true, cpp = true, php = true }
 				local lsp_format_opt
 				if disable_filetypes[vim.bo[bufnr].filetype] then
 					lsp_format_opt = "never"
@@ -655,12 +617,12 @@ require("lazy").setup({
 					-- `friendly-snippets` contains a variety of premade snippets.
 					--    See the README about individual language/framework/plugin snippets:
 					--    https://github.com/rafamadriz/friendly-snippets
-					-- {
-					--   'rafamadriz/friendly-snippets',
-					--   config = function()
-					--     require('luasnip.loaders.from_vscode').lazy_load()
-					--   end,
-					-- },
+					{
+						"rafamadriz/friendly-snippets",
+						config = function()
+							require("luasnip.loaders.from_vscode").lazy_load()
+						end,
+					},
 				},
 			},
 			"saadparwaiz1/cmp_luasnip",
@@ -767,15 +729,6 @@ require("lazy").setup({
 			vim.cmd.hi("Comment gui=none")
 		end,
 	},
-
-	-- Highlight todo, notes, etc in comments
-	{
-		"folke/todo-comments.nvim",
-		event = "VimEnter",
-		dependencies = { "nvim-lua/plenary.nvim" },
-		opts = { signs = false },
-	},
-
 	{ -- Collection of various small independent plugins/modules
 		"echasnovski/mini.nvim",
 		config = function()
@@ -785,17 +738,32 @@ require("lazy").setup({
 			require("mini.surround").setup()
 			-- session management
 			require("mini.sessions").setup({ file = "" })
-			-- Simple and easy statusline.
-			--  You could remove this setup call if you don't like it,
-			--  and try some other statusline plugin
-			local statusline = require("mini.statusline")
-			-- set use_icons to true if you have a Nerd Font
-			statusline.setup({ use_icons = vim.g.have_nerd_font })
-			-- You can configure sections in the statusline by overriding their
-			-- default behavior. For example, here we set the section for
-			-- cursor location to LINE:COLUMN
+			require("mini.comment").setup()
+			require("mini.pairs").setup()
+			local hipatterns = require("mini.hipatterns")
+			hipatterns.setup({
+				highlighters = {
+					fixme = { pattern = "%f[%w]()FIXME()%f[%W]", group = "MiniHipatternsFixme" },
+					hack = { pattern = "%f[%w]()HACK()%f[%W]", group = "MiniHipatternsHack" },
+					todo = { pattern = "%f[%w]()TODO()%f[%W]", group = "MiniHipatternsTodo" },
+					note = { pattern = "%f[%w]()NOTE()%f[%W]", group = "MiniHipatternsNote" },
+					-- Highlight hex color strings (`#rrggbb`) using that color
+					hex_color = hipatterns.gen_highlighter.hex_color(),
+				},
+			})
+
+			require("mini.jump").setup({
+				delay = { highlight = 1000000000, idle_stop = 0 },
+			})
+			require("mini.starter").setup({ header = "", footer = "" })
+			-- split or join argument lists
+			-- careful that this doesn't shadow mini.surround actions
+			-- also, doesn't work for nushell nuons, can extend?
+			require("mini.splitjoin").setup({ mappings = { toggle = "sj" } })
+
+			require("mini.statusline").setup({ use_icons = true })
 			---@diagnostic disable-next-line: duplicate-set-field
-			statusline.section_location = function()
+			require("mini.statusline").section_location = function()
 				return "%2l:%-2v"
 			end
 		end,
@@ -839,48 +807,14 @@ require("lazy").setup({
 		--    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
 		--    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
 	},
-	{
-		"stevearc/oil.nvim",
-		---@module 'oil'
-		---@type oil.SetupOpts
-		opts = {},
-		-- Optional dependencies
-		dependencies = { { "echasnovski/mini.icons", opts = {} } },
-		-- dependencies = { "nvim-tree/nvim-web-devicons" }, -- use if you prefer nvim-web-devicons
-		-- Lazy loading is not recommended because it is very tricky to make it work correctly in all situations.
-		lazy = false,
-	},
 	{ "nvim-tree/nvim-tree.lua", opts = {
 		filters = {
 			dotfiles = true,
 		},
 	} },
-}, {
-	ui = {
-		-- If you are using a Nerd Font: set icons to an empty table which will use the
-		-- default lazy.nvim defined Nerd Font icons, otherwise define a unicode icons table
-		--[[
-		icons = vim.g.have_nerd_font and {} or {
-			cmd = "⌘",
-			config = "🛠",
-			event = "📅",
-			ft = "📂",
-			init = "⚙",
-			keys = "🗝",
-			plugin = "🔌",
-			runtime = "💻",
-			require = "🌙",
-			source = "📄",
-			start = "🚀",
-			task = "📌",
-			lazy = "💤 ",
-		},
-    ]]
-		--
-	},
-})
+}, {})
 
--- TODO: pull from a history file (launchrc)
+-- TODO: pull from a config/history file (~/.launchrc)
 local apps = {
 	{ "notice", "notify-send 'red'" },
 	{ "firefox", "firefox" },
@@ -888,10 +822,10 @@ local apps = {
 	{ "wifi", "kitty iwctl" },
 	{ "displays", "nwg-displays" },
 	{ "steam", "steam -nochatui -nofriendsui" },
+	{ "slack", "slack" },
+	{ "screenshot", "slurp | grim -g - - | wl-copy" },
 }
 function Launch(quit)
-	-- TODO: pull options from config file
-	--
 	-- make sure that telescope is loaded
 	-- it will set itself to be the ui selector
 	require("telescope")
@@ -911,7 +845,26 @@ function Launch(quit)
 end
 vim.api.nvim_create_user_command("Launch", Launch, { bar = true, nargs = "?" })
 
+function NextSong(quit)
+	-- make sure that telescope is loaded
+	-- it will set itself to be the ui selector
+	require("telescope")
+	local songs = vim.fn.split(vim.fn.glob("~/Music/*.mp3"), "\n")
+	vim.ui.select(songs, {
+		prompt = "queue song:",
+		format_item = function(item)
+			return vim.fs.basename(item)
+		end,
+	}, function(choice)
+		vim.cmd(string.format(":!mpc insert %s", vim.fs.basename(choice)))
+		if quit then
+			vim.cmd("q!")
+		end
+	end)
+end
+vim.api.nvim_create_user_command("NextSong", NextSong, { bar = true, nargs = "?" })
 -- print table
+-- TODO: use mini.misc.put() instead
 function dump(o)
 	if type(o) == "table" then
 		local s = "{ "
@@ -943,5 +896,7 @@ vim.api.nvim_create_user_command("Session", function(opts)
 	end
 end, { nargs = "?" })
 
+-- set background transparency and remove 'frame' showing through on terminal edges
+require("mini.misc").setup_termbg_sync()
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et

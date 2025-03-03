@@ -1,29 +1,34 @@
 [user]
-	name = Caeman Toombs
-	email = toombs.caeman@gmail.com
-
+    name = Caeman Toombs
+    email = toombs.caeman@gmail.com
 [alias]
-	# list all aliases
-	alias = config --get-regexp alias
-
-	# abbreviations
-	co = checkout
-	
-	root = !pwd
-	tree = log --graph --all --oneline --color
-
-	# fuzzy find filenames
-	file = "!f=$PWD/$(fzf) && echo $f"
-	search = "!echo $PWD/$(rg "$*" | fzf | cut -f1 -d":" ) #"
-
-    # initialize remote repository over ssh
-    remote-init = "!bash -c 'url=\"$(git remote get-url \"$0\")\"; path=\"${url##*:}\"; host=\"${url%\"$path\"}\"; host=\"${host%:}\"; ssh \"$host\" \"git --bare init \\\"$path\\\"\"'"
-
+    tree = log --graph --all --oneline --color
+[core]
+    excludesfile = ~/.gitignore
+    editor = nvim
+[column]
+    ui = auto
+[branch]
+    sort = -committerdate
+[tag]
+    sort = version:refname
 [credential]
-	helper = store
+    helper = store
 [init]
-	defaultBranch = main
+    defaultBranch = main
 [push]
     autoSetupRemote = true
-[core]
-    editor = nvim
+[commit]
+    verbose = true
+[rerere]
+    enabled = true
+    autoupdate = true
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
+[diff]
+    algorithm = histogram
+    colorMoved = plain
+    mnemonicPrefix = true
+    renames = true

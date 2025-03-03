@@ -6,25 +6,53 @@ use std
 
 # this is the path to imbue, which it templates in itself
 $env.path ++= ['{{bin}}']
-
 $env.config.show_banner = false
 $env.config.edit_mode = 'vi'
 $env.config.buffer_editor = 'nvim'
 $env.PROMPT_INDICATOR = '!!!' # emacs mode, this shouldn't happen
 $env.PROMPT_INDICATOR_VI_NORMAL = ':'
+$env.config.use_kitty_protocol = true
 $env.PROMPT_INDICATOR_VI_INSERT = '%'
-alias vi = nvim
-
-$env.config.keybindings ++= [{
-    name: edit_files
-    modifier: alt
-    keycode: char_e
-    mode: [vi_normal vi_insert]
-    event: {
-        send: executehostcommand,
-        cmd: "nvim +'lua require(\"telescope.builtin\").find_files()'"
+$env.SHELL = 'nu' # open nu in :term
+def vi [file?] {
+    if ($file == null) {
+        nvim
+    } else if ('NVIM' in $env) {
+        nvim --server $env.NVIM --remote $file
+    } else {
+        nvim $file
     }
-}]
+}
+
+$env.config.keybindings ++= [
+    {
+        name: edit_files,
+        modifier: alt,
+        keycode: char_e,
+        mode: [emacs, vi_normal, vi_insert],
+        event: {
+            send: executehostcommand,
+            cmd: "nvim +'lua require(\"telescope.builtin\").find_files()'",
+        }
+    },
+    {
+        name: start_nvim,
+        modifier: alt,
+        keycode: char_s,
+        mode: [emacs, vi_normal, vi_insert],
+        event: {send: executehostcommand, cmd: "nvim"},
+    }
+    {
+        name: paste,
+        modifier: control,
+        keycode: char_v,
+        mode: [emacs, vi_normal, vi_insert],
+        event: {
+            send: executehostcommand,
+            cmd: "wl-paste",
+        }
+    }
+]
 
 # pipe through the clipboard
 def clip [] {

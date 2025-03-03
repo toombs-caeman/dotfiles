@@ -17,6 +17,30 @@ My lightly modified whitefox keyboard.
 * organize master list by ... (functional group, key, modifiers, application)?
 * match firefox keybinds for tabs
 * tabs with `HL`, buffers with `JK` while splits with `a-hjkl`
+* telescope `a-`
+    * f - find in file (current_buffer_fuzzy_find)
+    * d - find in directory (live_grep)
+    * e - find_files
+    * E - oldfiles
+    * `<leader>`- buffers
+    * ' - marks
+    * more?
+* tabs, buffers, splits
+    * `a-[1-9]` - goto tab # 
+    * `JK` - tabp tabn (shadows `J` which is used sometimes)
+    * `HL` - bufp and bufn
+    * `a-[hjkl]` move to split
+    * `a-t` - tabnew
+    * `a-x` - close tab
+    * `a-v` - vertical split
+    * `a-V` - horizontal split
+* lsp actions
+    * complete `tab` `<CR>`
+    * `a-s` - find symbols (lsp_document_symbols, lsp_workplace_symbols)
+    * code actions
+    * goto definition/implementation/usages
+    * snippets
+
 
 # Keymaps
 
@@ -30,9 +54,6 @@ This may require writing some scripts to bridge functionality.
 * kitty - terminal
 * mpd/mpc/playerctl - playing music library
 
-
-
-* nushell keybind for mini.sessions `a-S`?
 * hyprland keybinds
     * exit, reboot menu ??[wlogout](https://github.com/ArtsyMacaw/wlogout)
     * hyprland match firefox keybinds for tabs
@@ -50,8 +71,6 @@ This may require writing some scripts to bridge functionality.
 `a-w` go to definition
 
 # kitty
-* enable advanced key handling
-* correct `c-c` vs `c-C` in kitty
 # firefox
 * `a-d` - goto search bar
 * `W` - open tab in new window (replace with `a-v` and `a-s`?)

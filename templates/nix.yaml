@@ -1,16 +1,20 @@
 # imbue config
+
+themes: ../themes/
 theme: spacedust2
 
-# path relative to this file where the source files are found
-templates: .
-themes: ../themes/
+wallpapers: ~/Pictures/Wallpapers
 wallhaven:
   username: caeman
   collection: Default
-wallpapers: ~/Pictures/Wallpapers
 
+music: ~/Music
+ytdlp:
+  - https://www.youtube.com/playlist?list=PLxDIiiSm-a3At4CdKRAVc884mrKA5p4Oz # music
+  - https://www.youtube.com/playlist?list=PLxDIiiSm-a3AtUoK-z0ggkx0N7kmqBCEc # albums
+
+templates: .
 installer: sudo pacman -S --needed --noconfirm
-
 commands:
   nu:
     package: nushell # this is useless, since you need nushell to run this
@@ -23,7 +27,7 @@ commands:
     callback: killall -SIGUSR1 kitty
 
   nvim: # editor https://neovim.io/
-    package: neovim
+    package: neovim luarocks
     files:
       nvim.init.lua: ~/.config/nvim/init.lua
 
@@ -41,7 +45,7 @@ commands:
     package: firefox firefox-ublock-origin
 
   hyprland: # window manager
-    package: hyprland polkit
+    package: hyprland polkit brightnessctl
     files:
       hyprland.conf: ~/.config/hypr/hyprland.conf
 
@@ -73,6 +77,9 @@ commands:
     files:
       hyprlock.conf: ~/.config/hypr/hyprlock.conf
 
-  phony:
-    package: nwg-displays ttf-firacode-nerd pipewire
+  fonts:
+    package: ttf-firacode-nerd noto-fonts noto-fonts-emoji
+
+  extra:
+    package: nwg-displays pipewire wl-clipboard imagemagick rsync
 

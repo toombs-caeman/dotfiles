@@ -3,8 +3,11 @@
 # TODO: partition numbering does not work on nvme0n1{,p1}
 # TODO: user home not created correctly
 # TODO: rename to 'enchant' 'enchant archiso' 'bootstrap'?
-# TODO: install yay
-# TODO: rustup default stable
+# TODO: install yay using gg ...; makepkg -si
+# TODO: bluetooth pacman -S bluez bluez-utils && systemctl enable bluetooth.service
+# TODO: nvim plugins need pacman -S unzip npm rustup && rustup default stable
+
+# `bolt` provides `boltctl` for thunderbolt devices, may not be necessary actually, as policies are set in bios normally.
 
 # create custom arch installer
 #
@@ -278,13 +281,38 @@ def bootstrap [user host] {
     mkdir /mnt/var/lib/iwd/
     cp -r /var/lib/iwd/* /mnt/var/lib/iwd/
 
+    # run a command as root in the new system
+    def --wrapped root [...rest] {
+        let cmd =  $rest | str join ' ' 
+        print $'# ($cmd)'
+        arch-chroot /mnt nu -c $cmd
+    }
+
+    print 'set root password'
+    root passwd
+
+    root useradd $user
+    print $'set password for ($user)'
+    root passwd $user
+    # TODO setup user groups: wheel fuser docker
+    # TODO: add user to sudo.
+    # this is probably the wrong way to do it. use group 'wheel'
+    $"\n($user)   ALL=\(ALL:ALL) ALL\n" | save --append /mnt/etc/sudoers
+
+    # run a command as $user in the new system
+    def --wrapped user [...rest] {
+        let cmd =  $rest | str join ' ' 
+        print $'$ ($cmd)'
+        arch-chroot -u $user /mnt nu -c $cmd
+    }
+
     # generate locale
     "\nen_US.UTF-8 UTF-8\n" | save --append /mnt/etc/locale.conf
-    arch-chroot /mnt locale-gen
+    root locale-gen
 
     # set time
-    arch-chroot /mnt ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
-    arch-chroot /mnt hwclock --systohc
+    root ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
+    root hwclock --systohc
 
     # set hostname
     $host | save /mnt/etc/hostname
@@ -294,28 +322,19 @@ def bootstrap [user host] {
     # A long press of the power button will still be handled by systemd.
     "\nHandlePowerKey=ignore\n" | save --append /mnt/etc/systemd/logind.conf
 
-    print 'set root password'
-    arch-chroot /mnt passwd
-
-    # create $user
-    arch-chroot /mnt useradd $user
-    print $'set password for ($user)'
-    arch-chroot /mnt passwd $user
-    # TODO: add user to sudo
-    $"\n($user)   ALL=\(ALL:ALL) ALL\n" | save --append /mnt/etc/sudoers
 
     # install yay
     # TODO: cannot run makepkg as root
     # cannot cd to /root/yay
-    git clone https://aur.archlinux.org/yay-bin.git /mnt/root/yay
-    arch-chroot /mnt chown $"($user):($user)" /yay
-    arch-chroot -u $user /mnt makepkg -siD /yay
+    git clone https://aur.archlinux.org/yay-bin.git /mnt/yay
+    root chown $"($user):($user)" /yay
+    user makepkg -siD /yay
 
     # install systemd-boot as bootloader
-    arch-chroot /mnt bootctl install
+    root bootctl install
     ## TODO: not booted with UEFI (chroot), so cannot set
     ## disable startup menu
-    #arch-chroot /mnt bootctl set-timeout 0
+    #root bootctl set-timeout 0
 
 
     # configure auto login to hyprland
@@ -340,10 +359,10 @@ def bootstrap [user host] {
     # TODO: trigger dotfiles
     let imbue = $dotdir | path join 'bin/imbue'
     let mana = $dotdir | path join 'templates/nix.yaml'
-    arch-chroot -u $user /mnt ^($imbue) with $mana
+    user ^($imbue) with $mana
 
     mkdir $"/mnt/home/($user)/Music/"
-    arch-chroot -u $user /mnt systemctl --user enable mpd.service
+    user systemctl --user enable mpd.service
 
     # TODO: set kernel parameters (quiet splash)
     # IIRC you should add your kernel parameters to the APPEND in archiso_sys.cfg (and archiso_pxe.cfg if you use PXE).
@@ -351,7 +370,7 @@ def bootstrap [user host] {
     # install bootsplash theme
     # this also has the side effect of rebuilting the initramfs (instead of running mkinitcpio)
     tar -xf black_hud.tar.gz -C /mnt/usr/share/plymouth/themes/
-    arch-chroot /mnt plymouth-set-default-theme -R black_hud
+    root plymouth-set-default-theme -R black_hud
 
     let timeout = 3sec
     print $'reboot in ($timeout)'

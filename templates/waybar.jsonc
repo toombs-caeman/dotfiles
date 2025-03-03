@@ -7,7 +7,7 @@
     "modules-center": [ "mpd", "pulseaudio" ],
     "modules-right": [ "network", "battery", "clock", "tray" ],
     "mpd": {
-        "format": "{stateIcon} {artist} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S})",
+        "format": "{stateIcon} {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S})",
         //"format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S})",
         "format-disconnected": " down",
         "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped",
@@ -73,7 +73,7 @@
     },
     "pulseaudio": {
         // "scroll-step": 1, // %, can be a float
-        "format": "{icon}{volume}% {format_source}",
+        "format": "{icon} {volume}% {format_source}",
         "format-muted": "󰝟--% {format_source}",
         "format-bluetooth": "{volume}% {icon} {format_source}",
         "format-bluetooth-muted": "󰝟 {icon} {format_source}",

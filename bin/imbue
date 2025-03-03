@@ -329,3 +329,18 @@ def __wall_random [config] {
         get (random int ..(($in|length) - 1))
     )
 }
+
+# download music
+def 'main music' [
+    --config(-c):string # configuration file
+] {
+    let config = setup $config
+    let dir = $config.music | expand
+    let output = $dir | path join '%(title)s.%(ext)s'
+    let archive = $dir | path join 'download-archive.txt'
+
+    # TODO --cookies-from-browser ??
+    for playlist in $config.ytdlp {
+        yt-dlp --yes-playlist --extract-audio --embed-metadata -f bestaudio/best --audio-format mp3 --audio-quality 0 --restrict-filenames -o $output -iw --download-archive $archive -- $playlist
+    }
+}
