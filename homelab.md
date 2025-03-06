@@ -14,6 +14,7 @@ I think it would be cool to revive old laptops and phones by connecting them int
 * [proxmox](https://www.proxmox.com/en/)
 * [NUT](https://networkupstools.org/)
 * bare metal k8s
+* talos linux - k8s optimized linux distro
 
 # compute
 something like aws lambda + ec2 + ecs
@@ -49,23 +50,30 @@ not sure what the best way is here. Something like s3?
 * docker cluster - k8s?
 
 # network
-* domain name - duckdns, toombs.club, stacyfake.name
+* domain name - duckdns, toombs.club, stacyfake.name, caeman.tech
 * ssl certificates - letsencrypt
 * routing - nginx
 * dns server? to shortcircuit local name resolution
 * openwrt?
 
 # code pipeline
-* git origin + ci/cd - gogs, gitlab?
+* git origin - gogs, gitlab?
+    * [forgejo](https://forgejo.org/)
+    * [soft-serve](https://github.com/charmbracelet/soft-serve?tab=readme-ov-file) [charm](https://charm.sh/)
+    
+* ci/cd
+    * [fluxcd](https://fluxcd.io/)
+    * dokku / piku
 * artifact repository - jfrog?
 
 # management
 * project kanban / ticket system - jira, asana
 * services dashboard - 
 * backups
+    * offsite backups
 * provisioning
     * terraform, dokku, k8s?
-    * rancher??
+    * rancher desktop. probably not
 
 # identity & authentication
 * IdP - google? keycloak?
@@ -89,6 +97,7 @@ not sure what the best way is here. Something like s3?
 * adblock/pihole
 * media server + a [projector](https://www.ign.com/articles/best-gaming-projector)
 * filesharing - nextcloud
+    * [0x0](https://0x0.st/)
 * password manager - bitwarden?
 * llm - ollama
 * gsuite replacement
@@ -101,6 +110,8 @@ not sure what the best way is here. Something like s3?
 * search index?
 * url shortener
 * firefox sync
+* read later app + extension https://wallabag.org/
+* 3d printer farm
 
 # science
 * protein folding (folding@home)

@@ -4,31 +4,21 @@
     * provides completions and command output as a table
     * ssh, git, docker, atuin, rg, rsync
 
-* correct `c-v` behavior
-    * how to get nushell to use the system clipboard for pasting?
-
-# git section
-* nvim + git
-    * need to be able to stage, checkout, and commit from within vim
-* git-delta?
-* vim-git
-* mini.git
-* mini.diff
-* gitsigns
-* interactive add, commit?
-* vim-fugitive?
-* vimagit?
-* nushell completer
-* aliases
-* git config --global merge.conflictstyle diff3
-* always set upstream on push
-* forgit
-
-
-# general
-
 * [master keymap](keymap.md)
 
+* correct `c-v` behavior
+    * how to get nushell to use the system clipboard for pasting?
+* keybinds for neogit and gitsigns
+    * gitsigns toggle_current_line_blame
+    * gitsigns blame
+    * gitsigns preview_hunk_inline
+    * neogit `a-g`
+    * diff view?
+    * telescope git_branches
+    * nushell completer
+    * [neogit](https://github.com/NeogitOrg/neogit)
+
+# general
 * kitty keys
     * scroll to prompt `c-{z,x}` -> `c-{j,k}`
     * page last output? map kitty_mod+g `show_last_command_output`
@@ -72,6 +62,7 @@
     * poor mans fzf: input list -f
 
 # theming
+* neogit highlight groups
 * standardize nvim-web-dev-icons vs mini.icons vs nerdfonts icons
 * more [wallpapers](https://wallhaven.cc/)
 * adjust spacedust2 magenta to be more magenta
@@ -92,7 +83,7 @@
     * convert plymouth code into password prompt
 
 * add mpc current back to hyprlock, now that commands work when locked
-* catpuccin?
+* catpuccin theme?
 
 * pokemon sprites `kitten icat --align=left (ls ruby-sapphire/ | where type == file | shuffle | first | get name)`
     * would be cool to have animated sprites (b/w 2) but limit it to the <= gen 3
@@ -104,6 +95,8 @@
     * keep compressed in git? should probably do the same for black_hud
 
 # TODO: Maybe in the Future
+* https://github.com/AgregoreWeb/agregore-browser
+* https://cabal.chat/
 * try not to need aur packages for the base system.
 * homelab.md?
 * is tab-less working? re-evaluate wink
@@ -152,6 +145,7 @@
 * window titles
     * waybar - show active window title
     * nvim set title to buffer name
+* gh-dash github cli
 
 * steam wayland fixes https://github.com/ValveSoftware/gamescope
 * [access clipboard from nushell/reedline](https://github.com/nushell/reedline/issues/745)
@@ -160,6 +154,8 @@
 * telescope
     * telescope preview images with kitty icat
     * ripgrep + telescope?
+* subcommand for interacting with github/gitlab/etc [git forge](https://github.com/nhorman/gitforge)
+* charm based TUI (golang) [charm](https://charm.sh/)
 
 # research: what are these? Do these things exist
 * https://nixos.org/

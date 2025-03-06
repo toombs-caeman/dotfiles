@@ -250,6 +250,15 @@ require("lazy").setup({
 			},
 		},
 	},
+	{
+		"NeogitOrg/neogit",
+		dependencies = {
+			"nvim-lua/plenary.nvim", -- required
+			"sindrets/diffview.nvim", -- optional - Diff integration
+			"nvim-telescope/telescope.nvim", -- optional
+		},
+		config = true,
+	},
 	-- provides SudoWrite and SudoRead
 	{
 		"denialofsandwich/sudo.nvim",
@@ -733,7 +742,14 @@ require("lazy").setup({
 		"echasnovski/mini.nvim",
 		config = function()
 			-- Better Around/Inside textobjects
-			require("mini.ai").setup({ n_lines = 500 })
+			local gen_spec = require("mini.ai").gen_spec
+			require("mini.ai").setup({
+				n_lines = 500,
+				custom_text_objects = {
+					-- TODO function definition, rather than f for function call
+					F = gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }),
+				},
+			})
 			-- Add/delete/replace surroundings (brackets, quotes, etc.)
 			require("mini.surround").setup()
 			-- session management

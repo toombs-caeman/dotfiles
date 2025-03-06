@@ -27,6 +27,8 @@
     prune = true
     pruneTags = true
     all = true
+[merge]
+    conflictstyle = diff3
 [diff]
     algorithm = histogram
     colorMoved = plain
