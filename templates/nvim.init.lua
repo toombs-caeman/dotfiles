@@ -257,6 +257,9 @@ require("lazy").setup({
 			"sindrets/diffview.nvim", -- optional - Diff integration
 			"nvim-telescope/telescope.nvim", -- optional
 		},
+		opts = {
+			graph_style = "kitty",
+		},
 		config = true,
 	},
 	-- provides SudoWrite and SudoRead

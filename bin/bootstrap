@@ -6,6 +6,7 @@
 # TODO: install yay using gg ...; makepkg -si
 # TODO: bluetooth pacman -S bluez bluez-utils && systemctl enable bluetooth.service
 # TODO: nvim plugins need pacman -S unzip npm rustup && rustup default stable
+# TODO: idempotent helper functions
 
 # `bolt` provides `boltctl` for thunderbolt devices, may not be necessary actually, as policies are set in bios normally.
 
@@ -273,7 +274,7 @@ def bootstrap [user host] {
 
     # XXX: assuming your cpu is either intel or amd. this is probably better to default to none
     let microcode = (if (sys cpu | get 0.vendor_id) == GenuineIntel { 'intel-ucode' } else { 'amd-ucode' })
-    pacstrap -K /mnt base base-devel linux linux-firmware $microcode plymouth pipewire man-db man-pages texinfo iwd git nushell neovim
+    pacstrap -K /mnt base base-devel linux linux-firmware $microcode plymouth pipewire man-db man-pages texinfo iwd git nushell neovim pueue
 
     genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -364,6 +365,7 @@ def bootstrap [user host] {
     mkdir $"/mnt/home/($user)/Music/"
     user systemctl --user enable mpd.service
 
+    user systemctl --user enable pueued.service
     # TODO: set kernel parameters (quiet splash)
     # IIRC you should add your kernel parameters to the APPEND in archiso_sys.cfg (and archiso_pxe.cfg if you use PXE).
 

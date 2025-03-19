@@ -1,13 +1,34 @@
 # TODO
 
+* [master keymap](keymap.md)
+
+* figure out how to import a script properly
+    * the problem is importing subcommands, since they are like `imbue main wall` instead of `imbue wall`
+    * use `export alias sub = main sub` and don't export 'main sub'
+* nushell lib dirs?
+    * source completions
+    * `pueue completions nushell | save -f`
+    * `carapace _carapace nushell | save -f`
+    * `touch mod.nu`
+    * `use completion *`
+* `alias & = pueue add -i`
+* script completions
 * [nushell wrappers](https://github.com/drbrain/nushell-config/tree/main)
     * provides completions and command output as a table
     * ssh, git, docker, atuin, rg, rsync
 
-* [master keymap](keymap.md)
+* hjkl in carapace
+
+* pueue
+    * differences between `hyprctl dispatch exec ...` and `pueue add ...`
+    * `pueue completions nushell`
+    * alias `&` = `pueue add`
+    * `systemctl --user start pueued.service`
+
 
 * correct `c-v` behavior
     * how to get nushell to use the system clipboard for pasting?
+
 * keybinds for neogit and gitsigns
     * gitsigns toggle_current_line_blame
     * gitsigns blame
@@ -18,12 +39,9 @@
     * nushell completer
     * [neogit](https://github.com/NeogitOrg/neogit)
 
-# general
 * kitty keys
     * scroll to prompt `c-{z,x}` -> `c-{j,k}`
     * page last output? map kitty_mod+g `show_last_command_output`
-
-* push blog to github
 
 * ssh
     * sshfs
@@ -38,12 +56,14 @@
 
 * [image.nvim](https://github.com/3rd/image.nvim)
     * unbearably slow. need an alternative
+
 * multihead neovim
     * unmaintained [nwin](https://github.com/glacambre/nwin?tab=readme-ov-file)
     * not quite it [nvr](https://github.com/mhinz/neovim-remote)
     * ext multigrid??
     * ext windows??
     * https://github.com/topics/neovim-guis
+
 
 # nvim debug
 * mini.misc.put()
@@ -84,6 +104,7 @@
 
 * add mpc current back to hyprlock, now that commands work when locked
 * catpuccin theme?
+* [carapace](https://carapace-sh.github.io/carapace-bin/style.html)
 
 * pokemon sprites `kitten icat --align=left (ls ruby-sapphire/ | where type == file | shuffle | first | get name)`
     * would be cool to have animated sprites (b/w 2) but limit it to the <= gen 3
@@ -135,7 +156,7 @@
     * [xxh](https://github.com/xxh/xxh)
 * [notcurses](https://github.com/dankamongmen/notcurses) [site](https://notcurses.com/)
 * play with firefox bookmarks (places.sqlite)
-    * [nushell start](https://www.nushell.sh/commands/docs/start.html)
+    * nushell stor
 * template gtk themes?
 * ls color generator [vivid](https://github.com/sharkdp/vivid)
 * generate colorschemes from images
@@ -157,6 +178,48 @@
 * subcommand for interacting with github/gitlab/etc [git forge](https://github.com/nhorman/gitforge)
 * charm based TUI (golang) [charm](https://charm.sh/)
 
+* an electronic version of touchstone
+    * config
+        * sleep hours - delay notifications until wake time
+        * leadtime options - 10 minutes, 1 day, 1 week, 1 month
+        * in progress limits - limit in process category
+        * report frequency
+        * sync server + idp
+    * todo items have a description, tags, and optionally a duedate + leadtime
+    * send push notifications at duedate - leadtime
+        * options: done, snooze, delete
+        * snooze for half the remaining time to due (becomes faster as time draws near)
+        * don't default to the middle of the night when only date is given, send notifications at 7am local.
+    * recurring tasks
+    * from kanban:
+        * todo, in process, done
+        * limit in process work
+    * automatically 'in progress' tasks when leadtime reached
+        * recommend to push back tasks when calendar fills up with events?
+        * allow higher than 'in progress' limit for this.
+    * generate regular reports about done work, send an email
+    * the idea is to replace both a calendar and todo list with this task manager (where tasks are usually not strictly time bound)
+    * ical interop?
+    * this should subsume jist, since the inbox should be regularly revisited
+    * build as a website? favicon becomes icon on home screen
+
+* blog about treerat's computation graphs
+
+# larger project ideas
+* general abstraction for accessing data from an app?
+    * the abstraction shouldn't care if the data is local, NAS, s3, etc.
+    * primitives for local cache, remote sync, backups, backup retention, encryption.
+    * ideally it appears as 'just a filesystem' to the application.
+    * s3-fuse
+    * enables 'local first' software that also offers data hosting / sync as a service, or self-hosting.
+    * an 'infinite drive' where the 'true' data is on the cloud, but the local hard drive is an offline cache? Critical and recently used files will always be available on local storage, but with backups in the cloud when connected. Files swap transparently when local space fills up.
+
+* logic gate toy in godot
+    * emulate ideal behaviors of gates and things with node editor interface
+    * inspired by coding adventures
+    * save and paste schematics as (zoomable) black boxes
+
+* [home lab](homelab.md)
 # research: what are these? Do these things exist
 * https://nixos.org/
 * podman vs docker

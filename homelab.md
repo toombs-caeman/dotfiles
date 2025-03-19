@@ -1,20 +1,51 @@
 # Aspirations of a home lab
-If I were to get into having more serious compute around the house.
+The 'core' of the home lab would be a kubernetes cluster with associated control panes, a code pipeline and raid storage. The 'core' is distinguished as all of the services which are necessary for bootstrapping and maintaining the cluster itself (though they may be used for other things as well).
 
-I think it would be cool to revive old laptops and phones by connecting them into a home k8s cluster.
+I've a number of 'apps' in mind as well, services which I would prefer to self host, if not build myself.
 
-# hardware
-* rack mount server
-* old laptops
-* old phones
-* network switch?
-* router
+In terms of hardware, I want to focus on reviving old tech, and having fully hot pluggable nodes / storage. Lets give new life to old desktops, laptops, tablets and phones. This won't be the most power efficient, but the old hardware will be trash othewise.
+
+If performance is ever a bottleneck, I want to be able to spin up a node on the cloud just as easily as on local hardware, though I intend to have long running services run on my hardware at home.
+I may have a node for offsite backups running elsewhere.
+
+# management scripts
+* rotate keys
+* provision new node
+* deprovision node
+
+# networking
+nodes communicate to each other through wireguard.
+* [wireguard](https://www.wireguard.com/)
+    * [multicloud overlay network](https://kilo.squat.ai/)
+## public subnet
+A public domain name points to the ingress controller (nginx). Services are exposed as subdomains. SSL certs by letsencrypt
+* caeman.dev:443 - professional profile and blog
+* caeman.dev:22 - soft-serve git forge (read only)
+* 0x0.caeman.dev - file sharing
+* pad.caeman.dev - etherpad, collaborative editing
+* social nodes? activitypub, mastadon, scuttlebutt
+
+## private subnet
+Private services are only available through wireguard at `<service>.k8s` domains?
+Trusted 'seats' also need to be runnning wireguard to access the subnet
+* k8s gui
+* NAS
+    * sshfs
+* artifact store
+* git gui
+* monitoring - grafana
+* alerting - apprise
+* 3d printer service [octoprint](https://octoprint.org/)
+* password manager?
+* pihole egress
 
 # hypervisor
 * [proxmox](https://www.proxmox.com/en/)
 * [NUT](https://networkupstools.org/)
 * bare metal k8s
 * talos linux - k8s optimized linux distro
+* custom node image?
+* k8s vs [k3s](https://k3s.io/)
 
 # compute
 something like aws lambda + ec2 + ecs
@@ -23,6 +54,9 @@ something like aws lambda + ec2 + ecs
 * docker - containerized apps, the bulk of compute
 * vms - to run windows mostly
 * hypervisors - what actually runs on the bare metal? How do they connect to the cluster?
+
+# GPU
+* gpu passthrough?
 
 # storage
 not sure what the best way is here. Something like s3?
@@ -45,16 +79,9 @@ not sure what the best way is here. Something like s3?
 * notifications - apprise
 * logging - ??
 * time series db - influxdb
-* relational db - postgres?
+* relational db - postgres? sqlite
 * storage - truenas?
 * docker cluster - k8s?
-
-# network
-* domain name - duckdns, toombs.club, stacyfake.name, caeman.tech
-* ssl certificates - letsencrypt
-* routing - nginx
-* dns server? to shortcircuit local name resolution
-* openwrt?
 
 # code pipeline
 * git origin - gogs, gitlab?
@@ -98,24 +125,32 @@ not sure what the best way is here. Something like s3?
 * media server + a [projector](https://www.ign.com/articles/best-gaming-projector)
 * filesharing - nextcloud
     * [0x0](https://0x0.st/)
-* password manager - bitwarden?
+* password manager
+    * bitwarden?
+    * vaultwarden
+    * keepass
 * llm - ollama
 * gsuite replacement
 * personal CRM / contact list tool
+    * sqlite + charm tui
 * fediverse nodes
 * cryptomining? probably not
 * [distributed rendering for blender](https://github.com/LogicReinc/LogicReinc.BlendFarm)
 * collaborative editing - [etherpad](https://github.com/ether/etherpad-lite)
 * IoT
 * search index?
-* url shortener
 * firefox sync
-* read later app + extension https://wallabag.org/
+* read later app + extension [wallabag](https://wallabag.org/)
 * 3d printer farm
 
 # science
 * protein folding (folding@home)
 * star searching
+
+# media store
+* wallhaven
+* youtube
+* royalroad
 
 # ref
 * [awesome-homelab](https://github.com/ccbikai/awesome-homelab)

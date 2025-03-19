@@ -10,9 +10,9 @@ $env.config.show_banner = false
 $env.config.edit_mode = 'vi'
 $env.config.buffer_editor = 'nvim'
 $env.PROMPT_INDICATOR = '!!!' # emacs mode, this shouldn't happen
-$env.PROMPT_INDICATOR_VI_NORMAL = ':'
+$env.PROMPT_INDICATOR_VI_NORMAL = ': '
 $env.config.use_kitty_protocol = true
-$env.PROMPT_INDICATOR_VI_INSERT = '%'
+$env.PROMPT_INDICATOR_VI_INSERT = '% '
 $env.SHELL = 'nu' # open nu in :term
 def vi [file?] {
     if ($file == null) {
@@ -196,17 +196,10 @@ def colors [] {
     print (ansi reset)
 }
 
-def 'random index' [] {
-    let size = ($in | length) - 1
-    $in | get (random int ..$size)
-}
-
-def 'random wallpaper' [] {
-    hyprctl hyprpaper reload ,(glob ~/Pictures/Wallpapers/* | random index)
-}
-
 # list attached block devices with lsblk
 def 'sys blocks' [] {
     lsblk --json | from json | get blockdevices
 }
 
+$env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense' # optional
+source ~/.cache/carapace/init.nu

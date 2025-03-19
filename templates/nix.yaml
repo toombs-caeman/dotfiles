@@ -10,8 +10,8 @@ wallhaven:
 
 music: ~/Music
 ytdlp:
-  - https://www.youtube.com/playlist?list=PLxDIiiSm-a3At4CdKRAVc884mrKA5p4Oz # music
   - https://www.youtube.com/playlist?list=PLxDIiiSm-a3AtUoK-z0ggkx0N7kmqBCEc # albums
+  - https://www.youtube.com/playlist?list=PLxDIiiSm-a3At4CdKRAVc884mrKA5p4Oz # music
 
 templates: .
 installer: sudo pacman -S --needed --noconfirm
