@@ -59,7 +59,7 @@ vim.keymap.set(
 	'<Cmd>if col(\'.\') - 1<bar>exe "normal! 0"<bar>else<bar> exe "normal! $"<bar>endif<CR>'
 )
 
-vim.keymap.set({ "n", "i", "v" }, "<a-b>", "<cmd>Gitsigns blame<CR>")
+vim.keymap.set({ "n", "i", "v" }, "<a-b>", "<cmd>Gitsigns blame_line<CR>")
 
 -- handle paste events in insert and command modes
 vim.keymap.set({ "i", "c" }, "<c-v>", "<c-r>+")
@@ -108,6 +108,8 @@ vim.keymap.set("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
 vim.keymap.set("n", "<A-e>", "<cmd>Telescope find_files sort_lastused=true<cr>", { desc = "Fuzzy find files" })
 vim.keymap.set("n", "<A-space>", "<cmd>Telescope buffers sort_lastused=true<cr>", { desc = "Fuzzy find buffers" })
 
+-- [[ find ]]
+vim.keymap.set("n", "<A-f>", "<cmd>Telescope live_grep<cr>", { desc = "Fuzzy grep text" })
 -- [[ directory ]]
 vim.keymap.set("n", "-", "<cmd>lua require('mini.files').open()<cr>", { desc = "Edit Directories" })
 
@@ -389,6 +391,86 @@ require("lazy").setup({
 				-- Load luvit types when the `vim.uv` word is found
 				{ path = "${3rd}/luv/library", words = { "vim%.uv" } },
 			},
+		},
+	},
+	{ "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap", "nvim-neotest/nvim-nio" } },
+	{
+		"mfussenegger/nvim-dap",
+		lazy = true,
+		-- Copied from LazyVim/lua/lazyvim/plugins/extras/dap/core.lua and
+		-- modified.
+		keys = {
+			{
+				"<leader>db",
+				function()
+					require("dap").toggle_breakpoint()
+				end,
+				desc = "Toggle Breakpoint",
+			},
+
+			{
+				"<leader>dc",
+				function()
+					require("dap").continue()
+				end,
+				desc = "Continue",
+			},
+
+			{
+				"<leader>dC",
+				function()
+					require("dap").run_to_cursor()
+				end,
+				desc = "Run to Cursor",
+			},
+
+			{
+				"<leader>dT",
+				function()
+					require("dap").terminate()
+				end,
+				desc = "Terminate",
+			},
+		},
+		config = function()
+			local dap, dapui = require("dap"), require("dapui")
+			dapui.setup()
+
+			-- open Dap UI automatically when debug starts (e.g. after <F5>)
+			dap.listeners.before.attach.dapui_config = function()
+				dapui.open("tray")
+			end
+			dap.listeners.before.launch.dapui_config = function()
+				dapui.open("tray")
+			end
+			vim.keymap.set("n", "<leader>dd", dapui.toggle, { desc = "Toggle Dap UI" })
+		end,
+	},
+	{
+		"jay-babu/mason-nvim-dap.nvim",
+		---@type MasonNvimDapSettings
+		opts = {
+			-- This line is essential to making automatic installation work
+			-- :exploding-brain
+			handlers = {},
+			automatic_installation = {
+				-- These will be configured by separate plugins.
+				exclude = {
+					"delve",
+					"python",
+				},
+			},
+			-- DAP servers: Mason will be invoked to install these if necessary.
+			ensure_installed = {
+				"bash",
+				"codelldb",
+				"php-debug-adapter",
+				"python",
+			},
+		},
+		dependencies = {
+			"mfussenegger/nvim-dap",
+			"williamboman/mason.nvim",
 		},
 	},
 	{

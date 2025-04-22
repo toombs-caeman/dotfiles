@@ -155,3 +155,12 @@ not sure what the best way is here. Something like s3?
 # ref
 * [awesome-homelab](https://github.com/ccbikai/awesome-homelab)
 
+* data orchestrator?
+    * apache airflow
+    * kubeflow
+* message streaming / bus / queue
+    * kafka
+    * amazon sqs
+    * rabbitmq
+    * mqtt
+* PXE netboot controller [pixiecore](https://github.com/danderson/netboot/tree/main/pixiecore)
