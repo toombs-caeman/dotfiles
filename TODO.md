@@ -1,10 +1,9 @@
 # TODO
 
-* gdb + nvim-dap
 * [master keymap](keymap.md)
+* use nushell history to query exist_status, duration, hostname etc?
+    * rather than keeping this dynamically (and probably badly) for the prompt.
 
-* mpc status doesn't show correct length of song if over 1 hour
-    * filter out () from titles for display?
 * figure out how to import a script properly (nushell)
     * the problem is importing subcommands, since they are like `imbue main wall` instead of `imbue wall`
     * use `export alias sub = main sub` and don't export 'main sub'
@@ -23,10 +22,13 @@
 * hjkl in carapace
 
 * pueue
+    * nushell has native job control now?
+        * it kind of sucks though
     * differences between `hyprctl dispatch exec ...` and `pueue add ...`
     * `pueue completions nushell`
     * alias `&` = `pueue add`
     * `systemctl --user start pueued.service`
+* gdb + nvim-dap
 
 
 * correct `c-v` behavior
@@ -229,6 +231,8 @@
     * use [ebup3 media overlays](https://www.w3.org/TR/epub-overview-33/#sec-mediaoverlays)
     * maybe use ai/tts to sync the audio track? not sure how this is done
     * [project gutenberg](https://www.gutenberg.org/) vs [standard ebooks](https://standardebooks.org/)
+
+* the flip side of discovery (implied discovery of supply for products, restaurants, music) is detecting demand. How can we aggregate people's desires to find demand and then create the supply?
 
 * [home lab](homelab.md)
 # research: what are these? Do these things exist

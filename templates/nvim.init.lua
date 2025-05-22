@@ -36,6 +36,7 @@ vim.opt.inccommand = "split" -- preview substitutions live
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
+vim.opt.fixendofline = false -- don't mess with line endings, especially when dealing with legacy windows projects
 vim.opt.fillchars = {
 	foldopen = "",
 	foldclose = "",
@@ -507,6 +508,7 @@ require("lazy").setup({
 					map("<A-w>", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
 					map("<A-r>", vim.lsp.buf.rename, "[R]e[n]ame")
 					map("<A-q>", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
+					map("<A-x>", vim.diagnostic.open_float, "Diagnostic", { "n", "x" })
 
 					-- Jump to the definition of the word under your cursor.
 					--  This is where a variable was first declared, or where a function is defined, etc.
@@ -618,7 +620,7 @@ require("lazy").setup({
 							completion = {
 								callSnippet = "Replace",
 							},
-							-- diable `missing-fields` warnings
+							-- disable `missing-fields` warnings
 							diagnostics = { disable = { "missing-fields" } },
 						},
 					},

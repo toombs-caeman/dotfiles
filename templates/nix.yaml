@@ -78,7 +78,7 @@ commands:
       hyprlock.conf: ~/.config/hypr/hyprlock.conf
 
   fonts:
-    package: ttf-firacode-nerd noto-fonts noto-fonts-emoji
+    package: ttf-firacode-nerd noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra
 
   extra:
     package: nwg-displays pipewire wl-clipboard imagemagick rsync

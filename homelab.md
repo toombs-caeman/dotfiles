@@ -116,6 +116,8 @@ not sure what the best way is here. Something like s3?
     * scrape data and store it
     * send notifications on webnovel updates
     * scrape novel text, generate audio with TTS, load to phone for morning commute?
+        * [listentoanything](https://listentoanything.com/)
+
     * project gutenburg -> TTS -> phone
 * rss
 * generate an AI summary of the news
@@ -142,6 +144,7 @@ not sure what the best way is here. Something like s3?
 * firefox sync
 * read later app + extension [wallabag](https://wallabag.org/)
 * 3d printer farm
+* make and host io games
 
 # science
 * protein folding (folding@home)
