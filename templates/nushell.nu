@@ -18,10 +18,16 @@ def vi [file?] {
     if ($file == null) {
         nvim
     } else if ('NVIM' in $env) {
-        nvim --server $env.NVIM --remote $file
+        nvim --server $env.NVIM --remote ($file | path expand )
     } else {
-        nvim $file
+        nvim ($file | path expand )
     }
+}
+$env.config.history = {
+    file_format: sqlite # enable rich history
+    max_size: 1_000_000
+    sync_on_enter: true
+    isolation: true  # don't mix session history when using up key
 }
 
 $env.config.keybindings ++= [

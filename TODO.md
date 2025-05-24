@@ -1,8 +1,10 @@
 # TODO
 
 * [master keymap](keymap.md)
+* use nushell history to query exist_status, duration, hostname etc?
+    * rather than keeping this dynamically (and probably badly) for the prompt.
 
-* figure out how to import a script properly
+* figure out how to import a script properly (nushell)
     * the problem is importing subcommands, since they are like `imbue main wall` instead of `imbue wall`
     * use `export alias sub = main sub` and don't export 'main sub'
 * nushell lib dirs?
@@ -20,10 +22,13 @@
 * hjkl in carapace
 
 * pueue
+    * nushell has native job control now?
+        * it kind of sucks though
     * differences between `hyprctl dispatch exec ...` and `pueue add ...`
     * `pueue completions nushell`
     * alias `&` = `pueue add`
     * `systemctl --user start pueued.service`
+* gdb + nvim-dap
 
 
 * correct `c-v` behavior
@@ -120,6 +125,7 @@
 * https://cabal.chat/
 * try not to need aur packages for the base system.
 * homelab.md?
+* [defer in c](https://thephd.dev/c2y-the-defer-technical-specification-its-time-go-go-go)
 * is tab-less working? re-evaluate wink
 * integrate gg with nvim sessions?
 * increase hypridle times?
@@ -221,6 +227,15 @@
 
 * can 'juice' from game design be applied to boring software like excel?
 
+* sync ebooks and audiobooks?
+    * can we connect the cybrarians audiobooks with the project gutenberg text of the same?
+    * need to do some research to see if this has already been done.
+    * use [ebup3 media overlays](https://www.w3.org/TR/epub-overview-33/#sec-mediaoverlays)
+    * maybe use ai/tts to sync the audio track? not sure how this is done
+    * [project gutenberg](https://www.gutenberg.org/) vs [standard ebooks](https://standardebooks.org/)
+
+* the flip side of discovery (implied discovery of supply for products, restaurants, music) is detecting demand. How can we aggregate people's desires to find demand and then create the supply?
+
 * [home lab](homelab.md)
 # research: what are these? Do these things exist
 * https://nixos.org/
@@ -231,3 +246,9 @@
 
 * [comments on self-hosted paas](https://news.ycombinator.com/item?id=43555996)
     * [dbohdan list](https://dbohdan.com/self-hosted-paas)
+* proofs
+    * Daniel Velleman’s “Proof Designer” [suggested problems](https://djvelleman.github.io/pd/help/Problems.html)
+    * [deduce](https://jsiek.github.io/deduce/index.html)
+* [compiler explorer godbolt](https://godbolt.org/)
+* [BQN](https://mlochbaum.github.io/BQN/)
+* lstopo (from hwloc) to visualize hardware caching

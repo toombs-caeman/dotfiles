@@ -7,7 +7,7 @@
     "modules-center": [ "mpd", "pulseaudio" ],
     "modules-right": [ "network", "battery", "clock", "tray" ],
     "mpd": {
-        "format": "{stateIcon} {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S})",
+        "format": "{stateIcon} {title:.40} ({elapsedTime:%H:%M:%S}/{totalTime:%H:%M:%S})",
         //"format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S})",
         "format-disconnected": " down",
         "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped",

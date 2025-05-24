@@ -120,6 +120,8 @@ not sure what the best way is here. Something like s3?
     * scrape data and store it
     * send notifications on webnovel updates
     * scrape novel text, generate audio with TTS, load to phone for morning commute?
+        * [listentoanything](https://listentoanything.com/)
+
     * project gutenburg -> TTS -> phone
 * rss
 * generate an AI summary of the news
@@ -152,6 +154,7 @@ not sure what the best way is here. Something like s3?
     * rss-to-email
     * pastebin over ssh?
     * [experiments](https://pico.sh/lab)
+* make and host io games
 
 # science
 * protein folding (folding@home)
@@ -165,3 +168,12 @@ not sure what the best way is here. Something like s3?
 # ref
 * [awesome-homelab](https://github.com/ccbikai/awesome-homelab)
 
+* data orchestrator?
+    * apache airflow
+    * kubeflow
+* message streaming / bus / queue
+    * kafka
+    * amazon sqs
+    * rabbitmq
+    * mqtt
+* PXE netboot controller [pixiecore](https://github.com/danderson/netboot/tree/main/pixiecore)
