@@ -13,6 +13,7 @@ I may have a node for offsite backups running elsewhere.
 * provision new node
 * deprovision node
 
+
 # networking
 nodes communicate to each other through wireguard.
 * [wireguard](https://www.wireguard.com/)
@@ -105,6 +106,9 @@ not sure what the best way is here. Something like s3?
 # identity & authentication
 * IdP - google? keycloak?
 * [ssh through sso](https://smallstep.com/blog/diy-single-sign-on-for-ssh/)
+* user/permission management interface
+    * want to specify user sign up, default permissions
+    * also specify access control for services, default access control for new services
 
 # Applications
 * RDP
@@ -142,6 +146,12 @@ not sure what the best way is here. Something like s3?
 * firefox sync
 * read later app + extension [wallabag](https://wallabag.org/)
 * 3d printer farm
+* [omg.lol](https://omg.lol)
+* [pico.sh](https://pico.sh/)
+    * micro pubsub over ssh
+    * rss-to-email
+    * pastebin over ssh?
+    * [experiments](https://pico.sh/lab)
 
 # science
 * protein folding (folding@home)

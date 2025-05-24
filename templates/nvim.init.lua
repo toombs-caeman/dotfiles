@@ -839,6 +839,7 @@ local apps = {
 	{ "firefox", "firefox" },
 	{ "waybar", "waybar" },
 	{ "wifi", "kitty iwctl" },
+	{ "anki", "anki" },
 	{ "displays", "nwg-displays" },
 	{ "steam", "steam -nochatui -nofriendsui" },
 	{ "slack", "slack" },

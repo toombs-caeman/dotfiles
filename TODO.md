@@ -219,8 +219,15 @@
     * inspired by coding adventures
     * save and paste schematics as (zoomable) black boxes
 
+* can 'juice' from game design be applied to boring software like excel?
+
 * [home lab](homelab.md)
 # research: what are these? Do these things exist
 * https://nixos.org/
 * podman vs docker
 * https://terminaltrove.com/list/
+
+* [programmars ring](https://loup-vaillant.fr/articles/programming-ring) + [tromp diagram](https://tromp.github.io/cl/diagrams.html)
+
+* [comments on self-hosted paas](https://news.ycombinator.com/item?id=43555996)
+    * [dbohdan list](https://dbohdan.com/self-hosted-paas)
