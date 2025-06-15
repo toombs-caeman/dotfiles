@@ -246,7 +246,7 @@ def openTheme [theme] {
 
 # raise nicer errors if an external command is missing
 def require [...external:string] {
-    let missing = $external | filter {|cmd| which $cmd | is-empty}
+    let missing = $external | where {|cmd| which $cmd | is-empty}
     if ($missing | is-not-empty) {
         error make {
             msg: $'missing: ($missing|str join ", ")'
@@ -293,7 +293,7 @@ def 'main wall haven' [
     http get $'https://wallhaven.cc/api/v1/collections/($username)/($col_id)?apikey=($apikey)' |
         get data |
         select id path |
-        filter {|img| $img.id not-in $memo} | # don't download stuff we already have
+        where {|img| $img.id not-in $memo} | # don't download stuff we already have
         each {|img| # do download
             let file = {
                 parent: $walldir
