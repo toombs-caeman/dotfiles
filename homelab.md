@@ -5,112 +5,107 @@ I've a number of 'apps' in mind as well, services which I would prefer to self h
 
 In terms of hardware, I want to focus on reviving old tech, and having fully hot pluggable nodes / storage. Lets give new life to old desktops, laptops, tablets and phones. This won't be the most power efficient, but the old hardware will be trash othewise.
 
-If performance is ever a bottleneck, I want to be able to spin up a node on the cloud just as easily as on local hardware, though I intend to have long running services run on my hardware at home.
-I may have a node for offsite backups running elsewhere.
-
-# management scripts
-* rotate keys
+# management actions
+accomplish with nushell and talosctl?
+* rotate master key
+* bootstrap cluster
 * provision new node
 * deprovision node
+* check node health, as part of monitoring system also
 
+# level 0 - hardware & bios
+* make sure to turn on bios setting to boot on power restore
 
-# networking
-nodes communicate to each other through wireguard.
-* [wireguard](https://www.wireguard.com/)
-    * [multicloud overlay network](https://kilo.squat.ai/)
-## public subnet
-A public domain name points to the ingress controller (nginx). Services are exposed as subdomains. SSL certs by letsencrypt
-* caeman.dev:443 - professional profile and blog
-* caeman.dev:22 - soft-serve git forge (read only)
-* 0x0.caeman.dev - file sharing
-* pad.caeman.dev - etherpad, collaborative editing
-* social nodes? activitypub, mastadon, scuttlebutt
+## servers
+* NAS build - master node (jack)
+* old laptops - auxillary nodes (havarti)
 
-## private subnet
-Private services are only available through wireguard at `<service>.k8s` domains?
-Trusted 'seats' also need to be runnning wireguard to access the subnet
-* k8s gui
-* NAS
-    * sshfs
-* artifact store
-* git gui
-* monitoring - grafana
-* alerting - apprise
-* 3d printer service [octoprint](https://octoprint.org/)
-* password manager?
-* pihole egress
+## non-servers
+* router - need to assign a static ip to at least the main server, and route incoming traffic to it
+* domain name - toombs.casa? caeman.dev?
+    * need an auto updater script
+    * [update-godaddy-dns](https://github.com/UnklAdM/update-godaddy-dns/blob/master/update_gd_dns.sh)
 
-# hypervisor
+# level 1 - cluster hypervisor
 * [proxmox](https://www.proxmox.com/en/)
-* [NUT](https://networkupstools.org/)
-* bare metal k8s
-* talos linux - k8s optimized linux distro
-* custom node image?
-* k8s vs [k3s](https://k3s.io/)
+    * gpu passthrough?
+    * [raid 10](https://www.youtube.com/watch?v=_8mtwLT_owE)
+    * how is storage access provisioned? Does it play nice with k8s?
+* server/cluster backups here?
+* ?[NUT](https://networkupstools.org/)
 
-# compute
-something like aws lambda + ec2 + ecs
-* lambda - deploy single files scripts as webhooks, cron, etc.
-    run on demand, but not long-running
-* docker - containerized apps, the bulk of compute
-* vms - to run windows mostly
-* hypervisors - what actually runs on the bare metal? How do they connect to the cluster?
+# level 2 - orchestrator
+* [talos?](https://www.talos.dev/v1.10/talos-guides/install/virtualized-platforms/proxmox/)
+    * There should be by default one control VM and N worker VMs where N is the number of physical servers?
 
-# GPU
-* gpu passthrough?
+# level 2.5 - core apps
+configured through k8s declarative configuration
 
-# storage
-not sure what the best way is here. Something like s3?
-* NAS
-* ceph cluster?
-* raid cluster? btrfs raid6?
-* trueNAS?
+* routing - traefik reverse proxy
+    * ssl - letsencrypt certbot?
+    * auth middleware - dex/keycloak
+        * [dex](https://github.com/dexidp/dex) with passthrough to gitlab?
+        * [gitlab as IdP](https://docs.gitlab.com/integration/openid_connect_provider/)
+        * https://geek-cookbook.funkypenguin.co.nz/docker-swarm/traefik-forward-auth/dex-static/
+    * auto-config to route k8s containers *.toombs.casa
+    * auto/manual config route to proxmox VMs. can we do automatic? *.vm.toombs.casa
+    * manual config access to proxmox host? proxmox.toombs.casa
+    * manual config, what does toombs.casa point to?
 
-# artifact repository - jfrog?
-* machine images
-    * server image - arch iso?
-    * desktop image - arch iso.
-    * bsd, etc. cross-compiler images?
-    * windows vm
-* docker images - a local mirror and private store
-* binaries
+* gitlab
+    * IdP?
+    * git host
+    * issue tracker
+    * ci/cd - does it need docker permissions to do that? maybe a separate vm? [fluxcd?](https://fluxcd.io/flux/)
+    * release artifacts? push containers to local registry (alt jfrog)
 
-# basic services
-* monitoring dashboard - grafana
-* notifications - apprise
-* logging - ??
-* time series db - influxdb
-* relational db - postgres? sqlite
-* storage - truenas?
-* docker cluster - k8s?
+* docker registry
+    * [docker pull-through cache](https://docs.docker.com/docker-hub/image-library/mirror/#solution)
+    * how can we have k8s pull containers from here?
 
-# code pipeline
-* git origin - gogs, gitlab?
-    * [forgejo](https://forgejo.org/)
-    * [soft-serve](https://github.com/charmbracelet/soft-serve?tab=readme-ov-file) [charm](https://charm.sh/)
-    
-* ci/cd
-    * [fluxcd](https://fluxcd.io/)
-    * dokku / piku
-* artifact repository - jfrog?
+* monitoring
+    * grafana, loki, prometheus
+    * alerting - apprise? one signal?
+    * alert on raid health, disk full
+    * alert on service restored
+    * alert on IP/DNS update
+    * alert on new/updated IdP user
+    * alert on backup failure
 
-# management
-* project kanban / ticket system - jira, asana
-* services dashboard - 
-* backups
-    * offsite backups
-* provisioning
-    * terraform, dokku, k8s?
-    * rancher desktop. probably not
+* unified ssh access management?
+    * unified access to vms and docker containers, define permissions in dex?
+    * sso for ssh through dex?
+        * [smallstep](https://smallstep.com/blog/diy-single-sign-on-for-ssh/)
+    * proxmox ssh outside of this system, as a 'master key'?
 
-# identity & authentication
-* IdP - google? keycloak?
-* [ssh through sso](https://smallstep.com/blog/diy-single-sign-on-for-ssh/)
-* user/permission management interface
-    * want to specify user sign up, default permissions
-    * also specify access control for services, default access control for new services
+* platform config
+    * track in gitlab repo.
+    * deployments through ci/cd (must have manual option for bootstrap/recovery)
+    * terraform w/ proxmox provider?
 
-# Applications
+* dynamic dns hack - update dns record if local ip changes.
+    * in email notification, also send the new ip just in case
+    * [update-godaddy-dns](https://github.com/UnklAdM/update-godaddy-dns/blob/master/update_gd_dns.sh)
+
+# level 3 - userland apps (the first round)
+* nas. - file server? private/semi-private
+    * laptop/desktop/phone backups - syncthing?
+    * Then comes the long process of compiling old drives into the nas. Old phones? Once this is done, use at least one drive as offline backup.
+* dashboard. - links to all the traefik routes. this may be built in. [heimdall?](https://heimdall.site/)
+* hire. - professional resume. public
+* blog. - less professional musings. public
+    * blog about bitwise games
+* pihole. - pihole dns. local
+* 3d. - 3d printer service [octoprint](https://octoprint.org/). local
+* anki. - anki sync server. private/separate auth?
+
+# next level (future apps maybe)
+* off site replication of backups
+* media server + a [projector](https://www.ign.com/articles/best-gaming-projector)
+* 0x0. - file sharing
+* pad. - etherpad, collaborative editing
+* social nodes? activitypub, mastadon, scuttlebutt
+* move repo's off github, mirror them there?
 * RDP
     * can we get the latency (over lan) low enough to passthrough to a windows vm for gaming?
     * [win-docker](https://github.com/dockur/windows)
@@ -123,12 +118,12 @@ not sure what the best way is here. Something like s3?
         * [listentoanything](https://listentoanything.com/)
 
     * project gutenburg -> TTS -> phone
+    * wallhaven
+    * youtube
+    * royalroad
 * rss
-* generate an AI summary of the news
 * local wikipedia
-* atuin sync
-* adblock/pihole
-* media server + a [projector](https://www.ign.com/articles/best-gaming-projector)
+
 * filesharing - nextcloud
     * [0x0](https://0x0.st/)
 * password manager
@@ -156,24 +151,7 @@ not sure what the best way is here. Something like s3?
     * [experiments](https://pico.sh/lab)
 * make and host io games
 
-# science
 * protein folding (folding@home)
 * star searching
 
-# media store
-* wallhaven
-* youtube
-* royalroad
-
-# ref
 * [awesome-homelab](https://github.com/ccbikai/awesome-homelab)
-
-* data orchestrator?
-    * apache airflow
-    * kubeflow
-* message streaming / bus / queue
-    * kafka
-    * amazon sqs
-    * rabbitmq
-    * mqtt
-* PXE netboot controller [pixiecore](https://github.com/danderson/netboot/tree/main/pixiecore)

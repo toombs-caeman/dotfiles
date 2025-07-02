@@ -928,6 +928,8 @@ local apps = {
 	{ "steam", "steam -nochatui -nofriendsui" },
 	{ "slack", "slack" },
 	{ "screenshot", "slurp | grim -g - - | wl-copy" },
+	{ "files", "dolphin" },
+	{ "enpass", "enpass" },
 }
 function Launch(quit)
 	-- make sure that telescope is loaded

@@ -1,5 +1,10 @@
 # TODO
 
+* remove vim snippets, they are almost never what I want.
+    * alternatively, change the keybind to accept a change
+* pyscript -> `#!/usr/bin/env -S uv run --script` + `uv init --script`
+
+
 * [master keymap](keymap.md)
 * use nushell history to query exist_status, duration, hostname etc?
     * rather than keeping this dynamically (and probably badly) for the prompt.
@@ -235,6 +240,16 @@
     * [project gutenberg](https://www.gutenberg.org/) vs [standard ebooks](https://standardebooks.org/)
 
 * the flip side of discovery (implied discovery of supply for products, restaurants, music) is detecting demand. How can we aggregate people's desires to find demand and then create the supply?
+
+# explorations
+quick explorations into libraries/technologies that seem interesting
+* [htmx](https://github.com/toombs-caeman/htmx-test) - done
+* LAMP stack - done
+* game dev
+    * godot
+    * https://odyc.dev/
+    * bevy
+* [duckdb](https://duckdb.org/)
 
 * [home lab](homelab.md)
 # research: what are these? Do these things exist
