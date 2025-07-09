@@ -1,8 +1,6 @@
 # nushell config
 use std
 
-# TODO: completers https://www.nushell.sh/cookbook/external_completers.html
-#   * carapace?
 
 # this is the path to imbue, which it templates in itself
 $env.path ++= ['{{bin}}']
@@ -68,6 +66,11 @@ def clip [] {
     wl-paste
 }
 
+# get which package provides a given file
+def provides [...$cmds] {
+    pacman -Qo ...$cmds | parse '{file} is owned by {package} {version}'
+}
+
 # take a screenshot
 def screenshot [] { slurp | grim -g - - | wl-copy }
 
@@ -127,19 +130,13 @@ $env.PROMPT_COMMAND = {||
     $prompt | str join
 }
 
-# print exit code and execution duration if above normal
-# TODO: $"(ansi title)set window title(ansi st)" in precmd
-$env.config.hooks.pre_execution ++= [{|| $env.LAST_CMD_TIME = date now }]
+# print exit code and execution duration if not normal
 $env.PROMPT_COMMAND_RIGHT = {||
-    let err = $env.LAST_EXIT_CODE
-    let now = date now
-    # we have to recast as a datetime, because it can be converted into string when
-    # starting a subshell
-    let start = $env.LAST_CMD_TIME? | default $now | into datetime
-    let cmd_duration = $now - $start
-    mut prompt = []
-    if ($err != 0) { $prompt ++= [$'(ansi red)($err)' ] }
-    if ($cmd_duration > 1sec) { $prompt ++= [$'(ansi yellow)($cmd_duration | format duration sec)'] }
+    let cmd = history | last
+    let prompt = [
+        (if $cmd.exit_status != 0 {$'(ansi red)($cmd.exit_status)'})
+        (if $cmd.duration > 1sec  {$'(ansi yellow)($cmd.duration)'})
+    ] | compact
     if ($prompt | is-not-empty) {
         $'(ansi reset)[($prompt | str join " ")(ansi reset)]'
     }

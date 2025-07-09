@@ -41,6 +41,9 @@ commands:
     files:
       gitconfig: ~/.gitconfig
 
+  fuzzel:
+    package: fuzzel
+
   firefox:
     package: firefox firefox-ublock-origin
 

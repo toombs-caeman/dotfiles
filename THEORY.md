@@ -4,7 +4,7 @@ I suppose I'll discuss what I think those are here as an aspirational rant.
 
 # qualities of good tools
 * simple:       should be predictable
-* powerful:     should 
+* powerful:     should be capable
 * reliable:     should work every time, in exactly the same way
 * consistent:   should follow clear conventions
 * composable:   should play nicely with others. no tool exists in a vacuum

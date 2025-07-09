@@ -36,10 +36,12 @@ This is distinct from a history in that all items in the group are somehow open 
 a bookmark is a convenient way to revisit some past state. History generally exists in the service of returning-to or repeating what happened before. Items in the history aren't 'active' until selected.
 ## configuration / persistent state
 configuration is usually a declarative state that an application returns to on load, but some programs persist their state between runs.
+
 ## data transfer / storage
 the unix pipe, the clipboard, the filesystem, message buses.
 Data storage is just data transfer to the future.
 Let me know before you figure out how to transfer data to the past.
+
 ## status displays
 Show information about something else.
 usually status bars. vim has one, WMs usually have one. They could have other shapes.

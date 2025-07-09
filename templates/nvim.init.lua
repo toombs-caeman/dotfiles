@@ -917,40 +917,6 @@ require("lazy").setup({
 	} },
 }, {})
 
--- TODO: pull from a config/history file (~/.launchrc)
-local apps = {
-	{ "notice", "notify-send 'red'" },
-	{ "firefox", "firefox" },
-	{ "waybar", "waybar" },
-	{ "wifi", "kitty iwctl" },
-	{ "anki", "anki" },
-	{ "displays", "nwg-displays" },
-	{ "steam", "steam -nochatui -nofriendsui" },
-	{ "slack", "slack" },
-	{ "screenshot", "slurp | grim -g - - | wl-copy" },
-	{ "files", "dolphin" },
-	{ "enpass", "enpass" },
-}
-function Launch(quit)
-	-- make sure that telescope is loaded
-	-- it will set itself to be the ui selector
-	require("telescope")
-	vim.ui.select(apps, {
-		prompt = "run:",
-		format_item = function(item)
-			return item[1]
-		end,
-	}, function(choice)
-		if choice ~= nil then
-			vim.cmd(string.format(":!hyprctl dispatch exec %s", choice[2]))
-		end
-		if quit then
-			vim.cmd("q!")
-		end
-	end)
-end
-vim.api.nvim_create_user_command("Launch", Launch, { bar = true, nargs = "?" })
-
 function NextSong(quit)
 	-- make sure that telescope is loaded
 	-- it will set itself to be the ui selector

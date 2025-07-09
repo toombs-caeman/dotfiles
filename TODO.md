@@ -1,41 +1,39 @@
 # TODO
 
-* replace vim script with wofi or dmenu?
+* dolphin as file manager?
 * remove vim snippets, they are almost never what I want.
     * alternatively, change the keybind to accept a change
-* pyscript -> `#!/usr/bin/env -S uv run --script` + `uv init --script`
+    * alternatively, replace with ollama complete
 
+* aula, remap capslock to escape
+* nushell completers https://www.nushell.sh/cookbook/external_completers.html
+   * carapace?
+* script completions
+
+* nvim slop
+    * [avante](https://github.com/yetone/avante.nvim)
+    * ollama
+    * [avante config](https://github.com/yetone/avante.nvim/pull/1543)
 
 * [master keymap](keymap.md)
+    * kitty keys
+        * scroll to prompt `c-{z,x}` -> `c-{j,k}`
+        * page last output? map kitty_mod+g `show_last_command_output`
+
 * use nushell history to query exist_status, duration, hostname etc?
     * rather than keeping this dynamically (and probably badly) for the prompt.
 
 * figure out how to import a script properly (nushell)
     * the problem is importing subcommands, since they are like `imbue main wall` instead of `imbue wall`
     * use `export alias sub = main sub` and don't export 'main sub'
-* nushell lib dirs?
-    * source completions
-    * `pueue completions nushell | save -f`
-    * `carapace _carapace nushell | save -f`
-    * `touch mod.nu`
-    * `use completion *`
-* `alias & = pueue add -i`
-* script completions
 * [nushell wrappers](https://github.com/drbrain/nushell-config/tree/main)
     * provides completions and command output as a table
     * ssh, git, docker, atuin, rg, rsync
 
-* hjkl in carapace
-
-* pueue
-    * nushell has native job control now?
-        * it kind of sucks though
-    * differences between `hyprctl dispatch exec ...` and `pueue add ...`
-    * `pueue completions nushell`
-    * alias `&` = `pueue add`
-    * `systemctl --user start pueued.service`
 * gdb + nvim-dap
 
+* integrate fuzzel with next song picker? `ffprobe -loglevel error -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 | fuzzel -d | ...`
+    * is it better to have a dedicated thing for this? there are mpd TUIs
 
 * correct `c-v` behavior
     * how to get nushell to use the system clipboard for pasting?
@@ -50,9 +48,6 @@
     * nushell completer
     * [neogit](https://github.com/NeogitOrg/neogit)
 
-* kitty keys
-    * scroll to prompt `c-{z,x}` -> `c-{j,k}`
-    * page last output? map kitty_mod+g `show_last_command_output`
 
 * ssh
     * sshfs
@@ -270,6 +265,4 @@ quick explorations into libraries/technologies that seem interesting
 * lstopo (from hwloc) to visualize hardware caching
 
 # slop
-* ollama
-* avante - cursor-like nvim plugin
 * stable diffusion - image generation [source](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
