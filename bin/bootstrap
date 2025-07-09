@@ -2,11 +2,8 @@
 
 # TODO: partition numbering does not work on nvme0n1{,p1}
 # TODO: user home not created correctly
-# TODO: rename to 'enchant' 'enchant archiso' 'bootstrap'?
-# TODO: install yay using gg ...; makepkg -si
-# TODO: bluetooth pacman -S bluez bluez-utils && systemctl enable bluetooth.service
 # TODO: nvim plugins need pacman -S unzip npm rustup && rustup default stable
-# TODO: idempotent helper functions
+# TODO: idempotent helper functions. see declarative-bootstrap.md
 
 # `bolt` provides `boltctl` for thunderbolt devices, may not be necessary actually, as policies are set in bios normally.
 
@@ -27,24 +24,62 @@ def main [
     iso? : string  # the image to write to disk, if not given, create from config
     disk?: string  # the disk to write. if not given, select interactively
 ] {
-    mut iso = $iso
+    let iso = getiso $iso
     mut disk = $disk
 
-    if ($iso | is-empty) {
-        let options = glob *.iso
-        if ($options | is-empty) { error make {msg: 'no suitable iso found.' help: 'Try `bootstrap iso`' }}
-        $iso = $options | input list
-    }
-    # get disk
     if ($disk | is-empty) {
-        # TODO use lsblk -lo rather than --json
-        let options = lsblk --json | from json | get blockdevices | where rm
-        if ($options | is-empty) { error make {msg: 'no suitable disks found' }}
-        # TODO: also filter out mounted disks (any part is mounted)
-        $disk = $options | select name size | input list 'select a removable disk' | '/dev/' ++ $in.name
+        # only offer removable disks that are not currently mounted
+        let options = lsblk -l | detect columns | where RM == '1' and TYPE == 'disk' and MOUNTPOINTS == null
+        if ($options | is-empty) { error make {msg: 'No suitable disks found' }}
+        $disk = $options | select NAME SIZE | input list 'select a removable disk' | '/dev/' ++ $in.NAME
     }
     print $"dd if=($iso | path basename) of=($disk)"
     sudo dd bs=4M if=($iso) of=($disk) conv=fsync oflag=direct status=progress
+}
+
+# launch a virtual machine with a given image attached as installation media
+# for testing bootstrap iso
+def 'main test' [
+    $iso?,
+    --drive='myImage.qcow2',
+] {
+    let iso = getiso $iso
+    if not ($drive| path exists) {
+        qemu-img create -f qcow2 $drive 10G
+    }
+    def run --wrapped [...options] {
+        qemu-system-x86_64 ...[
+            -machine q35 -enable-kvm -cpu host
+            -m 1024 -vga std -net nic -net user
+            -drive $'file=($drive),format=qcow2'
+            ...$options
+        ] | complete | ignore
+    }
+
+    print $'Starting drive ($drive | path basename) with installation media ($iso | path basename) attached.'
+    run -boot d -cdrom $iso
+    print $'Restarting installed system ($drive)'
+    run
+}
+
+def getiso [$iso] {
+    if ($iso | is-not-empty) { return $iso }
+    # if a disk image isn't specified directly, try to find some options.
+    # if none are available in the current directory, offer to build one.
+    mut options = glob *.iso
+    if ($options | is-empty) {
+        if ([yes no] | input list 'No iso found. Make one?') == 'yes' {
+            main iso
+            $options = glob *.iso
+        } else {
+            error make -u {msg: 'No suitable iso found.', help: 'Try `bootstrap iso`'}
+        }
+    }
+    match ($options|length ) {
+        0 => { error make -u {msg: 'make iso failed.'} },
+        1 => { return ($options | get 0 ) }
+        _ => { return ($options | input list) }
+    }
 }
 
 # create an arch iso
@@ -52,8 +87,13 @@ def 'main iso' [] {
     let profile = './profile' | path expand     # create a temp directory to construct the profile
     let root = $profile | path join 'airootfs'  # the root of what will become the live environment
 
+    # TODO requires archiso
     # start from the releng profile
-    cp -r /usr/share/archiso/configs/releng/ $profile
+    let source = '/usr/share/archiso/configs/releng/'
+    if not ($source | path exists) {
+        sudo pacman -S archiso
+    }
+    cp -r $source $profile
 
     # add extra bootstrap dependencies to profile
     [nushell git] | str join "\n" | save --append $'($profile)/packages.x86_64'
@@ -68,9 +108,10 @@ def 'main iso' [] {
         save ($root | path join 'root/black_hud.tar.gz')
 
     # inject bootstrap help text as readme
-    help bootstrap | save ($root | path join 'root/README.md')
+    $env.config.table.mode = 'markdown'
+    help bootstrap | ansi strip | save ($root | path join 'root/README.md')
 
-    ## copy in authorized keys to allow ssh managed installation
+    ## TODO copy in authorized keys to allow ssh managed installation
     ## these keys are NOT copied to the resulting environment
     #glob ~/.ssh/*.pub | each {|f| open $f | save --append ($root | path join 'root/.ssh/authorized_keys') }
 
@@ -104,12 +145,10 @@ def 'main iso' [] {
     # -r delete work dir (./work/)
     # -o output
     sudo mkarchiso -vro . $profile
-    rm -rf $profile
+    # some of the files created are owned by root, so sudo rm
+    sudo rm -rf $profile
 }
 
-# TODO: creating the readme this way is not ideal
-#   the colors and box characters do not draw correctly
-#   using the editor available in bootstrap env
 
 # # README
 # 2. connect to the network using `iwctl`
@@ -129,22 +168,24 @@ def 'main iso' [] {
 # https://wiki.archlinux.org/title/Installation_guide
 def bootstrap [user host] {
     # depend on the internet being connected prior to this
+    # TODO enter iwctl here instead of bailing
     try {
         http head 'https://archlinux.org/' | ignore
     } catch {
         error make {msg: "couldn't ping archlinux.org" help: 'connect to the internet first' }
     }
 
-    let editor = which nvim vim vi nano] | get command | input list 'pick your editor'
+    # don't offer a list if there's only one
+    let editor = which nvim vim vi nano | get command | input list 'pick your editor'
     let conf = 'disk.tsv'
     def config_disks [] {
         if not ($conf | path exists) {
             # find disks which aren't currently mounted (and have no mounted partitions)
             # these are candidates for installation
             let disks = lsblk -l --output PATH,PKNAME,MOUNTPOINT,NAME,SIZE | detect columns
-            let busy = $disks | where mountpoint != null | get PKNAME | uniq
+            let busy = $disks | where MOUNTPOINT != null | get PKNAME | uniq
             let candidates = $disks |
-                where name not-in $busy and PKNAME == null and MOUNTPOINT == null |
+                where NAME not-in $busy and PKNAME == null and MOUNTPOINT == null |
                 select PATH SIZE | sort-by SIZE
             [
                 'mount	mkfs	size	drive'
@@ -177,7 +218,7 @@ def bootstrap [user host] {
             [continue edit restart abort] | input list 'plan valid. continue?'
         } else {
             [edit restart abort] | input list 'invalid config'
-        } 
+        }
     }
 
     def validate_config [] {
@@ -212,7 +253,7 @@ def bootstrap [user host] {
         }
 
         # the drives must actually exist
-        let missing_drives = $plan.drive | uniq | filter {|d| not ($d | path exists)}
+        let missing_drives = $plan.drive | uniq | where {|d| not ($d | path exists)}
         if ($missing_drives | is-not-empty) {
             print "drives don't exist" $missing_drives
             return false
@@ -232,6 +273,7 @@ def bootstrap [user host] {
             update items {|row| $row.items| merge (1..($row.items|length) | wrap part)}
 
         # repartition and mkfs
+        # TODO the /boot part needs sgdisk -t $'($part.part):EF00' $part.drive
         $out ++= $plan | each {|drive|
             [$"sgdisk -Z ($drive.drive)"] ++ (
                 $drive.items | each {|part| [
@@ -250,13 +292,13 @@ def bootstrap [user host] {
     # loop to let the user try to edit the file multiple times
     loop {
         do (match (config_disks) {
-            continue => {|| break }
-            edit => {|| continue }
-            restart => {||
+            continue => { break }
+            edit => { continue }
+            restart => {
                 rm $conf
                 continue
             }
-            _ => {||
+            _ => {
                 error make -u {msg: 'aborted by user' }
             }
         })
@@ -274,7 +316,13 @@ def bootstrap [user host] {
 
     # XXX: assuming your cpu is either intel or amd. this is probably better to default to none
     let microcode = (if (sys cpu | get 0.vendor_id) == GenuineIntel { 'intel-ucode' } else { 'amd-ucode' })
-    pacstrap -K /mnt base base-devel linux linux-firmware $microcode plymouth pipewire man-db man-pages texinfo iwd git nushell neovim pueue
+    pacstrap -K /mnt base base-devel linux linux-headers linux-firmware $microcode plymouth pipewire man-db man-pages texinfo iwd git nushell neovim
+    # TODO detect nvidia card?
+    let nvidia = [nvidia-dkms mesa mesa-utils linux-headers]
+    # TODO detect bluetooth hardware?
+    # pacman -S bluez bluez-utils && systemctl enable bluetooth
+
+    # TODO enable multilib
 
     genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -284,25 +332,29 @@ def bootstrap [user host] {
 
     # run a command as root in the new system
     def --wrapped root [...rest] {
-        let cmd =  $rest | str join ' ' 
+        let cmd =  $rest | str join ' '
         print $'# ($cmd)'
         arch-chroot /mnt nu -c $cmd
     }
 
     print 'set root password'
-    root passwd
+    loop {
+        try { root passwd } catch { continue }
+        break
+    }
 
     root useradd $user
+    root usermod -aG wheel $user # enable sudo
+    $"\n%wheel   ALL=\(ALL:ALL) ALL\n" | save --append /mnt/etc/sudoers
     print $'set password for ($user)'
-    root passwd $user
-    # TODO setup user groups: wheel fuser docker
-    # TODO: add user to sudo.
-    # this is probably the wrong way to do it. use group 'wheel'
-    $"\n($user)   ALL=\(ALL:ALL) ALL\n" | save --append /mnt/etc/sudoers
+    loop {
+        try { root passwd $user } catch { continue }
+        break
+    }
 
     # run a command as $user in the new system
     def --wrapped user [...rest] {
-        let cmd =  $rest | str join ' ' 
+        let cmd =  $rest | str join ' '
         print $'$ ($cmd)'
         arch-chroot -u $user /mnt nu -c $cmd
     }
@@ -324,19 +376,18 @@ def bootstrap [user host] {
     "\nHandlePowerKey=ignore\n" | save --append /mnt/etc/systemd/logind.conf
 
 
-    # install yay
-    # TODO: cannot run makepkg as root
-    # cannot cd to /root/yay
-    git clone https://aur.archlinux.org/yay-bin.git /mnt/yay
-    root chown $"($user):($user)" /yay
-    user makepkg -siD /yay
-
     # install systemd-boot as bootloader
     root bootctl install
     ## TODO: not booted with UEFI (chroot), so cannot set
     ## disable startup menu
     #root bootctl set-timeout 0
 
+    # install yay
+    # TODO: cannot run makepkg as root
+    # cannot cd to /root/yay
+    git clone https://aur.archlinux.org/yay-bin.git /mnt/yay
+    root chown $"($user):($user)" /yay
+    user makepkg -siD /yay
 
     # configure auto login to hyprland
     # configure agetty to automatically log in as $user
@@ -353,19 +404,18 @@ def bootstrap [user host] {
     'if [[ "$(tty)" == "/dev/tty1" ]]; then exec Hyprland; fi' | save -f /mnt/etc/bash.bashrc
 
     # clone dotfiles
-    let dotdir = $'/mnt/home/($user)/my/toombs-caeman/dotfiles'
-    mkdir $dotdir
-    git clone https://github.com/toombs-caeman/dotfiles $dotdir
+    let dotdir = $'~/my/toombs-caeman/dotfiles'
+    user mkdir -p $dotdir
+    user git clone https://github.com/toombs-caeman/dotfiles $dotdir
 
     # TODO: trigger dotfiles
     let imbue = $dotdir | path join 'bin/imbue'
     let mana = $dotdir | path join 'templates/nix.yaml'
-    user ^($imbue) with $mana
+    user $imbue with $mana
 
-    mkdir $"/mnt/home/($user)/Music/"
+    user mkdir '~/Music'
     user systemctl --user enable mpd.service
 
-    user systemctl --user enable pueued.service
     # TODO: set kernel parameters (quiet splash)
     # IIRC you should add your kernel parameters to the APPEND in archiso_sys.cfg (and archiso_pxe.cfg if you use PXE).
 

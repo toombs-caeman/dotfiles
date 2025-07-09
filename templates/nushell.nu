@@ -207,5 +207,3 @@ def 'sys blocks' [] {
     lsblk --json | from json | get blockdevices
 }
 
-$env.CARAPACE_BRIDGES = 'zsh,fish,bash,inshellisense' # optional
-source ~/.cache/carapace/init.nu

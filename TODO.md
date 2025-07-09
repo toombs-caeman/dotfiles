@@ -1,5 +1,6 @@
 # TODO
 
+* replace vim script with wofi or dmenu?
 * remove vim snippets, they are almost never what I want.
     * alternatively, change the keybind to accept a change
 * pyscript -> `#!/usr/bin/env -S uv run --script` + `uv init --script`
@@ -267,3 +268,8 @@ quick explorations into libraries/technologies that seem interesting
 * [compiler explorer godbolt](https://godbolt.org/)
 * [BQN](https://mlochbaum.github.io/BQN/)
 * lstopo (from hwloc) to visualize hardware caching
+
+# slop
+* ollama
+* avante - cursor-like nvim plugin
+* stable diffusion - image generation [source](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
