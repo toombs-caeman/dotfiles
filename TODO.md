@@ -47,7 +47,11 @@
     * telescope git_branches
     * nushell completer
     * [neogit](https://github.com/NeogitOrg/neogit)
-
+* grommit-mpx, screen annotation vs swappy
+    * seems to have some issues with multi-screen layouts
+    * [source](https://github.com/bk138/gromit-mpx)
+    * `yay -S gromit-mpx`
+    * binds keys F8 and F9
 
 * ssh
     * sshfs

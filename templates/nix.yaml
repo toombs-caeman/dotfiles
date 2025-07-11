@@ -52,6 +52,9 @@ commands:
     files:
       hyprland.conf: ~/.config/hypr/hyprland.conf
 
+  swappy: # screenshot annotation
+    package: swappy
+
   waybar: # status bar
     package: waybar
     files:
