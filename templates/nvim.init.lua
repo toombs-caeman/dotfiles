@@ -983,32 +983,14 @@ require("lazy").setup({
 				-- Make sure to set this up properly if you have lazy=true
 				"MeanderingProgrammer/render-markdown.nvim",
 				opts = {
-					file_types = { "markdown", "Avante" },
+					file_types = { "Avante" },
 				},
-				ft = { "markdown", "Avante" },
+				ft = { "Avante" },
 			},
 		},
 	},
 }, {})
 
-function NextSong(quit)
-	-- make sure that telescope is loaded
-	-- it will set itself to be the ui selector
-	require("telescope")
-	local songs = vim.fn.split(vim.fn.glob("~/Music/*.mp3"), "\n")
-	vim.ui.select(songs, {
-		prompt = "queue song:",
-		format_item = function(item)
-			return vim.fs.basename(item)
-		end,
-	}, function(choice)
-		vim.cmd(string.format(":!mpc insert %s", vim.fs.basename(choice)))
-		if quit then
-			vim.cmd("q!")
-		end
-	end)
-end
-vim.api.nvim_create_user_command("NextSong", NextSong, { bar = true, nargs = "?" })
 -- print table
 -- TODO: use mini.misc.put() instead
 function dump(o)

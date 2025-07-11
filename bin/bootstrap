@@ -1,11 +1,8 @@
 #!/usr/bin/env nu
 
 # TODO: partition numbering does not work on nvme0n1{,p1}
-# TODO: user home not created correctly
-# TODO: nvim plugins need pacman -S unzip npm rustup && rustup default stable
-# TODO: idempotent helper functions. see declarative-bootstrap.md
-
-# `bolt` provides `boltctl` for thunderbolt devices, may not be necessary actually, as policies are set in bios normally.
+# TODO: another key in the configuration for post-installation scripts?
+# TODO: ln -sT ~/Desktop ~/.local/share/applications # for adding steam games to launcher
 
 # create custom arch installer
 #
@@ -356,7 +353,9 @@ def bootstrap [user host] {
     def --wrapped user [...rest] {
         let cmd =  $rest | str join ' '
         print $'$ ($cmd)'
-        arch-chroot -u $user /mnt nu -c $cmd
+        with-env {env:{HOME: $'/home/($user)'}} {
+            arch-chroot -u $user /mnt nu -c $cmd
+        }
     }
 
     # generate locale
@@ -408,7 +407,7 @@ def bootstrap [user host] {
     user mkdir -p $dotdir
     user git clone https://github.com/toombs-caeman/dotfiles $dotdir
 
-    # TODO: trigger dotfiles
+    # trigger dotfiles
     let imbue = $dotdir | path join 'bin/imbue'
     let mana = $dotdir | path join 'templates/nix.yaml'
     user $imbue with $mana
@@ -424,9 +423,8 @@ def bootstrap [user host] {
     tar -xf black_hud.tar.gz -C /mnt/usr/share/plymouth/themes/
     root plymouth-set-default-theme -R black_hud
 
-    let timeout = 3sec
-    print $'reboot in ($timeout)'
-    sleep $timeout
-    reboot now
+    print 'DONE!'
+    sleep 3sec
+    shutdown now
 }
 

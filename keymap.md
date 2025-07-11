@@ -82,7 +82,6 @@ This may require writing some scripts to bridge functionality.
 
 # reference
 * [firefox](https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly)
-* [vimium](https://github.com/philc/vimium)
 * [hyprland](https://wiki.hyprland.org/Configuring/Binds/#bind-flags)
 * [kitty](https://sw.kovidgoyal.net/kitty/conf/#keyboard-shortcuts)
 * [nushell](https://www.nushell.sh/commands/docs/keybindings.html)

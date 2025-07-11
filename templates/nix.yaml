@@ -27,9 +27,10 @@ commands:
     callback: killall -SIGUSR1 kitty
 
   nvim: # editor https://neovim.io/
-    package: neovim luarocks
+    package: neovim luarocks rustup npm unzip
     files:
       nvim.init.lua: ~/.config/nvim/init.lua
+    callback: rustup default stable
 
   mpd:
     package: mpd mpc yt-dlp
