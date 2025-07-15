@@ -1,9 +1,13 @@
 # TODO
 
-* dolphin as file manager?
+* testing bootstrap
+* add dolphin to nix
 * remove vim snippets, they are almost never what I want.
     * alternatively, change the keybind to accept a change
-    * alternatively, replace with ollama complete
+    * alternatively, replace with ollama complete 
+    * [cmp-ai](https://github.com/tzachar/cmp-ai)
+    * [llm](https://github.com/huggingface/llm.nvim)
+    * [windsurf](https://github.com/Exafunction/windsurf.nvim)
 
 * aula, remap capslock to escape
 * nushell completers https://www.nushell.sh/cookbook/external_completers.html
@@ -14,6 +18,8 @@
     * [avante](https://github.com/yetone/avante.nvim)
     * ollama
     * [avante config](https://github.com/yetone/avante.nvim/pull/1543)
+    * [mcphub](https://github.com/ravitemer/mcphub.nvim)
+        * [avante+mcphub](https://ravitemer.github.io/mcphub.nvim/extensions/avante.html)
 
 * [master keymap](keymap.md)
     * kitty keys
@@ -270,3 +276,28 @@ quick explorations into libraries/technologies that seem interesting
 
 # slop
 * stable diffusion - image generation [source](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
+* [aider](https://aider.chat/docs/usage.html)
+## mcp
+https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#%EF%B8%8F-official-integrations
+* aws
+* cloudflare
+* make
+* most databases
+* mcphub builtin: mcphub, neovim, fetch
+* revit
+* terraform
+* anki
+* atlassian
+* blender
+* calculator
+* deep research
+* git
+* gdb
+* godot
+* google sheets/docs
+* helm/k8s
+* kokoro
+* opencv
+* RAG local
+* ssh
+* youtube (augment yt-dlp?)
