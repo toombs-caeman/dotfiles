@@ -989,6 +989,12 @@ require("lazy").setup({
 			},
 		},
 	},
+	{
+		"benomahony/uv.nvim",
+		opts = {
+			picker_integration = true,
+		},
+	},
 }, {})
 
 -- print table

@@ -273,6 +273,7 @@ quick explorations into libraries/technologies that seem interesting
 * [compiler explorer godbolt](https://godbolt.org/)
 * [BQN](https://mlochbaum.github.io/BQN/)
 * lstopo (from hwloc) to visualize hardware caching
+* manage different computers with [meta-packages](https://disconnected.systems/blog/archlinux-meta-packages/)
 
 # slop
 * stable diffusion - image generation [source](https://github.com/AUTOMATIC1111/stable-diffusion-webui)

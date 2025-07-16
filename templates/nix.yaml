@@ -54,7 +54,7 @@ commands:
       hyprland.conf: ~/.config/hypr/hyprland.conf
 
   swappy: # screenshot annotation
-    package: swappy
+    package: swappy slurp grim
 
   waybar: # status bar
     package: waybar
@@ -88,5 +88,5 @@ commands:
     package: ttf-firacode-nerd noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra
 
   extra:
-    package: nwg-displays pipewire wl-clipboard imagemagick rsync
+    package: nwg-displays pipewire wl-clipboard imagemagick rsync systemctl-tui
 

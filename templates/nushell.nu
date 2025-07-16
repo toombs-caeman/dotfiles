@@ -204,6 +204,15 @@ def 'sys blocks' [] {
     lsblk --json | from json | get blockdevices
 }
 
+def --wrapped yay [...rest] {
+    # install yay if it can't be found
+    if (which yay | where type == 'external' | is-empty) {
+            gg https://aur.archlinux.org/yay.git
+            makepkg -si
+    }
+    ^yay ...$rest
+}
+
 source '{{bin}}/../nu_completions/aws-completions.nu'
 source '{{bin}}/../nu_completions/composer-completions.nu'
 source '{{bin}}/../nu_completions/curl-completions.nu'
@@ -226,3 +235,4 @@ source '{{bin}}/../nu_completions/ssh-completions.nu'
 source '{{bin}}/../nu_completions/tar-completions.nu'
 source '{{bin}}/../nu_completions/tcpdump-completions.nu'
 source '{{bin}}/../nu_completions/uv-completions.nu'
+
