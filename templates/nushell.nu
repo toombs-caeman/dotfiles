@@ -3,7 +3,7 @@ use std
 
 
 # this is the path to imbue, which it templates in itself
-$env.path ++= ['{{bin}}']
+$env.path ++= ['{{bin}}', ('~/.local/bin/' | path expand)]
 $env.config.show_banner = false
 $env.config.edit_mode = 'vi'
 $env.config.buffer_editor = 'nvim'

@@ -1,7 +1,11 @@
 # TODO
 
 * testing bootstrap
+    * monotonic helper function, write a log so that functions are only run successfully once?
+    * https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/
+
 * add dolphin to nix
+    * separate nix into a few different templates
 * remove vim snippets, they are almost never what I want.
     * alternatively, change the keybind to accept a change
     * alternatively, replace with ollama complete 
@@ -53,11 +57,6 @@
     * telescope git_branches
     * nushell completer
     * [neogit](https://github.com/NeogitOrg/neogit)
-* grommit-mpx, screen annotation vs swappy
-    * seems to have some issues with multi-screen layouts
-    * [source](https://github.com/bk138/gromit-mpx)
-    * `yay -S gromit-mpx`
-    * binds keys F8 and F9
 
 * ssh
     * sshfs
@@ -278,6 +277,9 @@ quick explorations into libraries/technologies that seem interesting
 # slop
 * stable diffusion - image generation [source](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
 * [aider](https://aider.chat/docs/usage.html)
+    * [aider+ollama](https://aider.chat/docs/llms/ollama.html)
+    * uv tool install aider-chat
+
 ## mcp
 https://github.com/modelcontextprotocol/servers?tab=readme-ov-file#%EF%B8%8F-official-integrations
 * aws

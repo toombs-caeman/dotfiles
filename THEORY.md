@@ -42,3 +42,4 @@ I suppose I'll discuss what I think those are here as an aspirational rant.
     * when it 'just works', you never have to think about how it works (or why it isn't working).
     * tools should protect you from doing something dumb (at least by accident).
 
+* [proof affinity](https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/)
