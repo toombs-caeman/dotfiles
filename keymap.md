@@ -14,6 +14,8 @@ My lightly modified whitefox keyboard.
 '------'---'-----'----------------------'---'----'  '---'---'---'
 ```
 # TODO
+
+* [screen](https://kapeli.com/cheat_sheets/screen.docset/Contents/Resources/Documents/index)
 * organize master list by ... (functional group, key, modifiers, application)?
 * match firefox keybinds for tabs
 * tabs with `HL`, buffers with `JK` while splits with `a-hjkl`
@@ -71,7 +73,12 @@ This may require writing some scripts to bridge functionality.
 `a-w` go to definition
 
 # kitty
+* kitty keys
+    * scroll to prompt `c-{z,x}` -> `c-{j,k}`
+    * page last output? map kitty_mod+g `show_last_command_output`
 # firefox
+* `/` - find text
+* `''` - find link text
 * `a-d` - goto search bar
 * `W` - open tab in new window (replace with `a-v` and `a-s`?)
 * `c-t` - open a new tab focused on search bar (replace wtih `a-t`, or add `c-t` to vim as tab+telescope)
@@ -79,6 +86,19 @@ This may require writing some scripts to bridge functionality.
 # to unlearn
 * `a-w` - close tab, (replace with vimium `x` or vim `:x`)
 * `:wq` - close window (replace with `:x`)
+
+# vim
+* lsp
+* keybinds for neogit and gitsigns
+    * gitsigns toggle_current_line_blame
+    * gitsigns blame
+    * gitsigns preview_hunk_inline
+    * neogit `a-g`
+    * diff view?
+    * telescope git_branches
+    * nushell completer
+    * [neogit](https://github.com/NeogitOrg/neogit)
+    * avante? windsurf?
 
 # reference
 * [firefox](https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly)

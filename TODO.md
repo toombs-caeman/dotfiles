@@ -1,11 +1,29 @@
 # TODO
 
+* [master keymap](keymap.md)
+
+* persist notes in private git repo
+    * alias to `git -C ~/my/toombs-caeman/notes commit -am $(hostnamectl --static); git push`
+    * vim journal - praciticing keybinds
+        * harpoon? improve marks, jump history, undo-tree, oil vs nvim-tree
+    * practice screen
+
+* collect course material from MIT, etc. and generate syllabus
+    * what would it look like to have a 'formal' course laid out for just myself?
+    * goals, then learning material, then self-test with a project at the end?
+    * hook into calendar, want to have a schedule for testing and work/study sessions
+    * project based learning, but with extra steps
+    * https://news.ycombinator.com/item?id=44655565
+
+* treerat is mind-expanding, because the parser itself just barely doesn't fit into my head.
+    * is it useful to struggle at the edge?
+    * would studying the underlying thing ruin it's awesome quality?
+    * perhaps studying and moving to a higher abstraction is where it's at?
+
 * testing bootstrap
     * monotonic helper function, write a log so that functions are only run successfully once?
     * https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/
 
-* add dolphin to nix
-    * separate nix into a few different templates
 * remove vim snippets, they are almost never what I want.
     * alternatively, change the keybind to accept a change
     * alternatively, replace with ollama complete 
@@ -13,10 +31,12 @@
     * [llm](https://github.com/huggingface/llm.nvim)
     * [windsurf](https://github.com/Exafunction/windsurf.nvim)
 
+* ssh config stub
+    * RequestTTY / RemoteCommand
+    * SendEnv
+    * [ec2 dynamic ip](https://superuser.com/questions/1633430/ssh-config-with-dynamic-ip)
+
 * aula, remap capslock to escape
-* nushell completers https://www.nushell.sh/cookbook/external_completers.html
-   * carapace?
-* script completions
 
 * nvim slop
     * [avante](https://github.com/yetone/avante.nvim)
@@ -25,43 +45,8 @@
     * [mcphub](https://github.com/ravitemer/mcphub.nvim)
         * [avante+mcphub](https://ravitemer.github.io/mcphub.nvim/extensions/avante.html)
 
-* [master keymap](keymap.md)
-    * kitty keys
-        * scroll to prompt `c-{z,x}` -> `c-{j,k}`
-        * page last output? map kitty_mod+g `show_last_command_output`
-
-* use nushell history to query exist_status, duration, hostname etc?
-    * rather than keeping this dynamically (and probably badly) for the prompt.
-
-* figure out how to import a script properly (nushell)
-    * the problem is importing subcommands, since they are like `imbue main wall` instead of `imbue wall`
-    * use `export alias sub = main sub` and don't export 'main sub'
-* [nushell wrappers](https://github.com/drbrain/nushell-config/tree/main)
-    * provides completions and command output as a table
-    * ssh, git, docker, atuin, rg, rsync
-
-* gdb + nvim-dap
-
-* integrate fuzzel with next song picker? `ffprobe -loglevel error -show_entries format_tags=artist -of default=noprint_wrappers=1:nokey=1 | fuzzel -d | ...`
-    * is it better to have a dedicated thing for this? there are mpd TUIs
-
 * correct `c-v` behavior
     * how to get nushell to use the system clipboard for pasting?
-
-* keybinds for neogit and gitsigns
-    * gitsigns toggle_current_line_blame
-    * gitsigns blame
-    * gitsigns preview_hunk_inline
-    * neogit `a-g`
-    * diff view?
-    * telescope git_branches
-    * nushell completer
-    * [neogit](https://github.com/NeogitOrg/neogit)
-
-* ssh
-    * sshfs
-    * rsync -rR
-    * nushell ssh completions
 
 * nvim set noexpandtab for tsv
 * nushell section
@@ -79,7 +64,6 @@
     * ext windows??
     * https://github.com/topics/neovim-guis
 
-
 # nvim debug
 * mini.misc.put()
 * mini.test
@@ -87,16 +71,27 @@
 
 
 # nushell section
-* shell history? [atuin](https://atuin.sh/)
-* nushell [carapace completer](https://github.com/carapace-sh/carapace)
-    * make sure the bindings have parity with nvim-cmphePrimeagen
 * hook command-not-found
 * explore nushell stdlib and nu_scripts
     * contribute hypr completions [custom-completions](https://github.com/nushell/nu_scripts/tree/main/custom-completions)
     * contribute to documentation
     * poor mans fzf: input list -f
+* nushell completers https://www.nushell.sh/cookbook/external_completers.html
+   * carapace?
+* figure out how to import a script properly (nushell)
+    * the problem is importing subcommands, since they are like `imbue main wall` instead of `imbue wall`
+    * use `export alias sub = main sub` and don't export 'main sub'
+* [nushell wrappers](https://github.com/drbrain/nushell-config/tree/main)
+    * provides completions and command output as a table
+    * ssh, git, docker, atuin, rg, rsync
 
 # theming
+* boot sequence
+    * bootsplash black_hud
+    * replace ly with hyprlock
+    * any way to convert plymouth theme to hyplock themes automatically?
+        * basically a visually seamless transition from plymouth to hyprlock
+        * convert plymouth code into password prompt
 * neogit highlight groups
 * standardize nvim-web-dev-icons vs mini.icons vs nerdfonts icons
 * more [wallpapers](https://wallhaven.cc/)
@@ -113,12 +108,9 @@
     * firefox,waybar,mako,kitty
     * fira -> noto+emoji
 
-* any way to convert plymouth theme to hyplock themes automatically?
-    * basically a visually seamless transition from plymouth to hyprlock
-    * convert plymouth code into password prompt
-
 * add mpc current back to hyprlock, now that commands work when locked
 * catpuccin theme?
+
 * [carapace](https://carapace-sh.github.io/carapace-bin/style.html)
 
 * pokemon sprites `kitten icat --align=left (ls ruby-sapphire/ | where type == file | shuffle | first | get name)`
@@ -130,7 +122,9 @@
     * [terminal themes](https://github.com/LazoCoder/Pokemon-Terminal)
     * keep compressed in git? should probably do the same for black_hud
 
+
 # TODO: Maybe in the Future
+* gdb + nvim-dap, align keybinds with nvim-lsp keys
 * https://github.com/AgregoreWeb/agregore-browser
 * https://cabal.chat/
 * try not to need aur packages for the base system.
@@ -273,6 +267,26 @@ quick explorations into libraries/technologies that seem interesting
 * [BQN](https://mlochbaum.github.io/BQN/)
 * lstopo (from hwloc) to visualize hardware caching
 * manage different computers with [meta-packages](https://disconnected.systems/blog/archlinux-meta-packages/)
+
+# side project bootstraps?
+some `init` command to bootstrap a project with the right defaults
+## python + web
+[ref](https://www.cesarsotovalero.net/blog/i-am-switching-to-python-and-actually-liking-it.html)
+* python
+* uv init
+* fastapi+SQLModel (pydantic, Starlette, swagger, jinja2, SQLAlchemy)
+* sqlite
+* htmx
+* monorepo structure ui/ api/ docs/ tests/
+* pytest
+## python + terminal
+* textual, textual-web
+
+## terminal
+* nushell
+* curses mode?
+    * [nushell+notcurses](https://github.com/nushell/nushell/issues/6222)
+    * tui-rs?
 
 # slop
 * stable diffusion - image generation [source](https://github.com/AUTOMATIC1111/stable-diffusion-webui)

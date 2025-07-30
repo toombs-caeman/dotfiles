@@ -146,7 +146,10 @@ $env.PROMPT_COMMAND_RIGHT = {||
 # 
 # if no argument is given, go to git root or ~
 # if a git remote url is given, clone it and cd to it.
-def --env gg [project:string@_gg=''] {
+def --env gg [
+    project:string@_gg=''
+    --init:string=''
+] {
     # by default return to project root or home
     if ($project | is-empty) {
         cd (try { git rev-parse --show-toplevel e> (std null-device) } catch { '~' })
@@ -166,6 +169,17 @@ def --env gg [project:string@_gg=''] {
     }
 }
 def _gg [] { glob '~/my/*/*' | path basename | uniq }
+
+
+# initialize python project
+def --env 'gg init pyweb' [
+    project:string
+] {
+    let p = '~/my/toombs-caeman/' ++ $project
+    uv init $p
+    cd $p
+    uv add fastapi SQLModel pytest
+}
 
 # because I can never remember the damn names
 # TODO: make this a nicer wrapper
