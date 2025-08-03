@@ -24,6 +24,8 @@
     * monotonic helper function, write a log so that functions are only run successfully once?
     * https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/
 
+* add dolphin to nix
+    * separate nix into a few different templates
 * remove vim snippets, they are almost never what I want.
     * alternatively, change the keybind to accept a change
     * alternatively, replace with ollama complete 

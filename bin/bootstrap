@@ -3,6 +3,7 @@
 # TODO: partition numbering does not work on nvme0n1{,p1}
 # TODO: another key in the configuration for post-installation scripts?
 # TODO: ln -sT ~/Desktop ~/.local/share/applications # for adding steam games to launcher
+# TODO: keep root key in the installer, and generate a new id key for the installed system. use root key to pass new id to bastion host
 
 # create custom arch installer
 #

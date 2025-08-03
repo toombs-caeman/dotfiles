@@ -943,7 +943,7 @@ require("lazy").setup({
 				ollama = {
 					endpoint = "http://127.0.0.1:11434",
 					timeout = 30000, -- Timeout in milliseconds
-					model = "qwen2.5-coder:latest",
+					model = "deepseek-r1:latest",
 					extra_request_body = {
 						options = {
 							temperature = 0.75,

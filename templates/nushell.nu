@@ -230,6 +230,7 @@ def --wrapped yay [...rest] {
     ^yay ...$rest
 }
 
+source '{{bin}}/../nu_completions/ollama-completions.nu'
 source '{{bin}}/../nu_completions/aws-completions.nu'
 source '{{bin}}/../nu_completions/composer-completions.nu'
 source '{{bin}}/../nu_completions/curl-completions.nu'

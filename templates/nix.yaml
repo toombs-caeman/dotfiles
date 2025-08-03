@@ -33,7 +33,7 @@ commands:
     callback: rustup default stable
 
   mpd:
-    package: mpd mpc yt-dlp
+    package: mpd mpc yt-dlp pavucontrol
     files:
       mpd.conf: ~/.mpdconf
 
