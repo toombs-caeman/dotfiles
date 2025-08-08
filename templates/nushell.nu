@@ -110,6 +110,9 @@ $env.PROMPT_COMMAND = {||
     let data = roots e> (std null-device)
     mut prompt = []
 
+    if ('SSH_CLIENT' in $env) {
+        $prompt ++= [(ansi light_blue) (hostnamectl --static) ':' (ansi reset)]
+    }
     if ($data | is-empty) {
         $prompt ++= [(try {  ['~' (pwd |path relative-to ~)] | path join } catch { pwd })]
     } else {
@@ -227,6 +230,7 @@ def --wrapped yay [...rest] {
     ^yay ...$rest
 }
 
+source '{{bin}}/../nu_completions/ollama-completions.nu'
 source '{{bin}}/../nu_completions/aws-completions.nu'
 source '{{bin}}/../nu_completions/composer-completions.nu'
 source '{{bin}}/../nu_completions/curl-completions.nu'

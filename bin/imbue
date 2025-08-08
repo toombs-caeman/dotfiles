@@ -63,7 +63,7 @@ def main [
         # don't process commands which aren't installed
         if (which $command.name | is-empty) { return }
         let changes = $command.files | par-each {|render|
-            let oldhash = ($config.state | get -i $render.to)
+            let oldhash = ($config.state | get -o $render.to)
             # skip rendering a file if the destination has an unexpected hash
             if not $force and ($render.to | path exists) {
                 if (open $render.to | hash md5) != $oldhash {
@@ -265,7 +265,10 @@ def require [...external:string] {
 
 # show active wallpapers
 def 'main wall' [] {
-    hyprctl hyprpaper listactive | parse -r '(?m)^(?<monitor>[^ ]*) = (?<wall>.*)$'
+    if not (which hyprctl | is-empty) {
+        hyprctl hyprpaper listactive | parse -r '(?m)^(?<monitor>[^ ]*) = (?<wall>.*)$'
+
+    }
 }
 
 # download wallpapers from wallhaven
@@ -307,7 +310,9 @@ def 'main wall haven' [
 
 # set wallpaper
 def 'main wall set' [file:string] {
-    hyprctl hyprpaper reload ,($file) | complete | ignore
+    if not (which hyprctl | is-empty) {
+        hyprctl hyprpaper reload ,($file) | complete | ignore
+    }
 }
 
 # set random wallpaper
