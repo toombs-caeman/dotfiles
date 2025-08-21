@@ -1,5 +1,8 @@
 # TODO
 
+* homelab.md? https://github.com/toombs-caeman/homelab
+    * mindustry server? minecraft server?
+
 * [master keymap](keymap.md)
 
 * persist notes in private git repo
@@ -20,12 +23,6 @@
     * would studying the underlying thing ruin it's awesome quality?
     * perhaps studying and moving to a higher abstraction is where it's at?
 
-* testing bootstrap
-    * monotonic helper function, write a log so that functions are only run successfully once?
-    * https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/
-
-* add dolphin to nix
-    * separate nix into a few different templates
 * remove vim snippets, they are almost never what I want.
     * alternatively, change the keybind to accept a change
     * alternatively, replace with ollama complete 
@@ -66,11 +63,25 @@
     * ext windows??
     * https://github.com/topics/neovim-guis
 
-# nvim debug
-* mini.misc.put()
-* mini.test
-* plenary.test_harness
+# bootstrap
+* ansible will be more practical than imbue for managing a fleet of computers
+* bootstrap can be simplified I think to just copy the ssh (authorized_keys) and wifi config into place. Then I can ssh in and configure with ansible.
+* alternatives to imbue/bootstrap
+    * ansible
+* [ansible dotfiles](https://phelipetls.github.io/posts/introduction-to-ansible/)
+* [ansible install arch linux in vm](https://binary-manu.github.io/arch-ansible/)
+    * [arch-ansible](https://github.com/binary-manu/arch-ansible/tree/master)
 
+* testing bootstrap
+    * monotonic helper function, write a log so that functions are only run successfully once?
+    * https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/
+
+* separate iso configs for server and desktop?
+    * basically, the 'server core' which runs on all machines, even headless
+        * try not to need aur packages for this
+    * desktop environment only for GUI env
+    * homelab config specifically for jack
+    * for windows?
 
 # nushell section
 * hook command-not-found
@@ -78,8 +89,6 @@
     * contribute hypr completions [custom-completions](https://github.com/nushell/nu_scripts/tree/main/custom-completions)
     * contribute to documentation
     * poor mans fzf: input list -f
-* nushell completers https://www.nushell.sh/cookbook/external_completers.html
-   * carapace?
 * figure out how to import a script properly (nushell)
     * the problem is importing subcommands, since they are like `imbue main wall` instead of `imbue wall`
     * use `export alias sub = main sub` and don't export 'main sub'
@@ -113,8 +122,6 @@
 * add mpc current back to hyprlock, now that commands work when locked
 * catpuccin theme?
 
-* [carapace](https://carapace-sh.github.io/carapace-bin/style.html)
-
 * pokemon sprites `kitten icat --align=left (ls ruby-sapphire/ | where type == file | shuffle | first | get name)`
     * would be cool to have animated sprites (b/w 2) but limit it to the <= gen 3
     * [source](https://veekun.com/dex/downloads)
@@ -129,8 +136,6 @@
 * gdb + nvim-dap, align keybinds with nvim-lsp keys
 * https://github.com/AgregoreWeb/agregore-browser
 * https://cabal.chat/
-* try not to need aur packages for the base system.
-* homelab.md?
 * [defer in c](https://thephd.dev/c2y-the-defer-technical-specification-its-time-go-go-go)
 * is tab-less working? re-evaluate wink
 * integrate gg with nvim sessions?
@@ -152,17 +157,13 @@
     * wdisplays - multiscreen ?? not a TUI
     * systemd - https://github.com/rgwood/systemctl-tui
     * bootctl - 
-* steam https://github.com/ValveSoftware/gamescope
-* nushell [carapace completer](https://github.com/carapace-sh/carapace)
 * nushell include path?
 * background tasts
-    * [pueue](https://www.nushell.sh/book/background_task.html)
     * systemctl units
+    * cron
     * hyprctl dispatch exec
 * set XDG_OPEN applications
     * [nushell start](https://www.nushell.sh/commands/docs/start.html)
-* separate iso configs for server and desktop?
-* separate dotfiles for windows?
 * nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
 * [mosh](https://mosh.org/) or [eternal terminal](https://eternalterminal.dev/)
     * [xxh](https://github.com/xxh/xxh)
@@ -180,7 +181,6 @@
     * nvim set title to buffer name
 * gh-dash github cli
 
-* steam wayland fixes https://github.com/ValveSoftware/gamescope
 * [access clipboard from nushell/reedline](https://github.com/nushell/reedline/issues/745)
 * imbue rollback - keep backups of the original and previous versions of things for a clean uninstall
 
@@ -252,7 +252,6 @@ quick explorations into libraries/technologies that seem interesting
     * bevy
 * [duckdb](https://duckdb.org/)
 
-* [home lab](homelab.md)
 # research: what are these? Do these things exist
 * https://nixos.org/
 * podman vs docker
