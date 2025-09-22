@@ -3,6 +3,8 @@
 * homelab.md? https://github.com/toombs-caeman/homelab
     * mindustry server? minecraft server?
 
+* [pico.css](https://picocss.com/) for blog
+    * [css testbed](https://www.cssbed.com/)
 * [master keymap](keymap.md)
 
 * persist notes in private git repo
@@ -62,6 +64,8 @@
     * ext multigrid??
     * ext windows??
     * https://github.com/topics/neovim-guis
+
+* screen config https://gist.github.com/joaopizani/2718397
 
 # bootstrap
 * ansible will be more practical than imbue for managing a fleet of computers
@@ -133,6 +137,7 @@
 
 
 # TODO: Maybe in the Future
+* asciinema https://www.youtube.com/watch?v=Wnyl3mqydOQ
 * gdb + nvim-dap, align keybinds with nvim-lsp keys
 * https://github.com/AgregoreWeb/agregore-browser
 * https://cabal.chat/

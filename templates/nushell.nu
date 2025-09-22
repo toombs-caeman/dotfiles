@@ -171,7 +171,7 @@ def --env gg [
         cd $dest
     }
 }
-def _gg [] { glob '~/my/*/*' | path basename | uniq }
+def _gg [] { glob -F '~/my/*/*' | path basename | uniq }
 
 
 # initialize python project
