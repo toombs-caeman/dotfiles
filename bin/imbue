@@ -347,6 +347,8 @@ def 'main music' [
     # TODO --cookies-from-browser ??
     $config.ytdlp | each {|playlist|
         print $playlist
-        yt-dlp --yes-playlist --extract-audio --embed-metadata -f bestaudio/best --audio-format mp3 --audio-quality 0 --restrict-filenames -o $output --ignore-errors --no-overwrites --download-archive $archive -- $playlist
+        try {
+            yt-dlp --yes-playlist --extract-audio --embed-metadata -f bestaudio/best --audio-format mp3 --audio-quality 0 --restrict-filenames -o $output --ignore-errors --no-overwrites --download-archive $archive --extractor-arg "youtube:player_client=web_music" -- $playlist
+        }
     }
 }
