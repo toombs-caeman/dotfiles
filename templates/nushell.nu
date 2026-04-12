@@ -3,7 +3,11 @@ use std
 
 
 # this is the path to imbue, which it templates in itself
-$env.path ++= ['{{bin}}', ('~/.local/bin/' | path expand)]
+$env.path ++= [
+    '{{bin}}',
+    ('~/.local/bin/' | path expand),
+    ('~/.flutter/flutter/bin' | path expand),
+]
 $env.config.show_banner = false
 $env.config.edit_mode = 'vi'
 $env.config.buffer_editor = 'nvim'
@@ -138,7 +142,7 @@ $env.PROMPT_COMMAND_RIGHT = {||
     let cmd = history | last
     let prompt = [
         (if $cmd.exit_status != 0 {$'(ansi red)($cmd.exit_status)'})
-        (if $cmd.duration > 1sec  {$'(ansi yellow)($cmd.duration)'})
+        (if ($cmd.duration > 1 | default false)  {$'(ansi yellow)($cmd.duration / 1000)'})
     ] | compact
     if ($prompt | is-not-empty) {
         $'(ansi reset)[($prompt | str join " ")(ansi reset)]'
@@ -221,14 +225,14 @@ def 'sys blocks' [] {
     lsblk --json | from json | get blockdevices
 }
 
-def --wrapped yay [...rest] {
-    # install yay if it can't be found
-    if (which yay | where type == 'external' | is-empty) {
-            gg https://aur.archlinux.org/yay.git
-            makepkg -si
-    }
-    ^yay ...$rest
-}
+# def --wrapped yay [...rest] {
+#     # install yay if it can't be found
+#     if (which yay | where type == 'external' | is-empty) {
+#             gg https://aur.archlinux.org/yay.git
+#             makepkg -si
+#     }
+#     ^yay ...$rest
+# }
 
 source '{{bin}}/../nu_completions/ollama-completions.nu'
 source '{{bin}}/../nu_completions/aws-completions.nu'

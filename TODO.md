@@ -1,5 +1,6 @@
 # TODO
-
+* xdg-settings set default-web-browser firefox.desktop
+    * after install of poorly behaved chromium, etc.
 * homelab.md? https://github.com/toombs-caeman/homelab
     * mindustry server? minecraft server?
 
@@ -31,6 +32,11 @@
     * [cmp-ai](https://github.com/tzachar/cmp-ai)
     * [llm](https://github.com/huggingface/llm.nvim)
     * [windsurf](https://github.com/Exafunction/windsurf.nvim)
+
+* printer/scanner support
+    * sudo pacman -S simple-scan ipp-usb cups
+    * sudo systemctl start ipp-usb cups
+    * sudo systemctl enable ipp-usb cups
 
 * ssh config stub
     * RequestTTY / RemoteCommand
