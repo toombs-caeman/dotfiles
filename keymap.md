@@ -14,6 +14,9 @@ My lightly modified whitefox keyboard.
 '------'---'-----'----------------------'---'----'  '---'---'---'
 ```
 # TODO
+* aula f75
+    * fn+lshift: toggle upper left light
+    * 4second hold on scroll wheel, toggle between lights and volume control
 
 * [screen](https://kapeli.com/cheat_sheets/screen.docset/Contents/Resources/Documents/index)
 * organize master list by ... (functional group, key, modifiers, application)?

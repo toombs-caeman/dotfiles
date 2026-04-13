@@ -640,7 +640,7 @@ require("lazy").setup({
 				},
 			}
 			-- do this one separately since mason doesn't know what's up.
-			require("lspconfig").nushell.setup({})
+			-- require("lspconfig").nushell.setup({})
 
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
@@ -656,7 +656,7 @@ require("lazy").setup({
 						-- by the server configuration above. Useful when disabling
 						-- certain features of an LSP (for example, turning off formatting for ts_ls)
 						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-						require("lspconfig")[server_name].setup(server)
+						vim.lsp.config(server_name).setup(server)
 					end,
 				},
 			})
@@ -948,7 +948,7 @@ require("lazy").setup({
 			behaviour = {
 				enable_cursor_planning_mode = true,
 			},
-			provider = "openai",
+			provider = "ollama",
 			providers = {
 				openai = {
 					model = "gpt-4o-mini",
@@ -956,10 +956,10 @@ require("lazy").setup({
 				ollama = {
 					endpoint = "http://127.0.0.1:11434",
 					timeout = 30000, -- Timeout in milliseconds
-					model = "deepseek-r1:latest",
+					model = "gemma4:latest",
 					extra_request_body = {
 						options = {
-							temperature = 0.75,
+							--temperature = 0.75,
 							num_ctx = 20480,
 							keep_alive = "5m",
 						},

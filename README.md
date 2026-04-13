@@ -9,7 +9,7 @@ arch + hyprland + kitty + nushell + neovim
     * mac: `brew install git nushell`
     * arch: `sudo pacman -S git nushell`
 1. clone repository and run imbue hook
-```shell
+```
 # clone repository
 git clone git@github.com:toombs-caeman/dotfiles.git
 cd dotfiles

@@ -7,7 +7,9 @@ $env.path ++= [
     '{{bin}}',
     ('~/.local/bin/' | path expand),
     ('~/.flutter/flutter/bin' | path expand),
+    ('/opt/android-sdk/cmdline-tools/latest/bin/'),
 ]
+$env.ANDROID_HOME = '~/Android/Sdk' | path expand
 $env.config.show_banner = false
 $env.config.edit_mode = 'vi'
 $env.config.buffer_editor = 'nvim'

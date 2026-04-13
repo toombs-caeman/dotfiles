@@ -1,4 +1,8 @@
 # TODO
+* nvim 0.12 has native lsp support and a package manager
+    * lazyvim -> vim.pack? [blog](https://echasnovski.com/blog/2026-03-13-a-guide-to-vim-pack)
+    * remove nvim-treesitter. It isn't broken per se, but it's no longer being updated
+
 * xdg-settings set default-web-browser firefox.desktop
     * after install of poorly behaved chromium, etc.
 * homelab.md? https://github.com/toombs-caeman/homelab
@@ -28,7 +32,7 @@
 
 * remove vim snippets, they are almost never what I want.
     * alternatively, change the keybind to accept a change
-    * alternatively, replace with ollama complete 
+    * alternatively, replace with ollama complete (probably way too slow)
     * [cmp-ai](https://github.com/tzachar/cmp-ai)
     * [llm](https://github.com/huggingface/llm.nvim)
     * [windsurf](https://github.com/Exafunction/windsurf.nvim)
@@ -54,6 +58,7 @@
 
 * correct `c-v` behavior
     * how to get nushell to use the system clipboard for pasting?
+    * needs to be synced across kitty and nushell
 
 * nvim set noexpandtab for tsv
 * nushell section
@@ -83,7 +88,7 @@
     * [arch-ansible](https://github.com/binary-manu/arch-ansible/tree/master)
 
 * testing bootstrap
-    * monotonic helper function, write a log so that functions are only run successfully once?
+    * idempotent helper function, write a log so that functions are only run successfully once?
     * https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/
 
 * separate iso configs for server and desktop?
@@ -151,11 +156,14 @@
 * is tab-less working? re-evaluate wink
 * integrate gg with nvim sessions?
 * increase hypridle times?
+    * laptop vs desktop config
+    * keep awake from browser?
 * control mpd with playerctl [mpDris2](https://github.com/eonpatapon/mpDris2)
 * database vim tpope/dadbod-vim
 * zoxide?
 * separate bootstrap script for server?
 * nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
+    * probably just job controls now?
 * ctl - new tui script to join a bunch of others
     * a chance to learn rust? tui, ratatui or iocraft crate
     * manage all system config
@@ -244,14 +252,38 @@
 
 * can 'juice' from game design be applied to boring software like excel?
 
+* lotus 1-2-3 clone, spreadsheets in terminal
+    * import export to xlsx, csv, tsv, etc.
+
 * sync ebooks and audiobooks?
     * can we connect the cybrarians audiobooks with the project gutenberg text of the same?
     * need to do some research to see if this has already been done.
     * use [ebup3 media overlays](https://www.w3.org/TR/epub-overview-33/#sec-mediaoverlays)
     * maybe use ai/tts to sync the audio track? not sure how this is done
     * [project gutenberg](https://www.gutenberg.org/) vs [standard ebooks](https://standardebooks.org/)
+    * royal road
 
 * the flip side of discovery (implied discovery of supply for products, restaurants, music) is detecting demand. How can we aggregate people's desires to find demand and then create the supply?
+
+* treerat stuff
+* git vs pijul vs fossil
+* strudel cc, strudel-nvim
+* proof languages, smt or csc5, minikanren python,lean, coq
+
+* rubiks cube visualizer
+    * difference between human algo notation vs pure state transition notation
+
+* visualizing and auto ranking cellular automata by finding long / chaotic cycle times
+    * can we use very lossy compression as an indicator of predictability? Failure to compress means high chaos, and maybe interest?
+    * is there an algo for finding "interesting" systems that at all generalizes?
+
+* is it possible to 'automatically' determine appropriate data visualization methods given a set of data.
+
+* rss aggregator
+* waltzing animations from waltzing notation
+* juggling animations from juggling notation
+* [box combinator](https://mmapped.blog/posts/41-box-combinators)
+* zachtronics-like games
 
 # explorations
 quick explorations into libraries/technologies that seem interesting
@@ -262,6 +294,15 @@ quick explorations into libraries/technologies that seem interesting
     * https://odyc.dev/
     * bevy
 * [duckdb](https://duckdb.org/)
+* tigerbeetle db
+* IBM z/tpf
+* rust
+* zig/odin/jai
+* pico8
+* charm cli
+* read the Hades source (lua)
+* wireguard
+
 
 # research: what are these? Do these things exist
 * https://nixos.org/
@@ -282,6 +323,9 @@ quick explorations into libraries/technologies that seem interesting
 
 # side project bootstraps?
 some `init` command to bootstrap a project with the right defaults
+* data visualization/graphing?
+    * roughviz?
+* 2d rendering/animation?
 ## python + web
 [ref](https://www.cesarsotovalero.net/blog/i-am-switching-to-python-and-actually-liking-it.html)
 * python
@@ -293,12 +337,19 @@ some `init` command to bootstrap a project with the right defaults
 * pytest
 ## python + terminal
 * textual, textual-web
+* prompt-toolkit
 
 ## terminal
 * nushell
 * curses mode?
     * [nushell+notcurses](https://github.com/nushell/nushell/issues/6222)
     * tui-rs?
+## multi-platform
+* flutter
+
+## mulitmedia
+* krita
+* blender
 
 # slop
 * stable diffusion - image generation [source](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
