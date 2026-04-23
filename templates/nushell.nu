@@ -144,7 +144,7 @@ $env.PROMPT_COMMAND_RIGHT = {||
     let cmd = history | last
     let prompt = [
         (if $cmd.exit_status != 0 {$'(ansi red)($cmd.exit_status)'})
-        (if ($cmd.duration > 1 | default false)  {$'(ansi yellow)($cmd.duration / 1000)'})
+        (if ($cmd.duration > 1sec | default false)  {$'(ansi yellow)($cmd.duration)'})
     ] | compact
     if ($prompt | is-not-empty) {
         $'(ansi reset)[($prompt | str join " ")(ansi reset)]'
