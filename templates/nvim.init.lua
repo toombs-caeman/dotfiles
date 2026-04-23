@@ -114,6 +114,20 @@ vim.keymap.set("n", "<A-f>", "<cmd>Telescope live_grep<cr>", { desc = "Fuzzy gre
 -- [[ directory ]]
 vim.keymap.set("n", "-", "<cmd>lua require('mini.files').open()<cr>", { desc = "Edit Directories" })
 
+-- hex
+-- see ~/.config/nvim/syntax/hex.vim
+function ToggleHex()
+	if vim.b.hexed then
+		vim.cmd("%!xxd -r")
+		vim.cmd("filetype detect")
+	else
+		vim.cmd("%!xxd")
+		vim.cmd("set syntax=hex")
+	end
+	vim.b.hexed = not vim.b.hexed
+end
+vim.keymap.set("n", "<leader>h", ToggleHex, { desc = "view hex" })
+
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 -- `n` always searches forward and `N` always backwards
 vim.keymap.set("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
