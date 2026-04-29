@@ -42,7 +42,7 @@ $env.config.keybindings ++= [
         mode: [emacs, vi_normal, vi_insert],
         event: {
             send: executehostcommand,
-            cmd: "nvim +'lua require(\"telescope.builtin\").find_files()'",
+            cmd: "nvim +'Pick files'",
         }
     },
     {
@@ -51,16 +51,6 @@ $env.config.keybindings ++= [
         keycode: char_s,
         mode: [emacs, vi_normal, vi_insert],
         event: {send: executehostcommand, cmd: "nvim"},
-    }
-    {
-        name: paste,
-        modifier: control,
-        keycode: char_v,
-        mode: [emacs, vi_normal, vi_insert],
-        event: {
-            send: executehostcommand,
-            cmd: "wl-paste",
-        }
     }
 ]
 

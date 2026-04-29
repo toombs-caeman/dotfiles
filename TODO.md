@@ -1,17 +1,22 @@
 # TODO
 
-* xdg-settings set default-web-browser firefox.desktop
-    * after install of poorly behaved chromium, etc.
-* homelab.md? https://github.com/toombs-caeman/homelab
+* update spacedust theme
+* separate out hextoggle as plugin
+* update/trim THEORY.md, rice.md, README.md, etc.
+* bootstrap
+* publicity
+* separate out coding experiments
+
+* https://github.com/toombs-caeman/treerat
+* https://github.com/toombs-caeman/homelab
     * mindustry server? minecraft server?
 
-* [pico.css](https://picocss.com/) for blog
-    * [css testbed](https://www.cssbed.com/)
+* xdg-settings set default-web-browser firefox.desktop
+    * after install of poorly behaved chromium, etc.
 * [master keymap](keymap.md)
 
 * persist notes in private git repo
     * alias to `git -C ~/my/toombs-caeman/notes commit -am $(hostnamectl --static); git push`
-    * practice screen
 
 * collect course material from MIT, etc. and generate syllabus
     * what would it look like to have a 'formal' course laid out for just myself?
@@ -19,12 +24,6 @@
     * hook into calendar, want to have a schedule for testing and work/study sessions
     * project based learning, but with extra steps
     * https://news.ycombinator.com/item?id=44655565
-
-* treerat is mind-expanding, because the parser itself just barely doesn't fit into my head.
-    * is it useful to struggle at the edge?
-    * would studying the underlying thing ruin it's awesome quality?
-    * perhaps studying and moving to a higher abstraction is where it's at?
-
 
 * printer/scanner support
     * sudo pacman -S simple-scan ipp-usb cups
@@ -36,19 +35,15 @@
     * SendEnv
     * [ec2 dynamic ip](https://superuser.com/questions/1633430/ssh-config-with-dynamic-ip)
 
-* aula, remap capslock to escape
-
-* correct `c-v` behavior
-    * how to get nushell to use the system clipboard for pasting?
-    * needs to be synced across kitty and nushell
-
-* nushell section
-* theming sectioo setting up a user correctly. (adding user to groups)
-
+* aula
+    * remap capslock to escape
+    * document magic keys
 
 * screen config https://gist.github.com/joaopizani/2718397
+    * [screen cheatsheet](https://kapeli.com/cheat_sheets/screen.docset/Contents/Resources/Documents/index)
 
 # bootstrap
+* theming section setting up a user correctly. (adding user to groups)
 * ansible will be more practical than imbue for managing a fleet of computers
 * bootstrap can be simplified I think to just copy the ssh (authorized_keys) and wifi config into place. Then I can ssh in and configure with ansible.
 * alternatives to imbue/bootstrap
@@ -88,7 +83,6 @@
     * any way to convert plymouth theme to hyplock themes automatically?
         * basically a visually seamless transition from plymouth to hyprlock
         * convert plymouth code into password prompt
-* neogit highlight groups
 * more [wallpapers](https://wallhaven.cc/)
 * adjust spacedust2 magenta to be more magenta
 * template fonts
@@ -124,6 +118,9 @@
 * separate bootstrap script for server?
 * nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
     * probably just job controls now?
+    * systemctl units
+    * cron
+    * hyprctl dispatch exec
 * ctl - new tui script to join a bunch of others
     * a chance to learn rust? tui, ratatui or iocraft crate
     * manage all system config
@@ -137,10 +134,6 @@
     * systemd - https://github.com/rgwood/systemctl-tui
     * bootctl - 
 * nushell include path?
-* background tasts
-    * systemctl units
-    * cron
-    * hyprctl dispatch exec
 * set XDG_OPEN applications
     * [nushell start](https://www.nushell.sh/commands/docs/start.html)
 * nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
@@ -159,14 +152,11 @@
     * waybar - show active window title
     * nvim set title to buffer name
 * gh-dash github cli
+    * subcommand for interacting with github/gitlab/etc [git forge](https://github.com/nhorman/gitforge)
 
 * [access clipboard from nushell/reedline](https://github.com/nushell/reedline/issues/745)
 * imbue rollback - keep backups of the original and previous versions of things for a clean uninstall
 
-* telescope
-    * telescope preview images with kitty icat
-    * ripgrep + telescope?
-* subcommand for interacting with github/gitlab/etc [git forge](https://github.com/nhorman/gitforge)
 * charm based TUI (golang) [charm](https://charm.sh/)
 
 * an electronic version of touchstone
@@ -291,6 +281,7 @@ some `init` command to bootstrap a project with the right defaults
     * roughviz?
 * 2d rendering/animation?
 * protolang
+* `gg init pyweb`
 ## python + web
 [ref](https://www.cesarsotovalero.net/blog/i-am-switching-to-python-and-actually-liking-it.html)
 * python
@@ -300,6 +291,9 @@ some `init` command to bootstrap a project with the right defaults
 * htmx
 * monorepo structure ui/ api/ docs/ tests/
 * pytest
+* [pico.css](https://picocss.com/) for blog
+    * [css testbed](https://www.cssbed.com/)
+
 ## python + terminal
 * textual, textual-web
 * prompt-toolkit
@@ -309,6 +303,7 @@ some `init` command to bootstrap a project with the right defaults
 * curses mode?
     * [nushell+notcurses](https://github.com/nushell/nushell/issues/6222)
     * tui-rs?
+
 ## multi-platform
 * flutter
 

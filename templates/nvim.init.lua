@@ -7,16 +7,12 @@
     * prefer standard keymaps
     * add keygroups where appropriate
     * gr -> lsp actions
-    * bind :Update -> vim.pack.update(), hook into imbue?
-    * Pick delete buffers, sessions
-    * pick sessions
-    * harpoon? improve marks, jump history,
-    * [undotree](https://github.com/mbbill/undotree)
-    * oil vs nvim-tree vs mini.files
-    * pretty sure I want to use mini.files here
-    * vim journal - praciticing keybinds
+    * hook :Update into imbue?
+    * [undotree?](https://github.com/mbbill/undotree)
+    * show session name in statusline https://stackoverflow.com/questions/11374047/how-to-add-the-current-session-file-name-in-the-status-line-in-vim
     * completion
-    * remove vim snippets, they are almost never what I want.
+        * mini.snippets
+        * remove vim snippets, they are almost never what I want.
         * alternatively, change the keybind to accept a change
         * alternatively, replace with ollama complete (probably way too slow)
         * [cmp-ai](https://github.com/tzachar/cmp-ai)
@@ -28,7 +24,6 @@
         * [avante config](https://github.com/yetone/avante.nvim/pull/1543)
         * [mcphub](https://github.com/ravitemer/mcphub.nvim)
             * [avante+mcphub](https://ravitemer.github.io/mcphub.nvim/extensions/avante.html)
-    * coordinate paste event between nushell, kitty, and nvim
     * standardize nvim-web-dev-icons vs mini.icons vs nerdfonts icons
     * nvim set noexpandtab for tsv
     * [image.nvim](https://github.com/3rd/image.nvim)
@@ -216,6 +211,13 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     end,
 })
 
+vim.api.nvim_create_user_command(
+    "Update",
+    function()
+        vim.pack.update()
+    end,
+    { desc = "update plugins" }
+)
 vim.pack.add({
     "https://github.com/folke/which-key.nvim",  -- show hints for leader keys
     "https://github.com/nvim-lua/plenary.nvim", -- dep
@@ -231,13 +233,15 @@ vim.pack.add({
     "https://github.com/nvim-lua/plenary.nvim",  -- dep
     "https://github.com/sindrets/diffview.nvim", -- dep
 })
-keygroup("<leader>g", "git stuff")
-vim.keymap.set({ "n", "i", "v" }, "<leader>gg", "<cmd>Neogit<CR>", { desc = "start git commit" })
-vim.keymap.set({ "n", "i", "v" }, "<leader>gb", "<cmd>Gitsigns blame_line<CR>", { desc = "show blame line" })
-vim.keymap.set({ "n", "i", "v" }, "<leader>gB", "<cmd>Gitsigns blame<CR>", { desc = "show full blame" })
+keygroup("<leader>g", "Git")
+vim.keymap.set("n", "<leader>gg", "<cmd>Neogit<CR>", { desc = "start git commit" })
+vim.keymap.set("n", "<leader>gb", "<cmd>Gitsigns blame_line<CR>", { desc = "show blame line" })
+vim.keymap.set("n", "<leader>gB", "<cmd>Gitsigns blame<CR>", { desc = "show full blame" })
 
 vim.pack.add({ "https://github.com/folke/tokyonight.nvim" })
-vim.cmd.colorscheme("tokyonight-night")
+--vim.cmd.colorscheme("tokyonight-night")
+vim.pack.add({"https://github.com/toombs-caeman/spacedust.nvim"})
+vim.cmd.colorscheme("spacedust")
 
 vim.pack.add({ "https://github.com/echasnovski/mini.nvim" })
 require("mini.misc").setup_restore_cursor()
@@ -344,7 +348,7 @@ vim.pack.add({
     "https://github.com/mason-org/mason.nvim",
     "https://github.com/stevearc/conform.nvim",
 })
-keygroup("gr", "LSP actions") -- see :help lsp-defaults
+keygroup("gr", "LSP") -- see :help lsp-defaults
 require("mason").setup()
 require("mason-lspconfig").setup()
 vim.keymap.set("n", "grq", vim.diagnostic.setloclist, { desc = "quickfix list" })

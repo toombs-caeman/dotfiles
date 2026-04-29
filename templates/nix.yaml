@@ -32,6 +32,7 @@ commands:
       nvim.init.lua: ~/.config/nvim/init.lua
       hex.vim: ~/.config/nvim/syntax/hex.vim
     callback: rustup default stable
+    # TODO echo 'Update\nqa!' | nvim -es
 
   mpd:
     package: mpd mpc yt-dlp pavucontrol
