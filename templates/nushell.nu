@@ -260,3 +260,7 @@ source '{{bin}}/../nu_completions/tar-completions.nu'
 source '{{bin}}/../nu_completions/tcpdump-completions.nu'
 source '{{bin}}/../nu_completions/uv-completions.nu'
 
+# start hyprland if we're started on tty1
+if (tty) == '/dev/tty1' {
+  start-hyprland
+}
