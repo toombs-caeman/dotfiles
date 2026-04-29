@@ -1,7 +1,4 @@
 # TODO
-* nvim 0.12 has native lsp support and a package manager
-    * lazyvim -> vim.pack? [blog](https://echasnovski.com/blog/2026-03-13-a-guide-to-vim-pack)
-    * remove nvim-treesitter. It isn't broken per se, but it's no longer being updated
 
 * xdg-settings set default-web-browser firefox.desktop
     * after install of poorly behaved chromium, etc.
@@ -14,8 +11,6 @@
 
 * persist notes in private git repo
     * alias to `git -C ~/my/toombs-caeman/notes commit -am $(hostnamectl --static); git push`
-    * vim journal - praciticing keybinds
-        * harpoon? improve marks, jump history, undo-tree, oil vs nvim-tree
     * practice screen
 
 * collect course material from MIT, etc. and generate syllabus
@@ -30,12 +25,6 @@
     * would studying the underlying thing ruin it's awesome quality?
     * perhaps studying and moving to a higher abstraction is where it's at?
 
-* remove vim snippets, they are almost never what I want.
-    * alternatively, change the keybind to accept a change
-    * alternatively, replace with ollama complete (probably way too slow)
-    * [cmp-ai](https://github.com/tzachar/cmp-ai)
-    * [llm](https://github.com/huggingface/llm.nvim)
-    * [windsurf](https://github.com/Exafunction/windsurf.nvim)
 
 * printer/scanner support
     * sudo pacman -S simple-scan ipp-usb cups
@@ -49,32 +38,13 @@
 
 * aula, remap capslock to escape
 
-* nvim slop
-    * [avante](https://github.com/yetone/avante.nvim)
-    * ollama
-    * [avante config](https://github.com/yetone/avante.nvim/pull/1543)
-    * [mcphub](https://github.com/ravitemer/mcphub.nvim)
-        * [avante+mcphub](https://ravitemer.github.io/mcphub.nvim/extensions/avante.html)
-
 * correct `c-v` behavior
     * how to get nushell to use the system clipboard for pasting?
     * needs to be synced across kitty and nushell
 
-* nvim set noexpandtab for tsv
 * nushell section
 * theming sectioo setting up a user correctly. (adding user to groups)
-* get better about vim marks
-* vim custom snippets
 
-* [image.nvim](https://github.com/3rd/image.nvim)
-    * unbearably slow. need an alternative
-
-* multihead neovim
-    * unmaintained [nwin](https://github.com/glacambre/nwin?tab=readme-ov-file)
-    * not quite it [nvr](https://github.com/mhinz/neovim-remote)
-    * ext multigrid??
-    * ext windows??
-    * https://github.com/topics/neovim-guis
 
 * screen config https://gist.github.com/joaopizani/2718397
 
@@ -119,17 +89,8 @@
         * basically a visually seamless transition from plymouth to hyprlock
         * convert plymouth code into password prompt
 * neogit highlight groups
-* standardize nvim-web-dev-icons vs mini.icons vs nerdfonts icons
 * more [wallpapers](https://wallhaven.cc/)
 * adjust spacedust2 magenta to be more magenta
-* nvim colorscheme
-    * lush.nvim interactive colorscheme
-    * mini.colors 
-    * mini.hues (:colorscheme randomhue)
-    * mini.base16
-    * nvim use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
-    * [original spacedust](https://github.com/hallski/spacedust-theme)
-    * remember colorscheme in mini.sessions?
 * template fonts
     * firefox,waybar,mako,kitty
     * fira -> noto+emoji
@@ -149,17 +110,16 @@
 
 # TODO: Maybe in the Future
 * asciinema https://www.youtube.com/watch?v=Wnyl3mqydOQ
-* gdb + nvim-dap, align keybinds with nvim-lsp keys
 * https://github.com/AgregoreWeb/agregore-browser
 * https://cabal.chat/
 * [defer in c](https://thephd.dev/c2y-the-defer-technical-specification-its-time-go-go-go)
 * is tab-less working? re-evaluate wink
-* integrate gg with nvim sessions?
 * increase hypridle times?
     * laptop vs desktop config
     * keep awake from browser?
+* play with [niri](https://github.com/niri-wm/niri)
+    * composable with hyprland (test in a window)
 * control mpd with playerctl [mpDris2](https://github.com/eonpatapon/mpDris2)
-* database vim tpope/dadbod-vim
 * zoxide?
 * separate bootstrap script for server?
 * nushell task runner? [nur](https://github.com/nur-taskrunner/nur)
@@ -254,6 +214,8 @@
 
 * lotus 1-2-3 clone, spreadsheets in terminal
     * import export to xlsx, csv, tsv, etc.
+    * [cell](https://github.com/garritfra/cell)
+    * [sc-im](https://github.com/andmarti1424/sc-im)
 
 * sync ebooks and audiobooks?
     * can we connect the cybrarians audiobooks with the project gutenberg text of the same?
@@ -266,6 +228,7 @@
 * the flip side of discovery (implied discovery of supply for products, restaurants, music) is detecting demand. How can we aggregate people's desires to find demand and then create the supply?
 
 * treerat stuff
+    * protolang
 * git vs pijul vs fossil
 * strudel cc, strudel-nvim
 * proof languages, smt or csc5, minikanren python,lean, coq
@@ -284,6 +247,7 @@
 * juggling animations from juggling notation
 * [box combinator](https://mmapped.blog/posts/41-box-combinators)
 * zachtronics-like games
+    * pico8? chip8?
 
 # explorations
 quick explorations into libraries/technologies that seem interesting
@@ -326,6 +290,7 @@ some `init` command to bootstrap a project with the right defaults
 * data visualization/graphing?
     * roughviz?
 * 2d rendering/animation?
+* protolang
 ## python + web
 [ref](https://www.cesarsotovalero.net/blog/i-am-switching-to-python-and-actually-liking-it.html)
 * python
