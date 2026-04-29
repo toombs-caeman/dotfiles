@@ -30,7 +30,6 @@ commands:
     package: neovim luarocks rustup npm unzip
     files:
       nvim.init.lua: ~/.config/nvim/init.lua
-      hex.vim: ~/.config/nvim/syntax/hex.vim
     callback: rustup default stable
     # TODO echo 'Update\nqa!' | nvim -es
 

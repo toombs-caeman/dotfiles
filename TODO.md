@@ -1,7 +1,6 @@
 # TODO
 
 * update spacedust theme
-* separate out hextoggle as plugin
 * update/trim THEORY.md, rice.md, README.md, etc.
 * bootstrap
 * publicity

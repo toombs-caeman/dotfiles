@@ -135,21 +135,8 @@ vim.keymap.set("n", "<A-space>", "<cmd>Pick buffers<cr>", { desc = "Fuzzy find b
 -- [[ find ]]
 vim.keymap.set("n", "<A-f>", "<cmd>Pick grep_live<cr>", { desc = "Fuzzy grep text" })
 
--- hex
--- see ~/.config/nvim/syntax/hex.vim
--- TODO save and restore cursor position. this is non-trivial
-function ToggleHex()
-    if vim.b.hexed then
-        vim.cmd("%!xxd -r")
-        vim.cmd("filetype detect")
-    else
-        vim.cmd("%!xxd")
-        vim.cmd("set syntax=hex")
-    end
-    vim.b.hexed = not vim.b.hexed
-end
-
-vim.keymap.set("n", "<leader>h", ToggleHex, { desc = "view hex" })
+vim.pack.add({"https://github.com/toombs-caeman/hexed.nvim"})
+require('hexed').setup("<leader>h")
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 -- `n` always searches forward and `N` always backwards
