@@ -1,9 +1,19 @@
 # TODO
 
 * update spacedust theme
+    * git gutter should be green for add, blue for change, red for delete
+    * use original theme as a guide for higroups
 * update/trim THEORY.md, rice.md, README.md, etc.
-* bootstrap
+* test bootstrap
 * publicity
+    * dotfiles
+        * [dotfiles](https://dotfiles.github.io/)
+        * [awesome-dotfiles](https://github.com/webpro/awesome-dotfiles)
+        * [arch dotfiles](https://wiki.archlinux.org/title/Dotfiles)
+
+    * imbue + wallpaper
+        * [awesome-nu](https://github.com/nushell/awesome-nu)
+        * [nupm](https://github.com/nushell/nupm)
 * separate out coding experiments
 
 * https://github.com/toombs-caeman/treerat
@@ -28,6 +38,8 @@
     * sudo pacman -S simple-scan ipp-usb cups
     * sudo systemctl start ipp-usb cups
     * sudo systemctl enable ipp-usb cups
+
+* update hexed.nvim, how often do I really use this?
 
 * ssh config stub
     * RequestTTY / RemoteCommand

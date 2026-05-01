@@ -2,12 +2,37 @@
 
 arch + hyprland + kitty + nushell + neovim
 
-# Installation
-0. requires git and nushell
+# Normal Usage
+`bin/imbue` is a nushell script which manages installing and configuring programs.
+* Config files kept under version control.
+* Config files are templates which are rendered then written to their standard location.
+* Config files don't overwrite changes made at the destination unless imbue is passed `-f`/`--force`
+* Callbacks can notify programs that can hot-reload configuration
+* Configuration is only written if the program being configured is present, unless `-i`/`--install` is passed.
+    In that case it tries to install all configured tools first.
+* `imbue` is itself configured with a yaml file.
+    * `imbue with config.yml` sets the default configuration file.
+    * The file itself is kept under git, and a stub is installed at a known location.
+* `imbue watch` watches the templates directory for changes and automatically renders changed files.
+* It also handles downloading music and wallpapers.
+
+## Fresh Arch Installs
+`bin/bootstrap` is used to create an custom arch linux disk image and a bootable flash drive.
+* The ISO is modified to enable easy bootstrapping with these dotfiles.
+* This part requires a bit more testing, since I don't spin up new machines that often,
+    but it gets smoother every time I do.
+
+## Mac / Windows Usage
+It is possible in theory to use this same repo on a mac or windows machine, for a job or something,
+but I've not done that since the last major rewrite.
+* install base dependencies for `imbue`:
     * windows: `winget install Git.Git Nushell.Nushell`
     * ubuntu: `sudo apt install git nushell`
     * mac: `brew install git nushell`
-    * arch: `sudo pacman -S git nushell`
+* `imbue` would need a custom configuration, with the installer set to either `winget install` or `brew install`
+
+
+# Manual Installation
 1. clone repository and run imbue hook
 ```
 # clone repository
@@ -15,34 +40,10 @@ git clone git@github.com:toombs-caeman/dotfiles.git
 cd dotfiles
 bin/imbue with templates/nix.yaml
 ```
-2. additional extensions for firefox
-    * `yay -S --needed firefox-ublock-origin firefox-vimium`
+# Preferred Applications
+This is stuff I don't usually use/install often,
+but I'd like to keep the list here so I don't forget about useful tools.
 
-# Status
-* imbue ![ready](https://img.shields.io/badge/status-ready-green)
-* bootstrap iso ![ready](https://img.shields.io/badge/status-ready-green)
-    * used to create a custom arch iso
-* bootstrap ![ready](https://img.shields.io/badge/status-ready-green)
-    * used to write images to disk
-* installer script ![incomplete](https://img.shields.io/badge/status-incomplete-red)
-    * the bootstrap script can be taken as a template for how to set up your own environment, but don't expect it to run smoothly or be complete.
-# Imbue ISO
-[create an install image](iso/README.md)
-
-# default installation
-see [imbue](bin/imbue) with [nix.yaml](templates/nix.yaml)
-* hyprland
-    * waybar
-    * mako
-    * hyprpaper
-
-* kitty
-    * nushell
-* firefox
-    * 
-
-# applications
-preferred application, though not installed by default
 * audacity - editing audio
 * krita - editing images
 * obs - livestreaming
@@ -51,21 +52,3 @@ preferred application, though not installed by default
 * xournalpp - pdf editing & signing
 * asciinema - terminal recording
 
-# tabless firefox
-Not sure if I like this, but let hyprland handle tabs (groups) by disabling firefox tabs.
-This is part of the Wink desktop idea.
-
-* convert every new tab to a window [extension](https://github.com/jscher2000/I-Hate-Tabs---SDI-extension)
-    * It causes some visual glitches when converting a tab to a new window.
-* enable userChrome: go to `about:config`, and change the value of `toolkit.legacyUserProfileCustomizations.stylesheets` to true.
-* copy userChrome.css to `~/.mozilla/firefox/*.default/chrome/userChrome.css`
-
-# publicity
-* dotfiles
-    * [dotfiles](https://dotfiles.github.io/)
-    * [awesome-dotfiles](https://github.com/webpro/awesome-dotfiles)
-    * [arch dotfiles](https://wiki.archlinux.org/title/Dotfiles)
-
-* imbue + wallpaper
-    * [awesome-nu](https://github.com/nushell/awesome-nu)
-    * [nupm](https://github.com/nushell/nupm)

@@ -225,7 +225,7 @@ vim.keymap.set("n", "<leader>gg", "<cmd>Neogit<CR>", { desc = "start git commit"
 vim.keymap.set("n", "<leader>gb", "<cmd>Gitsigns blame_line<CR>", { desc = "show blame line" })
 vim.keymap.set("n", "<leader>gB", "<cmd>Gitsigns blame<CR>", { desc = "show full blame" })
 
-vim.pack.add({ "https://github.com/folke/tokyonight.nvim" })
+-- vim.pack.add({ "https://github.com/folke/tokyonight.nvim" })
 --vim.cmd.colorscheme("tokyonight-night")
 vim.pack.add({"https://github.com/toombs-caeman/spacedust.nvim"})
 vim.cmd.colorscheme("spacedust")
@@ -279,7 +279,7 @@ hipatterns.setup({
         hack = { pattern = "%f[%w]()HACK()%f[%W]", group = "MiniHipatternsHack" },
         todo = { pattern = "%f[%w]()TODO()%f[%W]", group = "MiniHipatternsTodo" },
         note = { pattern = "%f[%w]()NOTE()%f[%W]", group = "MiniHipatternsNote" },
-        -- Highlight hex color strings (`#rrggbb`) using that color
+        -- Highlight hex color strings (`#abcdef`) using that color
         hex_color = hipatterns.gen_highlighter.hex_color(),
     },
 })
