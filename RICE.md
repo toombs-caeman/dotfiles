@@ -1,18 +1,5 @@
 This file discusses the aspirational ideal of a desktop.
-[wink](wink.md) discusses a potential implementation.
-
 If I'm going to go through the effort to make a nice setup. I'd like to have an idea of where I'm headed.
-
-# RICE THEORY
-ricing should curate the entire experience of using the computer.
-Most apply the term only the the desktop environment and never consider other parts of the experience of using a computer.
-What's it like to install the distribution, or personalize it?
-How many rough edges can we smooth over.
-
-rice iso rice.json # generate an install image (archiso) that does all the theming, and pulls in dotfiles and stuff
-
-# The Wink Desktop
-The unifying idea of wink is to unify. Why use two eyes when one is good enough?
 
 # problem - solution
 Certain features or motifs are often shared between applications, but with subtle differences between their implementation.
@@ -60,32 +47,12 @@ fuzzy, incremental, with advanced filtering of all kinds
 it's a consistent problem, trying to get consistent interactions across the network.
 Ideally it would be totally transparent where the compute happens
 
-
 # declarative vs imperative / idempotence
 histories in particular are split, can you declaratively return to a given state?
 Or is it a history of actions which can only be repeated in the current context.
 
-# GUI vs TUI vs CLI
-GUIs are good for tools that you don't use very often and/or which have way to many configuration options.
-They are the king of discoverability.
-
-TUIs / CLIs are good for tools you use all the time, especially if they are relatively simple. They are **fast** when you know what you're doing, but can be difficult to learn.
-GUIs can be made nearly as fast as a TUI through thoughtful design and good (or customizable) keybindings, but this is rare.
-CLIs tend to be more or less composable for scripting.
-
-The ideal I think is to design your applications as an API (even for local use), backend or library, with a GUI and cli frontend.
-There should be better tools for doing this.
-
-# ssh scry
-* mount the remote file system (sshfs), sandbox local $env and dynamically alias a 'remote-do' command that *actually* runs a command on the remote, using the local env, connecting the tty, etc.
-* the idea is that you can explore a remote and run commands there, but still using all your local shell config
-* I haven't really thought this through
-
-# aesthetics
-what even is a good looking desktop?
-* recreate spacedust2 color palette
-* status bar should be retro-futuristic themed? can we do TRON?
-* fonts
+# navigation by keybinds
+vim-style motions or emacs? Tab motions?
 
 # parts of a desktop env (typically)
 * bootsplash

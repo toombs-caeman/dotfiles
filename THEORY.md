@@ -43,3 +43,26 @@ I suppose I'll discuss what I think those are here as an aspirational rant.
     * tools should protect you from doing something dumb (at least by accident).
 
 * [proof affinity](https://the-nerve-blog.ghost.io/to-be-a-better-programmer-write-little-proofs-in-your-head/)
+
+# Aesthetics
+Tools should have an unintrusive design.
+They 'get out of the way' as much as possible.
+The design should focus on being readable rather than beautiful (though both is good).
+Animations should be minimal since they impact speed of use.
+
+# GUI vs TUI vs CLI
+GUIs are good for tools that you don't use very often and/or which have way too many configuration options.
+They are the king of discoverability.
+
+TUIs / CLIs are good for tools you use all the time, especially if they are relatively simple. They are **fast** when you know what you're doing, but can be difficult to learn.
+GUIs can be made nearly as fast as a TUI through thoughtful design and good (or customizable) keybindings, but this is rare.
+CLIs tend to be more or less composable for scripting.
+
+The ideal I think is to design your applications as an API (even for local use), backend, or library, with a GUI or TUI frontend.
+The CLI should basically be one for one access to the API.
+There should be better tools for doing this.
+
+Having all three is best (as long as the design is synchronized).
+* The GUI provides the best discoverability, for the casual or first time user.
+* The TUI provides speed for a power user at the cost of discoverability.
+* The CLI provides scripting capability and composability.

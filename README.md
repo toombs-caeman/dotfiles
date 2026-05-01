@@ -31,7 +31,6 @@ but I've not done that since the last major rewrite.
     * mac: `brew install git nushell`
 * `imbue` would need a custom configuration, with the installer set to either `winget install` or `brew install`
 
-
 # Manual Installation
 1. clone repository and run imbue hook
 ```
@@ -40,6 +39,7 @@ git clone git@github.com:toombs-caeman/dotfiles.git
 cd dotfiles
 bin/imbue with templates/nix.yaml
 ```
+
 # Preferred Applications
 This is stuff I don't usually use/install often,
 but I'd like to keep the list here so I don't forget about useful tools.
@@ -51,4 +51,4 @@ but I'd like to keep the list here so I don't forget about useful tools.
 * steam - gaming
 * xournalpp - pdf editing & signing
 * asciinema - terminal recording
-
+* docker - containers

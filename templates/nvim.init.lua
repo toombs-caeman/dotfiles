@@ -6,36 +6,27 @@
   TODO:
     * prefer standard keymaps
     * add keygroups where appropriate
-    * gr -> lsp actions
     * hook :Update into imbue?
     * [undotree?](https://github.com/mbbill/undotree)
     * show session name in statusline https://stackoverflow.com/questions/11374047/how-to-add-the-current-session-file-name-in-the-status-line-in-vim
+        * using mini.statusline
     * completion
+        * mini.completions sucks
         * mini.snippets
         * remove vim snippets, they are almost never what I want.
         * alternatively, change the keybind to accept a change
         * alternatively, replace with ollama complete (probably way too slow)
         * [cmp-ai](https://github.com/tzachar/cmp-ai)
         * [llm](https://github.com/huggingface/llm.nvim)
-        * [windsurf](https://github.com/Exafunction/windsurf.nvim)
     * nvim slop
         * [avante](https://github.com/yetone/avante.nvim)
         * ollama
         * [avante config](https://github.com/yetone/avante.nvim/pull/1543)
         * [mcphub](https://github.com/ravitemer/mcphub.nvim)
             * [avante+mcphub](https://ravitemer.github.io/mcphub.nvim/extensions/avante.html)
-    * standardize nvim-web-dev-icons vs mini.icons vs nerdfonts icons
     * nvim set noexpandtab for tsv
     * [image.nvim](https://github.com/3rd/image.nvim)
         * unbearably slow. need an alternative
-    * nvim colorscheme
-        * lush.nvim interactive colorscheme
-        * mini.colors 
-        * mini.hues (:colorscheme randomhue)
-        * mini.base16
-        * nvim use [colorscheme template](https://github.com/datsfilipe/nvim-colorscheme-template)
-        * [original spacedust](https://github.com/hallski/spacedust-theme)
-        * remember colorscheme in mini.sessions?
     * gdb + nvim-dap, align keybinds with nvim-lsp keys
     * integrate gg with nvim sessions?
     * database vim tpope/dadbod-vim
@@ -135,7 +126,7 @@ vim.keymap.set("n", "<A-space>", "<cmd>Pick buffers<cr>", { desc = "Fuzzy find b
 -- [[ find ]]
 vim.keymap.set("n", "<A-f>", "<cmd>Pick grep_live<cr>", { desc = "Fuzzy grep text" })
 
-vim.pack.add({"https://github.com/toombs-caeman/hexed.nvim"})
+vim.pack.add({ "https://github.com/toombs-caeman/hexed.nvim" })
 require('hexed').setup("<leader>h")
 
 -- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
@@ -227,7 +218,7 @@ vim.keymap.set("n", "<leader>gB", "<cmd>Gitsigns blame<CR>", { desc = "show full
 
 -- vim.pack.add({ "https://github.com/folke/tokyonight.nvim" })
 --vim.cmd.colorscheme("tokyonight-night")
-vim.pack.add({"https://github.com/toombs-caeman/spacedust.nvim"})
+vim.pack.add({ "https://github.com/toombs-caeman/spacedust.nvim" })
 vim.cmd.colorscheme("spacedust")
 
 vim.pack.add({ "https://github.com/echasnovski/mini.nvim" })
@@ -292,6 +283,11 @@ require("mini.starter").setup({ header = "", footer = "" })
 require("mini.splitjoin").setup({ mappings = { toggle = "sj" } })
 require("mini.statusline").setup({ use_icons = true })
 
+-- require("mini.completion").setup()
+-- vim.keymap.set('i', '<Tab>', (vim.fn.pumvisible() and '<C-n>' or '<Tab>'))
+-- vim.keymap.set('i', '<S-Tab>', (vim.fn.pumvisible() and '<C-p>' or '<S-Tab>'))
+-- vim.keymap.set('i', '<a-Tab>', (vim.fn.pumvisible() and '<C-y>' or '<a-Tab>'))
+
 vim.pack.add({
     "https://github.com/benomahony/uv.nvim", -- uv python package manager
 })
@@ -308,18 +304,10 @@ require("sudo").setup()
 vim.pack.add({
     "https://github.com/mfussenegger/nvim-dap", -- debugger
 })
-vim.keymap.set("n", "<leader>db", function()
-    require("dap").toggle_breakpoint()
-end, { desc = "Toggle Breakpoint" })
-vim.keymap.set("n", "<leader>dc", function()
-    require("dap").continue()
-end, { desc = "Continue" })
-vim.keymap.set("n", "<leader>dC", function()
-    require("dap").run_to_cursor()
-end, { desc = "Run to Cursor" })
-vim.keymap.set("n", "<leader>dt", function()
-    require("dap").terminate()
-end, { desc = "Terminate" })
+vim.keymap.set("n", "<leader>db", function() require("dap").toggle_breakpoint() end, { desc = "Toggle Breakpoint" })
+vim.keymap.set("n", "<leader>dc", function() require("dap").continue() end, { desc = "Continue" })
+vim.keymap.set("n", "<leader>dC", function() require("dap").run_to_cursor() end, { desc = "Run to Cursor" })
+vim.keymap.set("n", "<leader>dt", function() require("dap").terminate() end, { desc = "Terminate" })
 
 -- TODO completion, don't like "hrsh7th/nvim-cmp",
 --  try blink.cmp? https://dotfyle.com/plugins/saghen/blink.cmp
@@ -329,16 +317,19 @@ end, { desc = "Terminate" })
 -- ["<C-Space>"] = cmp.mapping.complete({}),
 
 -- automatically set up common LSP toolchains with default options
+-- :help LspInstall
+-- see :help lsp-defaults
 vim.pack.add({
     "https://github.com/neovim/nvim-lspconfig",
     "https://github.com/mason-org/mason-lspconfig.nvim",
     "https://github.com/mason-org/mason.nvim",
-    "https://github.com/stevearc/conform.nvim",
 })
-keygroup("gr", "LSP") -- see :help lsp-defaults
+keygroup("gr", "LSP")
 require("mason").setup()
 require("mason-lspconfig").setup()
 vim.keymap.set("n", "grq", vim.diagnostic.setloclist, { desc = "quickfix list" })
-vim.keymap.set("n", "grf", function()
-    require("conform").format({ async = true, lsp_format = "fallback" })
-end, { desc = "format buffer" })
+vim.keymap.set("n", "grf", vim.lsp.buf.format, { desc = "format buffer" })
+vim.keymap.set("n", "<a-n>", function() vim.diagnostic.jump({ count = 1 }) end, { desc = "jump to next diagnostic" })
+vim.keymap.set("n", "<a-N>", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "jump to previous diagnostic" })
+vim.keymap.set("n", "<a-x>", function() vim.diagnostic.open_float() end, { desc = "jump to previous diagnostic" })
+vim.keymap.set("n", "<a-w>", function() vim.lsp.buf.implementation() end, { desc = "Goto implementation" })

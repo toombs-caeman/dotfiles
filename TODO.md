@@ -1,8 +1,16 @@
 # TODO
 
 * update spacedust theme
-    * git gutter should be green for add, blue for change, red for delete
-    * use original theme as a guide for higroups
+    * git gutter colors are off, use + for add
+    * mini files has no color
+    * statusline
+    * rethink imbue colors?
+    * pywal, lushwal
+* ctrl-v fix in kitty has now made it impossible to enter block-visual mode
+* nvim
+    * completions
+        * mini.completion
+        * mini.snippets
 * update/trim THEORY.md, rice.md, README.md, etc.
 * test bootstrap
 * publicity
@@ -15,6 +23,9 @@
         * [awesome-nu](https://github.com/nushell/awesome-nu)
         * [nupm](https://github.com/nushell/nupm)
 * separate out coding experiments
+
+* status bar should be retro-futuristic themed? can we do TRON?
+    * sync waybar to nvim statusline aesthetics
 
 * https://github.com/toombs-caeman/treerat
 * https://github.com/toombs-caeman/homelab
