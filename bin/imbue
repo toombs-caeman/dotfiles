@@ -1,7 +1,7 @@
 #!/sbin/nu
 
 use std null-device
-use std log
+use std
 
 # TODO:
 # * bring in pywal or color thief
@@ -29,13 +29,13 @@ def main [
     let config = setup $config
     if $install {
         if ($config.installer | is-empty) {
-            log critical 'no installer configured'
+            std log critical 'no installer configured'
             exit 2
         }
         let packages = $config.commands.package | compact |  str join ' '
         if ($packages != '') { 
             let cmd = $"($config.installer) ($packages)"
-            log info $cmd
+            std log info $cmd
             nu -c $cmd
         }
     }
@@ -52,7 +52,7 @@ def main [
             where type == 'file' |
             get (random int ..(($in|length) - 1)) |
             get name
-        log info $'random theme: ($theme_path | path basename)'
+        std log info $'random theme: ($theme_path | path basename)'
         $theme_path
         } else {
         $config.themes | path join  $config.theme
@@ -67,12 +67,12 @@ def main [
             # skip rendering a file if the destination has an unexpected hash
             if not $force and ($render.to | path exists) {
                 if (open $render.to | hash md5) != $oldhash {
-                    log warning $'destination ($render.to) has unrecognized changes. skipping'
+                    std log warning $'destination ($render.to) has unrecognized changes. skipping'
                     return
                 }
             }
             if not ($render.from | path exists) {
-                log warning $'template ($render.to|path basename) not found. skipping'
+                std log warning $'template ($render.to|path basename) not found. skipping'
                 return
             }
             try {
@@ -82,7 +82,7 @@ def main [
 
                 # don't write the file if it hasn't changed
                 if $newhash != $oldhash or $force {
-                    log info $'($render.from | path basename) => ($render.to)'
+                    std log info $'($render.from | path basename) => ($render.to)'
                     # write file
                     mkdir ($render.to | path dirname)
                     $rendered | save -f $render.to
@@ -90,23 +90,23 @@ def main [
                     # record hash
                     return {$render.to: $newhash}
                 } else {
-                    log debug $'no change: ($render.to)'
+                    std log debug $'no change: ($render.to)'
                 }
             } catch {|err|
-                log warning $'render of "($render.from|path basename)" failed because of tag ($err.json | from json | get msg)'
+                std log warning $'render of "($render.from|path basename)" failed because of tag ($err.json | from json | get msg)'
                 return {}
             }
         } | reduce -f {} {|it acc|
-            log debug $'($it | describe) ($acc | describe)'
+            std log debug $'($it | describe) ($acc | describe)'
             $acc|merge $it}
         # wrap up with any callback
         if ($changes | is-not-empty) and ($command.callback | is-not-empty) {
-            log debug $'callback: ($command.callback)'
+            std log debug $'callback: ($command.callback)'
             nu -c $command.callback | complete
         }
         return $changes
     } | reduce -f {} {|it acc|
-        log debug $'($it | describe) ($acc | describe)'
+        std log debug $'($it | describe) ($acc | describe)'
 
         $acc|merge $it}
 
@@ -144,8 +144,8 @@ def --env setup [$configpath] {
         configpath: $configpath
         statepath: ($configpath | path parse | update extension 'state' | path join)
     }
-    log debug $'config: ($config.configpath)'
-    log debug $'state: ($config.statepath)'
+    std log debug $'config: ($config.configpath)'
+    std log debug $'state: ($config.statepath)'
     $config.state = try { open $config.statepath | from yaml } catch { {} }
 
     # if redirect to another file if requested.
@@ -163,7 +163,7 @@ def --env setup [$configpath] {
         }
     }
     if ($userdata.redirect? | is-not-empty) and ($userdata.redirect | path exists) {
-        log debug $'redirect: ($userdata.redirect)'
+        std log debug $'redirect: ($userdata.redirect)'
         $config.configpath = $userdata.redirect
         $userdata = open $config.configpath
     }
@@ -303,7 +303,7 @@ def 'main wall haven' [
                 stem: $img.id
                 extension:($img.path | path parse | get extension)
             } | path join
-            log info $img.id
+            std log info $img.id
             http get $img.path | save $file
         } | ignore
 }

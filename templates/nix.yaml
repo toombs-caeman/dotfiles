@@ -52,7 +52,7 @@ commands:
   hyprland: # window manager
     package: hyprland polkit brightnessctl
     files:
-      hyprland.conf: ~/.config/hypr/hyprland.conf
+      hyprland.lua: ~/.config/hypr/hyprland.lua
 
   swappy: # screenshot annotation
     package: swappy slurp grim

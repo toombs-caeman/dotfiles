@@ -222,6 +222,8 @@ vim.pack.add({ "https://github.com/toombs-caeman/spacedust.nvim" })
 -- vim.cmd.colorscheme("spacedust")
 vim.cmd.colorscheme("retrobox")
 
+vim.pack.add({"https://github.com/nvim-flutter/flutter-tools.nvim"})
+
 vim.pack.add({ "https://github.com/echasnovski/mini.nvim" })
 require("mini.misc").setup_restore_cursor()
 require("mini.misc").setup_termbg_sync()

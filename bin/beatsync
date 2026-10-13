@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# a simple script to unzip and correctly place downloaded Beat Saber maps
+
+in=(~/Downloads/beatsync/*.zip)
+out=~/.steam/steam/steamapps/common/Beat\ Saber/Beat\ Saber_Data/CustomLevels
+for file in "${in[@]}"; do
+    name="${file##*/}"
+    name="${name/.zip}"
+    sdir="$out/$name"
+    mkdir -p "$sdir"
+    unzip -ud "$sdir" "$file" >/dev/null
+    echo "$name"
+done

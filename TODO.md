@@ -23,6 +23,7 @@
         * [awesome-nu](https://github.com/nushell/awesome-nu)
         * [nupm](https://github.com/nushell/nupm)
 * separate out coding experiments
+    * make a code forge (repo+CI+bugtracker+identity?)
 
 * status bar should be retro-futuristic themed? can we do TRON?
     * sync waybar to nvim statusline aesthetics
